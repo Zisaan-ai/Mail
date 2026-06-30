@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Email Marketer</title>
+    <link rel="stylesheet" href="/assets/style.css?v=24">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Authentication View -->
+    <div id="auth-view" class="active">
+        <div class="auth-card glass">
+            <h2>Welcome Back</h2>
+            <p>Sign in to MailChimp Clone Pro</p>
+            
+            <div id="auth-alert" class="alert"></div>
+
+            <form id="auth-form" class="auth-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="auth-username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" required>
+                </div>
+                <button type="submit" class="btn primary full-width" id="auth-btn">Login</button>
+            </form>
+            <p style="margin-top: 20px; font-size: 0.8em; color: var(--text-muted); cursor: pointer;" id="toggle-auth">
+                Don't have an account? Register here.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App View -->
+    <div id="app-view">
+        <aside class="sidebar glass">
+            <div class="logo">
+                <i class="fa-solid fa-paper-plane"></i>
+                <h2>MailClone</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-target="contacts">
+                    <i class="fa-solid fa-users"></i> Audience
+                </a>
+                <a href="#" class="nav-item" data-target="campaigns">
+                    <i class="fa-solid fa-envelope-open-text"></i> Campaigns
+                </a>
+            </nav>
+            <div style="margin-top: auto;">
+                <button id="logout-btn" class="btn danger full-width"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view active">
+                <header>
+                    <h1>Dashboard</h1>
+                    <p>Overview of your marketing performance</p>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card glass">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Audience</h3>
+                            <p id="stat-contacts">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-icon"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                        <div class="stat-info">
+                            <h3>Emails Sent</h3>
+                            <p id="stat-sent">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-icon" style="color:var(--success); background:rgba(16,185,129,0.1);"><i class="fa-solid fa-eye"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Opens</h3>
+                            <p id="stat-opens">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-icon" style="color:#F59E0B; background:rgba(245,158,11,0.1);"><i class="fa-solid fa-hand-pointer"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Clicks</h3>
+                            <p id="stat-clicks">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Recent Campaigns</h2>
+                <div class="table-container glass">
+                    <table id="dashboard-campaigns">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Sent</th>
+                                <th>Opens</th>
+                                <th>Clicks</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Contacts View -->
+            <section id="contacts" class="view">
+                <header>
+                    <div>
+                        <h1>Audience</h1>
+                        <p>Manage your contacts and tags</p>
+                    </div>
+                </header>
+                
+                <div class="card glass">
+                    <h3>Add Contact</h3>
+                    <form id="contact-form" style="display:flex; gap:10px; margin-top:15px; align-items:flex-end;">
+                        <div class="form-group" style="margin:0; flex:1;">
+                            <label>Name</label>
+                            <input type="text" id="contact-name" placeholder="Optional">
+                        </div>
+                        <div class="form-group" style="margin:0; flex:1;">
+                            <label>Email</label>
+                            <input type="email" id="contact-email" required>
+                        </div>
+                        <div class="form-group" style="margin:0; flex:1;">
+                            <label>Tags (Comma separated)</label>
+                            <input type="text" id="contact-tags" placeholder="e.g. VIP, Client">
+                        </div>
+                        <button type="submit" class="btn primary">Add</button>
+                    </form>
+                </div>
+
+                <div class="table-container glass">
+                    <table id="contacts-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Tags</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Campaigns View -->
+            <section id="campaigns" class="view">
+                <header>
+                    <h1>Create Campaign</h1>
+                    <p>Design and blast your email campaign</p>
+                </header>
+                
+                <!-- Tabs -->
+                <div class="campaign-tabs" style="margin-bottom: 20px; border-bottom: 2px solid var(--border-color); display: flex; gap: 20px;">
+                    <button class="tab-btn active" data-tab="tab-instantly" style="background:none; border:none; padding:10px 0; font-size:16px; font-weight:600; cursor:pointer; color:var(--primary); border-bottom: 2px solid var(--primary); margin-bottom:-2px; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-bolt"></i> Cold Email Builder
+                    </button>
+                    <button class="tab-btn" data-tab="tab-mailchimp" style="background:none; border:none; padding:10px 0; font-size:16px; font-weight:600; cursor:pointer; color:var(--text-muted); border-bottom: 2px solid transparent; margin-bottom:-2px; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-paintbrush"></i> Visual Newsletter Builder
+                    </button>
+                </div>
+                
+                <!-- Cold Email Tab -->
+                <div id="tab-instantly" class="tab-content active" style="display: block;">
+                    
+                    <!-- Cold Email Sub-Navigation -->
+                    <div class="instantly-subnav" style="display: flex; gap: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                        <a href="#" class="inst-nav" data-target="inst-analytics" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Analytics</a>
+                        <a href="#" class="inst-nav" data-target="inst-leads" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Leads</a>
+                        <a href="#" class="inst-nav active" data-target="inst-sequences" style="text-decoration:none; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:15px; margin-bottom:-16px; font-weight:600;">Sequences</a>
+                        <a href="#" class="inst-nav" data-target="inst-schedule" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Schedule</a>
+                        <a href="#" class="inst-nav" data-target="inst-options" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Options</a>
+                    </div>
+                    
+                    <!-- Analytics View (Dummy) -->
+                    <div id="inst-analytics" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <h3 style="margin-bottom: 20px; font-weight: 600; font-size: 1.2em;">Campaign Analytics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 600; color: var(--primary);">0</div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Contacted</div>
+                            </div>
+                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 600; color: #10B981;">0%</div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Open Rate</div>
+                            </div>
+                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 600; color: #3B82F6;">0%</div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Reply Rate</div>
+                            </div>
+                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 600; color: #F59E0B;">0%</div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Click Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leads View -->
+                    <div id="inst-leads" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div>
+                                <h3 style="font-weight: 600; font-size: 1.2em;">Campaign Leads</h3>
+                                <p style="font-size:12px; color:var(--text-muted);">Leads added here are isolated to this specific campaign.</p>
+                            </div>
+                            <button class="btn" style="border: 1px solid var(--border-color);" onclick="document.getElementById('inst-add-lead-modal').style.display='flex'">
+                                <i class="fa-solid fa-plus"></i> Add Lead
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="table" id="inst-campaign-leads-table" style="display:none;">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inst-campaign-leads-tbody">
+                                    <!-- Leads will be dynamically added here -->
+                                </tbody>
+                            </table>
+                            <div id="inst-no-leads-msg" style="text-align:center; padding: 40px 20px; color:var(--text-muted);">
+                                No leads added to this campaign yet.
+                            </div>
+                        </div>
+                        
+                        <!-- Add Lead Modal -->
+                        <div id="inst-add-lead-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+                            <div style="background:#fff; padding:25px; border-radius:8px; width:400px; max-width:90%;">
+                                <h3 style="margin-bottom:20px;">Add Campaign Lead</h3>
+                                <div class="form-group" style="margin-bottom:15px;">
+                                    <label>Email *</label>
+                                    <input type="email" id="inst-lead-email" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:20px;">
+                                    <label>Name</label>
+                                    <input type="text" id="inst-lead-name" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                                </div>
+                                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                                    <button class="btn" onclick="document.getElementById('inst-add-lead-modal').style.display='none'">Cancel</button>
+                                    <button class="btn primary" id="inst-save-lead-btn">Add Lead</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sequences View (Active) -->
+                    <div id="inst-sequences" class="inst-view active" style="display:flex; height: 600px; border: 1px solid var(--border-color); background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        
+                        <!-- Left Sidebar: Steps -->
+                        <div class="inst-steps-sidebar" style="width: 250px; background: #F9FAFB; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                            <div style="padding: 15px; font-weight: 600; border-bottom: 1px solid var(--border-color); color:var(--mc-black);">Steps</div>
+                            <div id="inst-steps-list" style="flex: 1; overflow-y: auto;">
+                                <!-- Step 1 (Default) -->
+                                <div class="inst-step-item active" data-step="1" style="padding: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; background: #fff; border-left: 3px solid var(--primary);">
+                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Step 1</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Day 1</div>
+                                </div>
+                            </div>
+                            <div style="padding: 15px; border-top: 1px solid var(--border-color); background: #fff;">
+                                <button type="button" id="inst-add-step" class="btn" style="width: 100%; border-style: dashed; color: var(--primary);"><i class="fa-solid fa-plus"></i> Add Step</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Area: Editor -->
+                        <div class="inst-editor-area" style="flex: 1; display: flex; flex-direction: column; padding: 20px; background: #fff;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                                <h3 id="inst-current-step-title" style="font-size:1.2em; font-weight: 500; margin:0;">Step 1</h3>
+                                <div id="inst-wait-container" style="display:none; align-items:center; gap:10px; font-size:14px; color:var(--text-main);">
+                                    Wait <input type="number" id="inst-wait-days" value="2" min="1" style="width:60px; padding:5px; border:1px solid #ccc; border-radius:4px; text-align:center;"> days
+                                </div>
+                            </div>
+                            
+                            <input type="text" id="instantly-subject" placeholder="Subject" style="width: 100%; border: none; border-bottom: 1px solid #E5E7EB; padding: 10px 0; font-size: 16px; margin-bottom: 15px; outline: none; transition: border-color 0.2s;">
+                            
+                            <!-- Editor Toolbar -->
+                            <div class="inst-toolbar" style="display: flex; gap: 8px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #E5E7EB;">
+                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('bold',false,null)" title="Bold"><i class="fa-solid fa-bold"></i></button>
+                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('italic',false,null)" title="Italic"><i class="fa-solid fa-italic"></i></button>
+                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('createLink',false,prompt('URL:'))" title="Add Link"><i class="fa-solid fa-link"></i></button>
+                                <div style="width: 1px; background: #E5E7EB; margin: 0 5px;"></div>
+                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent; color: var(--primary);" id="inst-var-btn"><i class="fa-solid fa-code"></i> Insert Variable</button>
+                            </div>
+                            
+                            <!-- Editor Body -->
+                            <div id="instantly-body" contenteditable="true" style="flex: 1; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;"></div>
+                            
+                            <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; border-top: 1px solid #E5E7EB; padding-top: 15px;">
+                                <div id="instantly-status" style="display:none; font-size:14px; font-weight:500;"></div>
+                                <button type="button" class="btn primary btn-large" id="instantly-send-btn" style="border-radius: 6px;">
+                                    <i class="fa-solid fa-paper-plane"></i> Launch Sequence
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule View -->
+                    <div id="inst-schedule" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="max-width: 500px; margin: 0 auto;">
+                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Campaign Schedule</h3>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 500;">Timezone</label>
+                                <select class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
+                                    <option>UTC (Universal Coordinated Time)</option>
+                                    <option>EST (Eastern Standard Time)</option>
+                                    <option>PST (Pacific Standard Time)</option>
+                                    <option selected>Asia/Dhaka (BDT)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 500;">Sending Days</label>
+                                <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Mon</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Tue</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Wed</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Thu</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Fri</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox"> Sat</label>
+                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox"> Sun</label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 25px;">
+                                <label style="font-weight: 500;">Sending Time</label>
+                                <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
+                                    <input type="time" value="09:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
+                                    <span style="color:var(--text-muted);">to</span>
+                                    <input type="time" value="17:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
+                                </div>
+                            </div>
+                            <button class="btn primary" style="border-radius: 4px;">Save Schedule</button>
+                        </div>
+                    </div>
+
+                    <!-- Options View -->
+                    <div id="inst-options" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="max-width: 500px; margin: 0 auto;">
+                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Campaign Options</h3>
+                            <div class="form-group" style="margin-bottom: 15px; display:flex; align-items:center; justify-content:space-between;">
+                                <div>
+                                    <label style="font-weight: 600; margin-bottom: 3px; display:block;">Stop on Reply</label>
+                                    <span style="font-size: 12px; color: var(--text-muted);">Automatically stop sending follow-ups if a lead replies.</span>
+                                </div>
+                                <input type="checkbox" checked style="width:18px; height:18px; cursor:pointer;">
+                            </div>
+                            <hr style="border-top:1px solid #E5E7EB; margin: 20px 0;">
+                            <div class="form-group" style="margin-bottom: 15px; display:flex; align-items:center; justify-content:space-between;">
+                                <div>
+                                    <label style="font-weight: 600; margin-bottom: 3px; display:block;">Track Opens & Link Clicks</label>
+                                    <span style="font-size: 12px; color: var(--text-muted);">Insert a tracking pixel to monitor engagement.</span>
+                                </div>
+                                <input type="checkbox" checked style="width:18px; height:18px; cursor:pointer;">
+                            </div>
+                            <hr style="border-top:1px solid #E5E7EB; margin: 20px 0;">
+                            <div class="form-group" style="margin-bottom: 25px;">
+                                <label style="font-weight: 600;">Daily Sending Limit</label>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Max emails to send per day for this campaign to avoid spam filters.</p>
+                                <input type="number" value="50" style="width: 100px; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
+                            </div>
+                            <button class="btn primary" style="border-radius: 4px;">Save Options</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Builder Tab -->
+                <div id="tab-mailchimp" class="tab-content" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Subject Line</label>
+                        <input type="text" id="campaign-subject" required placeholder="Enter your email subject...">
+                    </div>
+
+                <div class="builder-container">
+                    <!-- Builder Canvas -->
+                    <div class="builder-canvas-wrapper">
+                        <!-- Device Preview Toggle -->
+                        <div class="device-toggle" style="text-align: center; margin-bottom: 15px;">
+                            <div class="btn-group" style="display: inline-flex; background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 5px;">
+                                <button type="button" class="btn active" id="preview-desktop" style="background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-desktop"></i> Desktop</button>
+                                <button type="button" class="btn" id="preview-mobile" style="background: transparent; color: var(--text-color); border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-mobile-screen"></i> Mobile</button>
+                            </div>
+                        </div>
+
+                        <div class="email-wrapper" id="builder-canvas">
+                            <div class="canvas-placeholder">Drag blocks here to build your email</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Builder Sidebar -->
+                    <div class="builder-sidebar glass">
+                        <!-- Block Palette -->
+                        <div id="block-palette">
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Premade Templates</label>
+                                <select id="premade-templates">
+                                    <option value="">-- Choose Template --</option>
+                                    <optgroup label="Featured">
+                                        <option value="sell_products">Sell Products</option>
+                                        <option value="make_announcement">Make an Announcement</option>
+                                        <option value="newsletter">Weekly Newsletter</option>
+                                        <option value="welcome_email">Welcome Subscribers</option>
+                                    </optgroup>
+                                    <optgroup label="Plain Text">
+                                        <option value="cold_email">Cold Outreach</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <h3>Blocks</h3>
+                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="text">
+                                <i class="fa-solid fa-font"></i> Text
+                            </div>
+                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="image">
+                                <i class="fa-solid fa-image"></i> Image
+                            </div>
+                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="button">
+                                <i class="fa-solid fa-link"></i> Button
+                            </div>
+                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="divider">
+                                <i class="fa-solid fa-minus"></i> Divider
+                            </div>
+                            
+                            <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                                <h3>Global Settings</h3>
+                                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label style="margin:0;">Email Background Color</label>
+                                    <input type="color" id="global-bg-color" value="#FFFFFF" style="width:40px; height:40px; cursor:pointer; padding:0; border:none; border-radius:4px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Property Editor -->
+                        <div id="property-editor" style="display: none; margin-top: 30px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <div style="display:flex; align-items:center; gap: 10px;">
+                                    <button type="button" class="btn" style="padding: 5px 10px; font-size: 14px;" id="back-to-palette-btn"><i class="fa-solid fa-arrow-left"></i></button>
+                                    <h3 style="margin: 0;">Edit Block</h3>
+                                </div>
+                                <button type="button" class="btn danger" style="padding: 5px 10px;" id="delete-block-btn"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                            <div id="property-fields"></div>
+                            <button type="button" class="btn primary full-width" style="margin-top: 15px;" id="save-block-btn">Done</button>
+                        </div>
+
+                        <div style="margin-top: auto; padding-top: 30px;">
+                            <button type="button" class="btn primary btn-large full-width" id="send-btn">
+                                <i class="fa-solid fa-paper-plane"></i> Blast Campaign
+                            </button>
+                            <div id="campaign-status" class="alert" style="margin-top:10px;"></div>
+                        </div>
+                    </div>
+                </div> <!-- End MailChimp Tab -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" style="position: fixed; bottom: -100px; right: 20px; background: #241C15; color: white; padding: 15px 25px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: bottom 0.3s ease; z-index: 1000; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-circle-check" style="color: #10B981;"></i> <span id="toast-msg"></span>
+    </div>
+
+    <script src="/assets/app.js?v=24"></script>
+</body>
+</html>

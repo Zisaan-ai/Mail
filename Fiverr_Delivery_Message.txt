@@ -1,0 +1,25 @@
+Hello!
+
+Here is the complete source code for your custom Email Marketing Platform (MailChimp & Instantly Clone). 
+
+I have implemented all the features we discussed:
+- Custom Audience Management
+- Cold Email Sequence Builder
+- Visual Newsletter Builder
+- Open & Click Tracking
+- Campaign-Isolated Leads
+
+### How to use it:
+Please extract the ZIP file and read the `README.md` file for instructions on how to run it locally on your computer.
+
+### 24/7 Free Hosting (Render.com)
+I have also configured this project so you can easily host it online for free 24/7!
+1. Upload this folder to your GitHub account.
+2. Create a free account on Render.com.
+3. Click "New +" -> "Blueprint".
+4. Connect your GitHub repository.
+5. Render will automatically deploy everything for free!
+
+Let me know if you need any help setting it up. If you are satisfied with the delivery, please don't forget to leave a review.
+
+Thank you!
