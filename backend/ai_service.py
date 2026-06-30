@@ -8,7 +8,7 @@ if api_key:
     genai.configure(api_key=api_key)
 
 # We use the free gemini-1.5-flash model, which is fast and very capable.
-MODEL_NAME = "gemini-1.5-flash"
+MODEL_NAME = "gemini-1.5-flash-latest"
 
 def generate_email_content(prompt: str) -> str:
     """Generates an email body based on the user's prompt."""
