@@ -32,7 +32,36 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
     body_text = soup.get_text(separator="\n").strip()
 
     try:
-        # Set up the SMTP server with a timeout
+        # Check if using Brevo API Key
+        if SMTP_PASSWORD.startswith("xkeysib-"):
+            import requests
+            headers = {
+                "accept": "application/json",
+                "api-key": SMTP_PASSWORD,
+                "content-type": "application/json"
+            }
+            for recipient in recipients:
+                payload = {
+                    "sender": {"email": SMTP_USERNAME, "name": "Admin"},
+                    "to": [{"email": recipient}],
+                    "subject": subject,
+                    "htmlContent": body_html,
+                    "textContent": body_text
+                }
+                try:
+                    res = requests.post("https://api.brevo.com/v3/smtp/email", json=payload, headers=headers, timeout=10)
+                    if res.status_code in [200, 201, 202]:
+                        success_count += 1
+                        print(f"Sent successfully to {recipient} via Brevo")
+                    else:
+                        print(f"Failed to send to {recipient} via Brevo: {res.text}")
+                        raise Exception(f"Brevo Error: {res.text}")
+                except Exception as e:
+                    print(f"Brevo Connection failed: {e}")
+                    raise e
+            return success_count
+
+        # Otherwise, fall back to standard SMTP
         if int(SMTP_PORT) == 465:
             server = smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT), timeout=5)
         else:
@@ -67,7 +96,7 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
 
         server.quit()
     except Exception as e:
-        print(f"SMTP Connection failed: {e}")
+        print(f"Email Connection failed: {e}")
         raise e
 
     return success_count
