@@ -1138,26 +1138,25 @@ window.removeCampaignLead = function(index) {
 };
 
 document.getElementById('inst-save-lead-btn').addEventListener('click', () => {
-    const emailInput = document.getElementById('inst-lead-email');
-    const nameInput = document.getElementById('inst-lead-name');
+    const emailsText = document.getElementById('inst-lead-emails').value;
     
-    const email = emailInput.value.trim();
-    const name = nameInput.value.trim();
+    // Split by comma or newline and filter out empty strings
+    const emails = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => e);
     
-    if(!email) {
-        alert("Email is required");
+    if(emails.length === 0) {
+        alert("Please enter at least one email");
         return;
     }
     
-    if(currentCampaignLeads.find(l => l.email === email)) {
-        alert("Lead already added to this campaign.");
-        return;
-    }
+    let added = 0;
+    emails.forEach(email => {
+        if(!currentCampaignLeads.find(l => l.email === email)) {
+            currentCampaignLeads.push({ email, name: '' });
+            added++;
+        }
+    });
     
-    currentCampaignLeads.push({ email, name });
-    
-    emailInput.value = '';
-    nameInput.value = '';
+    document.getElementById('inst-lead-emails').value = '';
     document.getElementById('inst-add-lead-modal').style.display = 'none';
     
     renderCampaignLeads();

@@ -321,13 +321,9 @@
                         <div id="inst-add-lead-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
                             <div style="background:#fff; padding:25px; border-radius:8px; width:400px; max-width:90%;">
                                 <h3 style="margin-bottom:20px;">Add Campaign Lead</h3>
-                                <div class="form-group" style="margin-bottom:15px;">
-                                    <label>Email *</label>
-                                    <input type="email" id="inst-lead-email" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" required>
-                                </div>
                                 <div class="form-group" style="margin-bottom:20px;">
-                                    <label>Name</label>
-                                    <input type="text" id="inst-lead-name" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                                    <label>Emails (comma or newline separated)</label>
+                                    <textarea id="inst-lead-emails" class="form-control" rows="6" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-family: monospace;" placeholder="john@example.com, jane@example.com"></textarea>
                                 </div>
                                 <div style="display:flex; justify-content:flex-end; gap:10px;">
                                     <button class="btn" onclick="document.getElementById('inst-add-lead-modal').style.display='none'">Cancel</button>
@@ -689,6 +685,6 @@
         </div>
     </div>
 
-    <script src="/assets/app.js?v=31"></script>
+    <script src="/assets/app.js?v=32"></script>
 </body>
 </html>
