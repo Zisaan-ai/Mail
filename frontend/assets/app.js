@@ -16,7 +16,7 @@ const views = document.querySelectorAll('.view');
 const authForm = document.getElementById('auth-form');
 const authAlert = document.getElementById('auth-alert');
 const toggleAuthBtn = document.getElementById('toggle-auth');
-let isLoginMode = true;
+window.isLoginMode = true;
 
 function checkAuth() {
     if (token) {
