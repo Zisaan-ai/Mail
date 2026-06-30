@@ -3,292 +3,522 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MailClone - Email Marketing Platform</title>
-    <link rel="stylesheet" href="/assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>MailClone — Premium Email Marketing Platform</title>
+    <meta name="description" content="AI-powered email marketing platform. Send smarter, reach farther, convert better.">
+    <link rel="stylesheet" href="/assets/style.css?v=36">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- ============================================================
-         AUTH STYLES - completely self-contained, no external deps
-         ============================================================ -->
     <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #0f0f1a; }
+    /* ============================================================
+       AUTH PAGE — PREMIUM INLINE STYLES
+       Self-contained: no dependency on style.css or app.js
+       ============================================================ */
+    :root {
+        --p: #6366f1; --pl: #818cf8; --pd: #4f46e5;
+        --g: #10b981; --gl: #34d399;
+        --bg: #080812; --s1: #0e0e1c; --s2: #13131f; --s3: #1a1a2e;
+        --b: rgba(255,255,255,0.07); --bh: rgba(255,255,255,0.14);
+        --t: #f0f0ff; --tm: #7c7ca8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t); -webkit-font-smoothing: antialiased; }
+
+    /* ---- WAKE OVERLAY ---- */
+    #wake-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(8,8,18,0.97); z-index: 99999;
+        flex-direction: column; align-items: center; justify-content: center;
+    }
+    #wake-overlay.on { display: flex; }
+    .wake-spinner {
+        width: 48px; height: 48px;
+        border: 3px solid rgba(99,102,241,0.2);
+        border-top-color: var(--p);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-top: 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---- AUTH PAGE ---- */
     #auth-page {
-        display: flex;
-        height: 100vh;
-        overflow: hidden;
+        display: flex; height: 100vh; overflow: hidden;
+        background: var(--bg);
     }
     #auth-page.hidden { display: none; }
 
-    /* Left branding side */
+    /* LEFT: cinematic gradient panel */
     .auth-left {
-        flex: 1.3;
-        background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 60px;
+        flex: 1.2;
         position: relative;
+        display: flex; align-items: center; justify-content: center;
+        padding: 64px;
         overflow: hidden;
+        background: var(--s1);
     }
+    /* Animated gradient blobs */
     .auth-left::before {
         content: '';
         position: absolute;
-        width: 500px; height: 500px;
-        background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
+        width: 700px; height: 700px;
+        background: radial-gradient(ellipse, rgba(99,102,241,0.18) 0%, transparent 65%);
+        top: -100px; left: -100px;
+        animation: blobFloat1 12s ease-in-out infinite;
     }
-    .auth-brand { position: relative; z-index: 1; max-width: 460px; }
+    .auth-left::after {
+        content: '';
+        position: absolute;
+        width: 500px; height: 500px;
+        background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 60%);
+        bottom: -80px; right: -80px;
+        animation: blobFloat2 10s ease-in-out infinite;
+    }
+    @keyframes blobFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+    @keyframes blobFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-25px)} }
+
+    /* Grid lines decoration */
+    .auth-left-grid {
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+    }
+
+    .auth-brand {
+        position: relative; z-index: 2;
+        max-width: 480px;
+    }
     .auth-brand-logo {
         display: flex; align-items: center; gap: 14px;
-        margin-bottom: 52px;
+        margin-bottom: 56px;
     }
-    .auth-brand-logo i { font-size: 30px; color: #a5b4fc; }
-    .auth-brand-logo span { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+    .auth-brand-logo .logo-icon {
+        width: 48px; height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--p), var(--pl));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: #fff;
+        box-shadow: 0 8px 24px rgba(99,102,241,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .auth-brand-logo .logo-name {
+        font-size: 24px; font-weight: 900;
+        letter-spacing: -0.5px;
+        background: linear-gradient(90deg, #fff, var(--pl));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
     .auth-brand h1 {
-        font-size: 2.8rem; font-weight: 800; color: #fff;
-        line-height: 1.2; margin-bottom: 20px; letter-spacing: -1px;
+        font-size: clamp(2rem, 3vw, 3rem);
+        font-weight: 900; line-height: 1.15;
+        letter-spacing: -1.5px; color: #fff;
+        margin-bottom: 20px;
     }
     .auth-brand h1 em {
         font-style: normal;
-        background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+        background: linear-gradient(90deg, var(--pl), #c4b5fd, var(--pl));
+        background-size: 200%;
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        animation: shimmer 4s linear infinite;
     }
-    .auth-brand p { color: #a5b4fc; font-size: 1rem; line-height: 1.7; margin-bottom: 52px; }
-    .auth-stats { display: flex; gap: 40px; }
-    .auth-stat-num { font-size: 2rem; font-weight: 800; color: #e0e7ff; }
-    .auth-stat-label { font-size: 0.72rem; color: #818cf8; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+    .auth-brand p {
+        color: rgba(165,180,252,0.75);
+        font-size: 15px; line-height: 1.75;
+        margin-bottom: 56px;
+    }
+    .auth-stats { display: flex; gap: 0; }
+    .auth-stat {
+        flex: 1;
+        padding: 20px 24px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 0;
+    }
+    .auth-stat:first-child { border-radius: 12px 0 0 12px; }
+    .auth-stat:last-child { border-radius: 0 12px 12px 0; border-left: none; }
+    .auth-stat:not(:first-child):not(:last-child) { border-left: none; }
+    .auth-stat-num {
+        font-size: 1.8rem; font-weight: 900; color: #e0e7ff;
+        letter-spacing: -0.5px; line-height: 1;
+        margin-bottom: 4px;
+    }
+    .auth-stat-label {
+        font-size: 10px; color: var(--pl);
+        text-transform: uppercase; letter-spacing: 0.1em;
+    }
 
-    /* Right form side */
+    /* Feature badges */
+    .auth-features { display: flex; flex-direction: column; gap: 16px; margin-top: 48px; }
+    .auth-feature {
+        display: flex; align-items: center; gap: 14px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px; padding: 14px 18px;
+        transition: all 0.3s ease;
+    }
+    .auth-feature:hover { background: rgba(99,102,241,0.07); border-color: rgba(99,102,241,0.2); }
+    .auth-feature-icon {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(129,140,248,0.2));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; color: var(--pl); flex-shrink: 0;
+    }
+    .auth-feature-text { font-size: 13px; color: rgba(165,180,252,0.8); font-weight: 500; }
+
+    /* RIGHT: Form panel */
     .auth-right {
         flex: 1;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
+        background: var(--s1);
+        border-left: 1px solid var(--b);
+        display: flex; align-items: center; justify-content: center;
+        padding: 48px 48px;
         overflow-y: auto;
     }
-    .auth-card { width: 100%; max-width: 400px; }
-
-    /* Mode indicator icon */
-    .auth-mode-icon {
-        width: 64px; height: 64px;
-        border-radius: 18px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 26px; color: #fff;
-        margin: 0 auto 18px;
-        transition: background 0.3s;
+    .auth-card {
+        width: 100%; max-width: 420px;
+        animation: authCardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
     }
-    .auth-mode-icon.login-icon { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 8px 24px rgba(99,102,241,0.4); }
-    .auth-mode-icon.signup-icon { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 8px 24px rgba(5,150,105,0.4); }
+    @keyframes authCardIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-    .auth-card-title { font-size: 1.7rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 6px; }
-    .auth-card-sub { font-size: 0.88rem; color: #6b7280; text-align: center; margin-bottom: 28px; }
+    /* Icon */
+    .auth-mode-icon {
+        width: 64px; height: 64px; border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #fff;
+        margin: 0 auto 20px;
+        transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .auth-mode-icon.login-icon {
+        background: linear-gradient(135deg, var(--p), var(--pl));
+        box-shadow: 0 10px 30px rgba(99,102,241,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .auth-mode-icon.signup-icon {
+        background: linear-gradient(135deg, #059669, var(--g));
+        box-shadow: 0 10px 30px rgba(16,185,129,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+    }
 
-    /* Tab buttons */
+    .auth-card-title {
+        font-size: 1.75rem; font-weight: 800;
+        color: var(--t); text-align: center;
+        margin-bottom: 6px; letter-spacing: -0.5px;
+    }
+    .auth-card-sub { font-size: 14px; color: var(--tm); text-align: center; margin-bottom: 32px; }
+
+    /* Tabs */
     .auth-tabs {
-        display: flex; background: #f1f5f9;
-        border-radius: 10px; padding: 4px; margin-bottom: 26px;
+        display: flex;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--b);
+        border-radius: 12px; padding: 4px;
+        margin-bottom: 28px;
+        gap: 4px;
     }
     .auth-tab {
-        flex: 1; padding: 10px 0;
+        flex: 1; padding: 11px 0;
         border: none; background: transparent;
         font-size: 14px; font-weight: 600;
-        color: #94a3b8; cursor: pointer;
-        border-radius: 8px; transition: all 0.2s;
+        color: var(--tm); cursor: pointer;
+        border-radius: 9px;
+        transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         font-family: 'Inter', sans-serif;
     }
-    .auth-tab.on { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .auth-tab:hover { color: var(--t); background: rgba(255,255,255,0.04); }
+    .auth-tab.on {
+        background: linear-gradient(135deg, var(--p), var(--pl));
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+    }
 
     /* Forms */
     .auth-form { display: none; }
-    .auth-form.on { display: block; }
+    .auth-form.on { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
     .auth-alert {
-        padding: 12px 16px; border-radius: 8px; font-size: 14px;
-        margin-bottom: 16px; display: none;
+        padding: 12px 16px; border-radius: 10px; font-size: 13px;
+        font-weight: 500; margin-bottom: 16px; display: none;
     }
-    .auth-alert.err { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
-    .auth-alert.ok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+    .auth-alert.err {
+        background: rgba(239,68,68,0.1); color: #f87171;
+        border: 1px solid rgba(239,68,68,0.2); display: flex;
+        align-items: center; gap: 8px;
+    }
+    .auth-alert.ok {
+        background: rgba(16,185,129,0.1); color: var(--gl);
+        border: 1px solid rgba(16,185,129,0.2); display: flex;
+        align-items: center; gap: 8px;
+    }
 
+    /* Field */
     .fld { margin-bottom: 16px; }
-    .fld label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px; }
-    .fld-wrap { position: relative; }
-    .fld-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; pointer-events: none; }
-    .fld-wrap input {
-        width: 100%; padding: 13px 13px 13px 40px;
-        border: 2px solid #e2e8f0; border-radius: 10px;
-        font-size: 15px; font-family: 'Inter', sans-serif;
-        outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-        color: #111827;
+    .fld label {
+        display: block; font-size: 12px; font-weight: 700;
+        color: var(--tm); margin-bottom: 8px;
+        text-transform: uppercase; letter-spacing: 0.06em;
     }
-    .fld-wrap input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .fld-wrap { position: relative; }
+    .fld-wrap i {
+        position: absolute; left: 14px; top: 50%;
+        transform: translateY(-50%); color: var(--tm);
+        font-size: 14px; pointer-events: none; z-index: 1;
+    }
+    .fld-wrap input {
+        width: 100%; padding: 13px 14px 13px 42px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--b); border-radius: 12px;
+        font-size: 14px; font-family: 'Inter', sans-serif;
+        outline: none; color: var(--t);
+        transition: all 0.2s ease;
+    }
+    .fld-wrap input::placeholder { color: var(--tm); }
+    .fld-wrap input:focus {
+        border-color: var(--p);
+        background: rgba(99,102,241,0.05);
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
 
-    .forgot-link { display: block; text-align: right; font-size: 13px; color: #6366f1; text-decoration: none; margin-bottom: 20px; margin-top: -8px; }
+    .forgot-link {
+        display: block; text-align: right; font-size: 12px;
+        color: var(--pl); text-decoration: none;
+        margin-bottom: 20px; margin-top: -4px; font-weight: 600;
+        cursor: pointer; letter-spacing: 0.02em;
+    }
     .forgot-link:hover { text-decoration: underline; }
 
+    /* Button */
     .auth-btn {
         width: 100%; padding: 14px;
-        border: none; border-radius: 10px;
-        font-size: 16px; font-weight: 700;
+        border: none; border-radius: 12px;
+        font-size: 15px; font-weight: 700;
         color: #fff; cursor: pointer;
         display: flex; align-items: center; justify-content: center; gap: 10px;
         font-family: 'Inter', sans-serif;
-        transition: opacity 0.2s, transform 0.1s;
+        transition: all 0.2s ease;
+        position: relative; overflow: hidden;
     }
-    .auth-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .auth-btn::after {
+        content: '';
+        position: absolute; inset: 0;
+        background: linear-gradient(rgba(255,255,255,0.1), transparent);
+        pointer-events: none;
+    }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
     .auth-btn:active { transform: translateY(0); }
-    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .auth-btn.login-btn { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
-    .auth-btn.signup-btn { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 14px rgba(5,150,105,0.35); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .auth-btn.login-btn {
+        background: linear-gradient(135deg, var(--p) 0%, var(--pl) 100%);
+        box-shadow: 0 6px 20px rgba(99,102,241,0.45);
+    }
+    .auth-btn.signup-btn {
+        background: linear-gradient(135deg, #059669 0%, var(--g) 100%);
+        box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+    }
 
-    .auth-switch { text-align: center; margin-top: 20px; font-size: 14px; color: #6b7280; }
-    .auth-switch a { color: #6366f1; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .auth-switch { text-align: center; margin-top: 22px; font-size: 14px; color: var(--tm); }
+    .auth-switch a { color: var(--pl); font-weight: 700; text-decoration: none; cursor: pointer; }
     .auth-switch a:hover { text-decoration: underline; }
 
-    /* Verification box */
+    /* Divider */
+    .auth-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 20px 0; color: var(--tm); font-size: 12px;
+    }
+    .auth-divider::before, .auth-divider::after {
+        content: ''; flex: 1; height: 1px;
+        background: var(--b);
+    }
+
+    /* Verify box */
     #verify-box { display: none; text-align: center; }
-    #verify-box.on { display: block; }
+    #verify-box.on { display: block; animation: fadeIn 0.3s ease; }
     .verify-code-input {
-        width: 100%; padding: 16px; font-size: 24px;
-        text-align: center; letter-spacing: 8px;
-        border: 2px solid #e2e8f0; border-radius: 10px;
+        width: 100%; padding: 18px; font-size: 28px;
+        text-align: center; letter-spacing: 12px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--b); border-radius: 12px;
         outline: none; margin-bottom: 16px;
-        font-family: 'Inter', sans-serif; color: #111827;
+        font-family: 'Inter', sans-serif; color: var(--t);
+        font-weight: 800;
     }
-    .verify-code-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .verify-code-input:focus { border-color: var(--p); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
 
-    /* Forgot password box */
+    /* Forgot box */
     #forgot-box { display: none; text-align: center; }
-    #forgot-box.on { display: block; }
+    #forgot-box.on { display: block; animation: fadeIn 0.3s ease; }
     .plain-input {
-        width: 100%; padding: 13px 16px; font-size: 15px;
-        border: 2px solid #e2e8f0; border-radius: 10px;
-        outline: none; margin-bottom: 14px;
-        font-family: 'Inter', sans-serif; color: #111827;
+        width: 100%; padding: 13px 16px; font-size: 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--b); border-radius: 12px;
+        outline: none; margin-bottom: 12px;
+        font-family: 'Inter', sans-serif; color: var(--t);
     }
-    .plain-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
-    .back-link { display: inline-block; margin-top: 16px; font-size: 14px; color: #6b7280; cursor: pointer; text-decoration: none; }
-    .back-link:hover { color: #374151; }
+    .plain-input::placeholder { color: var(--tm); }
+    .plain-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+    .back-link { display: inline-block; margin-top: 16px; font-size: 13px; color: var(--tm); cursor: pointer; }
+    .back-link:hover { color: var(--t); }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
         .auth-left { display: none; }
         .auth-right { padding: 28px 20px; }
     }
 
-    /* ---- MAIN APP HIDDEN BY DEFAULT ---- */
+    /* APP */
     #app-page { display: none; }
     #app-page.on { display: flex; }
 
-    /* Wake overlay */
-    #wake-overlay {
-        display: none; position: fixed; inset: 0;
-        background: rgba(15,15,26,0.96); z-index: 99999;
-        flex-direction: column; align-items: center; justify-content: center;
-        color: #fff; font-family: 'Inter', sans-serif;
+    /* MAIN APP additional premium styles */
+    .main-content { background: var(--bg); }
+
+    /* Input fields inside app */
+    input, select, textarea {
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.07) !important;
+        color: #f0f0ff !important;
+        font-family: 'Inter', sans-serif !important;
     }
-    #wake-overlay.on { display: flex; }
+    input::placeholder, textarea::placeholder { color: #7c7ca8 !important; }
+    input:focus, select:focus, textarea:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
+        outline: none !important;
+    }
+    select option { background: #1a1a2e; color: #f0f0ff; }
+
+    /* Email canvas (white because emails are white) */
+    #builder-canvas { color: #111; }
+    #builder-canvas input, #builder-canvas select, #builder-canvas textarea {
+        background: #fff !important; color: #111 !important;
+        border: 1px solid #e2e8f0 !important;
+    }
     </style>
 </head>
 <body>
 
 <!-- ============================================================
      SERVER WAKE-UP OVERLAY
-     Shown when Render free tier is cold-starting
      ============================================================ -->
 <div id="wake-overlay">
-    <div style="font-size:48px;margin-bottom:20px;">☕</div>
-    <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Server waking up...</div>
-    <div style="font-size:14px;color:#a5b4fc;margin-bottom:32px;">Free hosting sleeps after 15min. Please wait ~30 sec.</div>
-    <div id="wake-spinner" style="width:40px;height:40px;border:3px solid rgba(165,180,252,0.3);border-top-color:#a5b4fc;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    <div style="text-align:center;">
+        <div style="font-size:52px;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(99,102,241,0.6));">⚡</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px;">Server waking up</div>
+        <div style="font-size:14px;color:rgba(165,180,252,0.7);max-width:280px;line-height:1.6;">
+            Free tier sleeps after 15 min inactivity. Ready in ~30 seconds.
+        </div>
+        <div class="wake-spinner"></div>
+    </div>
 </div>
 
 <!-- ============================================================
-     AUTH PAGE - 100% self-contained
-     No dependency on app.js for auth functionality
+     AUTH PAGE
      ============================================================ -->
 <div id="auth-page">
 
     <!-- LEFT BRANDING -->
     <div class="auth-left">
+        <div class="auth-left-grid"></div>
         <div class="auth-brand">
+
             <div class="auth-brand-logo">
-                <i class="fa-solid fa-paper-plane"></i>
-                <span>MailClone</span>
+                <div class="logo-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                <span class="logo-name">MailClone</span>
             </div>
-            <h1>Grow your audience with <em>AI campaigns</em></h1>
-            <p>Send smarter. Reach farther. Convert better. The all-in-one email marketing platform built for modern marketers.</p>
+
+            <h1>Your AI-powered<br><em>email marketing</em><br>command center.</h1>
+            <p>Design campaigns. Automate sequences. A/B test. Analyze results. All in one beautiful platform.</p>
+
             <div class="auth-stats">
-                <div>
+                <div class="auth-stat">
                     <div class="auth-stat-num">10M+</div>
                     <div class="auth-stat-label">Emails Sent</div>
                 </div>
-                <div>
+                <div class="auth-stat">
                     <div class="auth-stat-num">45%</div>
-                    <div class="auth-stat-label">Open Rate</div>
+                    <div class="auth-stat-label">Avg Open Rate</div>
                 </div>
-                <div>
-                    <div class="auth-stat-num">98%</div>
+                <div class="auth-stat">
+                    <div class="auth-stat-num">99.9%</div>
                     <div class="auth-stat-label">Deliverability</div>
                 </div>
             </div>
+
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon"><i class="fa-solid fa-paintbrush"></i></div>
+                    <div class="auth-feature-text">Drag &amp; drop visual email builder</div>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div class="auth-feature-text">Gemini AI copywriting assistant</div>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon"><i class="fa-solid fa-flask"></i></div>
+                    <div class="auth-feature-text">A/B testing &amp; analytics dashboard</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- RIGHT FORMS -->
+    <!-- RIGHT FORM -->
     <div class="auth-right">
         <div class="auth-card">
 
-            <!-- MODE ICON (changes with tab) -->
-            <div id="auth-icon" class="auth-mode-icon login-icon"><i class="fa-solid fa-lock-open"></i></div>
+            <div id="auth-icon" class="auth-mode-icon login-icon">
+                <i class="fa-solid fa-lock-open"></i>
+            </div>
             <div id="auth-title" class="auth-card-title">Welcome back</div>
             <div id="auth-subtitle" class="auth-card-sub">Sign in to your MailClone account</div>
 
-            <!-- TAB SWITCHER -->
+            <!-- TABS -->
             <div class="auth-tabs">
-                <button class="auth-tab on" id="tab-login" onclick="AUTH.showLogin()">Sign In</button>
-                <button class="auth-tab" id="tab-signup" onclick="AUTH.showSignup()">Sign Up</button>
+                <button class="auth-tab on" id="tab-login" onclick="AUTH.showLogin()">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+                </button>
+                <button class="auth-tab" id="tab-signup" onclick="AUTH.showSignup()">
+                    <i class="fa-solid fa-user-plus"></i> Sign Up
+                </button>
             </div>
 
-            <!-- ===== LOGIN FORM ===== -->
+            <!-- LOGIN FORM -->
             <div id="form-login" class="auth-form on">
                 <div id="login-alert" class="auth-alert"></div>
                 <div class="fld">
                     <label>Email Address</label>
                     <div class="fld-wrap">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+                        <input type="email" id="login-email" placeholder="you@company.com" autocomplete="email">
                     </div>
                 </div>
                 <div class="fld">
                     <label>Password</label>
                     <div class="fld-wrap">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password"
+                        <input type="password" id="login-pass" placeholder="Your password"
+                               autocomplete="current-password"
                                onkeydown="if(event.key==='Enter') AUTH.doLogin()">
                     </div>
                 </div>
                 <a class="forgot-link" onclick="AUTH.showForgot()">Forgot password?</a>
                 <button class="auth-btn login-btn" id="login-btn" onclick="AUTH.doLogin()">
-                    <span>Sign In</span><i class="fa-solid fa-arrow-right"></i>
+                    Sign In <i class="fa-solid fa-arrow-right"></i>
                 </button>
-                <p class="auth-switch">No account? <a onclick="AUTH.showSignup()">Sign up free</a></p>
+                <div class="auth-divider"><span>or</span></div>
+                <p class="auth-switch">No account yet? <a onclick="AUTH.showSignup()">Create one free →</a></p>
             </div>
 
-            <!-- ===== SIGNUP FORM ===== -->
+            <!-- SIGNUP FORM -->
             <div id="form-signup" class="auth-form">
                 <div id="signup-alert" class="auth-alert"></div>
                 <div class="fld">
                     <label>Email Address</label>
                     <div class="fld-wrap">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
+                        <input type="email" id="signup-email" placeholder="you@company.com" autocomplete="email">
                     </div>
                 </div>
                 <div class="fld">
@@ -302,65 +532,65 @@
                     <label>Confirm Password</label>
                     <div class="fld-wrap">
                         <i class="fa-solid fa-shield-halved"></i>
-                        <input type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password"
+                        <input type="password" id="signup-pass2" placeholder="Repeat password"
+                               autocomplete="new-password"
                                onkeydown="if(event.key==='Enter') AUTH.doSignup()">
                     </div>
                 </div>
                 <button class="auth-btn signup-btn" id="signup-btn" onclick="AUTH.doSignup()">
-                    <span>Create Account</span><i class="fa-solid fa-arrow-right"></i>
+                    Create Account <i class="fa-solid fa-arrow-right"></i>
                 </button>
-                <p class="auth-switch">Have an account? <a onclick="AUTH.showLogin()">Sign in</a></p>
+                <div class="auth-divider"><span>or</span></div>
+                <p class="auth-switch">Have an account? <a onclick="AUTH.showLogin()">Sign in →</a></p>
             </div>
 
-            <!-- ===== VERIFICATION BOX ===== -->
+            <!-- VERIFY BOX -->
             <div id="verify-box">
-                <div style="font-size:48px;margin-bottom:12px;">📧</div>
-                <div style="font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;">Check your email</div>
-                <div style="font-size:14px;color:#6b7280;margin-bottom:24px;">We sent a 6-digit code to your email. Enter it below.</div>
+                <div style="font-size:52px;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(99,102,241,0.5));">📬</div>
+                <div style="font-size:20px;font-weight:800;margin-bottom:8px;letter-spacing:-0.3px;">Check your email</div>
+                <div style="font-size:14px;color:var(--tm);margin-bottom:24px;">Enter the 6-digit code we sent you.</div>
                 <div id="verify-alert" class="auth-alert"></div>
                 <input type="text" id="verify-code" class="verify-code-input" placeholder="000000" maxlength="6"
                        onkeydown="if(event.key==='Enter') AUTH.doVerify()">
                 <button class="auth-btn login-btn" id="verify-btn" onclick="AUTH.doVerify()">
-                    <span>Verify Account</span>
+                    <i class="fa-solid fa-check"></i> Verify Account
                 </button>
                 <a class="back-link" onclick="AUTH.showLogin()">← Back to login</a>
             </div>
 
-            <!-- ===== FORGOT PASSWORD BOX ===== -->
+            <!-- FORGOT BOX -->
             <div id="forgot-box">
-                <div style="font-size:48px;margin-bottom:12px;">🔐</div>
-                <div style="font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;">Reset Password</div>
-                <div id="forgot-text" style="font-size:14px;color:#6b7280;margin-bottom:24px;">Enter your email to receive a reset code.</div>
+                <div style="font-size:52px;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(139,92,246,0.5));">🔐</div>
+                <div style="font-size:20px;font-weight:800;margin-bottom:8px;letter-spacing:-0.3px;">Reset Password</div>
+                <div id="forgot-text" style="font-size:14px;color:var(--tm);margin-bottom:24px;">Enter your email to receive a reset code.</div>
                 <div id="forgot-alert" class="auth-alert"></div>
-
                 <div id="forgot-step1">
                     <input type="email" id="forgot-email" class="plain-input" placeholder="your@email.com">
                     <button class="auth-btn" id="forgot-btn"
-                            style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);box-shadow:0 4px 14px rgba(139,92,246,0.35);"
+                            style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);box-shadow:0 6px 20px rgba(124,58,237,0.4);"
                             onclick="AUTH.sendReset()">
-                        <span>Send Reset Code</span>
+                        Send Reset Code
                     </button>
                 </div>
-
                 <div id="forgot-step2" style="display:none;">
-                    <input type="text" id="reset-code" class="plain-input" placeholder="6-digit code" maxlength="6" style="text-align:center;letter-spacing:6px;font-size:20px;">
+                    <input type="text" id="reset-code" class="plain-input" placeholder="6-digit code"
+                           maxlength="6" style="text-align:center;letter-spacing:8px;font-size:20px;font-weight:800;">
                     <input type="password" id="new-pass" class="plain-input" placeholder="New password">
                     <button class="auth-btn" id="reset-btn"
-                            style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);box-shadow:0 4px 14px rgba(139,92,246,0.35);"
+                            style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);box-shadow:0 6px 20px rgba(124,58,237,0.4);"
                             onclick="AUTH.doReset()">
-                        <span>Reset Password</span>
+                        Reset Password
                     </button>
                 </div>
                 <a class="back-link" onclick="AUTH.showLogin()">← Back to login</a>
             </div>
 
-        </div><!-- /auth-card -->
-    </div><!-- /auth-right -->
-</div><!-- /auth-page -->
-
+        </div>
+    </div>
+</div>
 
 <!-- ============================================================
-     MAIN APP PAGE
+     MAIN APP
      ============================================================ -->
 <div id="app-page">
     <aside class="sidebar glass">
@@ -369,14 +599,24 @@
             <h2>MailClone</h2>
         </div>
         <nav>
-            <a class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-            <a class="nav-item" data-target="campaigns"><i class="fa-solid fa-paper-plane"></i><span>Campaigns</span></a>
-            <a class="nav-item" data-target="contacts"><i class="fa-solid fa-users"></i><span>Contacts</span></a>
-            <a class="nav-item" data-target="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
-            <a class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;"><i class="fa-solid fa-user-shield"></i><span>Admin</span></a>
+            <a class="nav-item active" data-target="dashboard">
+                <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+            </a>
+            <a class="nav-item" data-target="campaigns">
+                <i class="fa-solid fa-paper-plane"></i><span>Campaigns</span>
+            </a>
+            <a class="nav-item" data-target="contacts">
+                <i class="fa-solid fa-users"></i><span>Contacts</span>
+            </a>
+            <a class="nav-item" data-target="settings">
+                <i class="fa-solid fa-gear"></i><span>Settings</span>
+            </a>
+            <a class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;">
+                <i class="fa-solid fa-user-shield"></i><span>Admin</span>
+            </a>
         </nav>
-        <div style="margin-top:auto; padding:20px 0 0;">
-            <button class="btn" id="logout-btn" style="width:100%; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8);">
+        <div style="margin-top:auto;padding-top:20px;">
+            <button id="logout-btn" class="btn" style="width:100%;background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);color:#f87171;border-radius:10px;">
                 <i class="fa-solid fa-right-from-bracket"></i> Logout
             </button>
         </div>
@@ -384,45 +624,57 @@
 
     <main class="main-content">
 
-        <!-- DASHBOARD VIEW -->
+        <!-- DASHBOARD -->
         <div id="dashboard" class="view active">
             <div class="page-header">
                 <h1 class="page-title">Dashboard</h1>
-                <p class="page-subtitle">Overview of your email marketing performance</p>
+                <p class="page-subtitle">Your email marketing performance at a glance</p>
             </div>
             <div class="stats-grid">
-                <div class="stat-card glass">
-                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                    <div class="stat-value" id="stat-contacts">0</div>
-                    <div class="stat-label">Total Contacts</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#6366f1,#818cf8);box-shadow:0 4px 14px rgba(99,102,241,0.35);">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-contacts">0</div>
+                        <div class="stat-label">Contacts</div>
+                    </div>
                 </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fa-solid fa-paper-plane"></i></div>
-                    <div class="stat-value" id="stat-sent">0</div>
-                    <div class="stat-label">Emails Sent</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-sent">0</div>
+                        <div class="stat-label">Emails Sent</div>
+                    </div>
                 </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fa-solid fa-envelope-open"></i></div>
-                    <div class="stat-value" id="stat-opens">0</div>
-                    <div class="stat-label">Total Opens</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 14px rgba(245,158,11,0.35);">
+                        <i class="fa-solid fa-envelope-open"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-opens">0</div>
+                        <div class="stat-label">Total Opens</div>
+                    </div>
                 </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fa-solid fa-mouse-pointer"></i></div>
-                    <div class="stat-value" id="stat-clicks">0</div>
-                    <div class="stat-label">Total Clicks</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#ec4899,#db2777);box-shadow:0 4px 14px rgba(236,72,153,0.35);">
+                        <i class="fa-solid fa-mouse-pointer"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-clicks">0</div>
+                        <div class="stat-label">Total Clicks</div>
+                    </div>
                 </div>
             </div>
-            <div class="glass" style="border-radius:16px; padding:24px; margin-top:24px;">
-                <h3 style="margin-bottom:16px; color:var(--text-color);">Recent Campaigns</h3>
-                <table id="dashboard-campaigns" style="width:100%; border-collapse:collapse;">
+            <div class="glass" style="border-radius:16px;padding:24px;">
+                <h3 style="margin-bottom:16px;font-size:16px;font-weight:700;">Recent Campaigns</h3>
+                <table id="dashboard-campaigns">
                     <thead>
-                        <tr style="color:var(--text-muted); font-size:13px; border-bottom:1px solid var(--border-color);">
-                            <th style="text-align:left; padding:10px 12px;">Subject</th>
-                            <th style="text-align:left; padding:10px 12px;">Sent</th>
-                            <th style="text-align:left; padding:10px 12px;">Opens</th>
-                            <th style="text-align:left; padding:10px 12px;">Clicks</th>
-                            <th style="text-align:left; padding:10px 12px;">Status</th>
-                            <th style="text-align:left; padding:10px 12px;">Edit</th>
+                        <tr>
+                            <th>Subject</th><th>Sent</th><th>Opens</th>
+                            <th>Clicks</th><th>Status</th><th>Edit</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -430,11 +682,11 @@
             </div>
         </div>
 
-        <!-- CAMPAIGNS VIEW -->
+        <!-- CAMPAIGNS -->
         <div id="campaigns" class="view">
             <div class="page-header">
                 <h1 class="page-title">Campaigns</h1>
-                <p class="page-subtitle">Create and send email campaigns</p>
+                <p class="page-subtitle">Create and send beautiful email campaigns</p>
             </div>
             <div class="tabs-bar">
                 <button class="tab-btn active" data-tab="tab-builder">
@@ -448,374 +700,388 @@
                 </button>
             </div>
 
-            <!-- Visual Builder Tab -->
+            <!-- Visual Builder -->
             <div class="tab-content active" id="tab-builder">
                 <div class="builder-layout">
-                    <div class="builder-sidebar glass">
+                    <div class="builder-sidebar">
                         <div class="form-group">
                             <label>Subject Line</label>
-                            <input type="text" id="campaign-subject" placeholder="Enter email subject...">
+                            <input type="text" id="campaign-subject" placeholder="Compelling subject...">
                         </div>
                         <div class="form-group">
-                            <label>Recipient Emails (optional, one per line)</label>
-                            <textarea id="newsletter-leads" rows="4" placeholder="email@example.com, Name&#10;or just email@example.com"></textarea>
+                            <label>Recipients (optional)</label>
+                            <textarea id="newsletter-leads" rows="3" placeholder="email@example.com, Name&#10;(one per line)"></textarea>
                         </div>
                         <div class="form-group">
-                            <label>Template</label>
+                            <label>Load Template</label>
                             <select id="premade-templates">
                                 <option value="">Choose template...</option>
-                                <option value="sell_products">Sell Products</option>
-                                <option value="make_announcement">Announcement</option>
-                                <option value="newsletter">Newsletter</option>
-                                <option value="welcome_email">Welcome Email</option>
-                                <option value="cold_email">Cold Email</option>
+                                <option value="sell_products">🛍 Sell Products</option>
+                                <option value="make_announcement">📢 Announcement</option>
+                                <option value="newsletter">📰 Newsletter</option>
+                                <option value="welcome_email">👋 Welcome Email</option>
+                                <option value="cold_email">❄️ Cold Email</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Canvas Color</label>
-                            <input type="color" id="global-bg-color" value="#ffffff" style="width:100%;height:40px;border:1px solid var(--border-color);border-radius:8px;cursor:pointer;padding:2px;">
-                        </div>
                         <div style="display:flex;gap:8px;margin-bottom:16px;">
-                            <button id="preview-desktop" class="btn active" style="flex:1;padding:8px;font-size:13px;">
-                                <i class="fa-solid fa-desktop"></i> Desktop
-                            </button>
-                            <button id="preview-mobile" class="btn" style="flex:1;padding:8px;font-size:13px;">
-                                <i class="fa-solid fa-mobile-alt"></i> Mobile
-                            </button>
+                            <div class="form-group" style="flex:1;margin-bottom:0;">
+                                <label>Canvas BG</label>
+                                <input type="color" id="global-bg-color" value="#ffffff"
+                                       style="height:40px;padding:4px;cursor:pointer;width:100%;border-radius:8px;">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="display:block;font-size:12px;font-weight:700;color:#7c7ca8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Preview</label>
+                                <div style="display:flex;gap:4px;">
+                                    <button id="preview-desktop" class="btn" style="flex:1;padding:9px;font-size:12px;">
+                                        <i class="fa-solid fa-desktop"></i>
+                                    </button>
+                                    <button id="preview-mobile" class="btn" style="flex:1;padding:9px;font-size:12px;">
+                                        <i class="fa-solid fa-mobile-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <hr style="border:none;border-top:1px solid var(--border-color);margin-bottom:16px;">
+
+                        <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:16px;"></div>
+
                         <div id="block-palette">
-                            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Drag blocks to canvas:</p>
+                            <p style="font-size:11px;font-weight:700;color:#7c7ca8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">Drag to Canvas</p>
                             <div class="draggable-block" data-type="text" draggable="true" ondragstart="window.drag(event)">
-                                <i class="fa-solid fa-font"></i> Text Block
+                                <i class="fa-solid fa-font" style="color:#a5b4fc;"></i> Text Block
                             </div>
                             <div class="draggable-block" data-type="image" draggable="true" ondragstart="window.drag(event)">
-                                <i class="fa-solid fa-image"></i> Image Block
+                                <i class="fa-solid fa-image" style="color:#34d399;"></i> Image Block
                             </div>
                             <div class="draggable-block" data-type="button" draggable="true" ondragstart="window.drag(event)">
-                                <i class="fa-solid fa-hand-pointer"></i> Button Block
+                                <i class="fa-solid fa-hand-pointer" style="color:#fbbf24;"></i> Button Block
                             </div>
                             <div class="draggable-block" data-type="divider" draggable="true" ondragstart="window.drag(event)">
-                                <i class="fa-solid fa-minus"></i> Divider
+                                <i class="fa-solid fa-minus" style="color:#f87171;"></i> Divider
                             </div>
                         </div>
+
                         <div id="property-editor" style="display:none;">
                             <div class="property-editor-header">
-                                <button id="back-to-palette-btn" class="btn" style="padding:8px 12px;font-size:12px;">
-                                    <i class="fa-solid fa-arrow-left"></i> Back
+                                <button id="back-to-palette-btn" class="btn" style="padding:7px 12px;font-size:12px;">
+                                    <i class="fa-solid fa-arrow-left"></i>
                                 </button>
-                                <span style="font-size:14px;font-weight:600;color:var(--text-color);">Edit Block</span>
+                                <span style="font-size:14px;font-weight:700;">Edit Block</span>
                             </div>
                             <div id="property-fields"></div>
                             <div style="display:flex;gap:8px;margin-top:16px;">
-                                <button id="save-block-btn" class="btn primary" style="flex:1;">Apply</button>
-                                <button id="delete-block-btn" class="btn danger" style="flex:1;">Delete</button>
+                                <button id="save-block-btn" class="btn primary" style="flex:1;">
+                                    <i class="fa-solid fa-check"></i> Apply
+                                </button>
+                                <button id="delete-block-btn" class="btn danger" style="flex:1;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         </div>
-                        <button class="btn primary" id="send-btn" style="width:100%;margin-top:16px;padding:14px;">
+
+                        <button id="send-btn" class="btn primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;">
                             <i class="fa-solid fa-paper-plane"></i> Blast Campaign
                         </button>
-                        <div id="campaign-status" class="alert" style="margin-top:12px;display:none;"></div>
+                        <div id="campaign-status" class="alert"></div>
                     </div>
+
                     <div class="builder-canvas-wrapper">
                         <div id="builder-canvas" class="email-canvas">
-                            <div class="canvas-placeholder">Drag blocks here to build your email</div>
+                            <div class="canvas-placeholder">
+                                <i class="fa-solid fa-paintbrush" style="font-size:32px;color:#d1d5db;margin-bottom:12px;display:block;"></i>
+                                Drag blocks here to build your email
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sequence Tab -->
+            <!-- Sequence -->
             <div class="tab-content" id="tab-instantly" style="display:none;">
-                <div class="glass" style="border-radius:16px;padding:24px;max-width:900px;">
-                    <h3 style="margin-bottom:20px;">Email Sequence Builder</h3>
-                    <div id="inst-steps-bar" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;"></div>
-                    <div style="display:flex;gap:16px;margin-bottom:16px;">
-                        <div class="form-group" style="flex:1;">
+                <div class="glass" style="border-radius:16px;padding:28px;max-width:860px;">
+                    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">Email Sequence Builder</h3>
+                    <div id="inst-steps-bar" style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;"></div>
+                    <div style="display:grid;grid-template-columns:1fr 120px;gap:16px;margin-bottom:16px;">
+                        <div class="form-group" style="margin-bottom:0;">
                             <label>Step Subject</label>
-                            <input type="text" id="inst-subject" placeholder="Subject for this step...">
+                            <input type="text" id="inst-subject" placeholder="Email subject for this step...">
                         </div>
-                        <div class="form-group" style="width:120px;">
+                        <div class="form-group" style="margin-bottom:0;">
                             <label>Wait (days)</label>
                             <input type="number" id="inst-wait" value="1" min="0" max="365">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Email Body (HTML allowed)</label>
-                        <textarea id="inst-body" rows="12" style="font-family:monospace;" placeholder="Write your email here..."></textarea>
+                        <label>Email Body</label>
+                        <textarea id="inst-body" rows="10" style="font-family:monospace;font-size:13px;" placeholder="Write your email HTML here..."></textarea>
                     </div>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <button class="btn primary" id="inst-save-step-btn"><i class="fa-solid fa-floppy-disk"></i> Save Step</button>
-                        <button class="btn" id="inst-add-step-btn"><i class="fa-solid fa-plus"></i> Add Step</button>
-                        <button class="btn" id="inst-send-seq-btn" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
+                        <button id="inst-save-step-btn" class="btn">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Step
+                        </button>
+                        <button id="inst-add-step-btn" class="btn">
+                            <i class="fa-solid fa-plus"></i> Add Step
+                        </button>
+                        <button id="inst-send-seq-btn" class="btn primary">
                             <i class="fa-solid fa-rocket"></i> Send Sequence
                         </button>
                     </div>
-                    <div id="seq-lead-section" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);">
-                        <div class="form-group">
-                            <label>Leads (email, name, company — one per line)</label>
-                            <textarea id="seq-leads" rows="5" placeholder="john@example.com, John Doe, ACME Corp"></textarea>
-                        </div>
+                    <div class="form-group" style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07);">
+                        <label>Leads (email, name, company — one per line)</label>
+                        <textarea id="seq-leads" rows="4" placeholder="john@example.com, John Doe, ACME Corp"></textarea>
                     </div>
-                    <div id="inst-status" class="alert" style="margin-top:12px;display:none;"></div>
+                    <div id="inst-status" class="alert"></div>
                 </div>
             </div>
 
-            <!-- A/B Test Tab -->
+            <!-- A/B Test -->
             <div class="tab-content" id="tab-abtest" style="display:none;">
-                <div class="glass" style="border-radius:16px;padding:24px;max-width:900px;">
-                    <h3 style="margin-bottom:20px;">A/B Test Campaign</h3>
-                    <div class="form-group">
-                        <label>Variant A — Subject</label>
-                        <input type="text" id="ab-subject-a" placeholder="Subject A...">
+                <div class="glass" style="border-radius:16px;padding:28px;max-width:860px;">
+                    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">A/B Test Campaign</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                        <div>
+                            <div style="margin-bottom:12px;padding:10px 14px;background:rgba(99,102,241,0.1);border-radius:10px;border:1px solid rgba(99,102,241,0.2);">
+                                <span style="font-size:12px;font-weight:800;color:#818cf8;text-transform:uppercase;letter-spacing:0.08em;">Variant A</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject A</label>
+                                <input type="text" id="ab-subject-a" placeholder="Subject for Variant A...">
+                            </div>
+                            <div class="form-group">
+                                <label>Body A</label>
+                                <textarea id="ab-body-a" rows="7" placeholder="Email body for Variant A..."></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="margin-bottom:12px;padding:10px 14px;background:rgba(16,185,129,0.1);border-radius:10px;border:1px solid rgba(16,185,129,0.2);">
+                                <span style="font-size:12px;font-weight:800;color:#34d399;text-transform:uppercase;letter-spacing:0.08em;">Variant B</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject B</label>
+                                <input type="text" id="ab-subject-b" placeholder="Subject for Variant B...">
+                            </div>
+                            <div class="form-group">
+                                <label>Body B</label>
+                                <textarea id="ab-body-b" rows="7" placeholder="Email body for Variant B..."></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Variant A — Body</label>
-                        <textarea id="ab-body-a" rows="6" placeholder="Email body for Variant A..."></textarea>
-                    </div>
-                    <hr style="border:none;border-top:1px solid var(--border-color);margin:20px 0;">
-                    <div class="form-group">
-                        <label>Variant B — Subject</label>
-                        <input type="text" id="ab-subject-b" placeholder="Subject B...">
-                    </div>
-                    <div class="form-group">
-                        <label>Variant B — Body</label>
-                        <textarea id="ab-body-b" rows="6" placeholder="Email body for Variant B..."></textarea>
-                    </div>
-                    <button class="btn primary" id="ab-send-btn" style="margin-top:8px;">
-                        <i class="fa-solid fa-flask"></i> Run A/B Test
+                    <button id="ab-send-btn" class="btn primary" style="margin-top:8px;padding:13px 28px;">
+                        <i class="fa-solid fa-flask"></i> Launch A/B Test
                     </button>
-                    <div id="ab-status" class="alert" style="margin-top:12px;display:none;"></div>
+                    <div id="ab-status" class="alert"></div>
                 </div>
             </div>
         </div>
 
-        <!-- CONTACTS VIEW -->
+        <!-- CONTACTS -->
         <div id="contacts" class="view">
             <div class="page-header">
                 <h1 class="page-title">Contacts</h1>
-                <p class="page-subtitle">Manage your email list</p>
+                <p class="page-subtitle">Manage your subscriber list</p>
             </div>
-            <div class="glass" style="border-radius:16px;padding:24px;margin-bottom:24px;">
-                <h3 style="margin-bottom:16px;">Add Contact</h3>
-                <form id="contact-form" style="display:flex;gap:12px;flex-wrap:wrap;">
-                    <div style="flex:1;min-width:160px;">
-                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Name</label>
-                        <input type="text" id="contact-name" placeholder="Full name" required>
+            <div class="glass" style="border-radius:16px;padding:24px;margin-bottom:20px;">
+                <h3 style="margin-bottom:16px;font-size:16px;font-weight:700;">Add Contact</h3>
+                <form id="contact-form" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Full Name</label>
+                        <input type="text" id="contact-name" placeholder="John Doe" required>
                     </div>
-                    <div style="flex:1;min-width:200px;">
-                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Email</label>
-                        <input type="email" id="contact-email" placeholder="email@example.com" required>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Email Address</label>
+                        <input type="email" id="contact-email" placeholder="john@company.com" required>
                     </div>
-                    <div style="flex:1;min-width:160px;">
-                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Tags</label>
-                        <input type="text" id="contact-tags" placeholder="vip,newsletter">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Tags</label>
+                        <input type="text" id="contact-tags" placeholder="vip, newsletter">
                     </div>
-                    <div style="display:flex;align-items:flex-end;">
-                        <button type="submit" class="btn primary" style="padding:12px 20px;">
-                            <i class="fa-solid fa-plus"></i> Add
-                        </button>
-                    </div>
+                    <button type="submit" class="btn primary" style="padding:11px 20px;">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
                 </form>
             </div>
             <div class="glass" style="border-radius:16px;padding:24px;">
-                <h3 style="margin-bottom:16px;">All Contacts</h3>
-                <table id="contacts-table" style="width:100%;border-collapse:collapse;">
+                <h3 style="margin-bottom:16px;font-size:16px;font-weight:700;">All Contacts</h3>
+                <table id="contacts-table">
                     <thead>
-                        <tr style="color:var(--text-muted);font-size:13px;border-bottom:1px solid var(--border-color);">
-                            <th style="text-align:left;padding:10px 12px;">Name</th>
-                            <th style="text-align:left;padding:10px 12px;">Email</th>
-                            <th style="text-align:left;padding:10px 12px;">Tags</th>
-                            <th style="text-align:left;padding:10px 12px;">Action</th>
-                        </tr>
+                        <tr><th>Name</th><th>Email</th><th>Tags</th><th>Action</th></tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- SETTINGS VIEW -->
+        <!-- SETTINGS -->
         <div id="settings" class="view">
             <div class="page-header">
                 <h1 class="page-title">Settings</h1>
-                <p class="page-subtitle">Configure your email sending preferences</p>
+                <p class="page-subtitle">Configure your email provider and AI</p>
             </div>
-            <div class="glass settings-card" style="border-radius:16px;padding:32px;max-width:700px;">
-                <h3 style="margin-bottom:24px;">Email Provider</h3>
-                <div class="form-group">
-                    <label>Provider</label>
-                    <select id="smtp-provider">
-                        <option value="smtp">Custom SMTP</option>
-                        <option value="instantly">Instantly</option>
-                    </select>
-                </div>
-                <div id="smtp-fields">
+            <div style="max-width:680px;display:flex;flex-direction:column;gap:20px;">
+                <div class="glass" style="border-radius:16px;padding:28px;">
+                    <h3 style="margin-bottom:20px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;">
+                        <span style="width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;"><i class="fa-solid fa-server"></i></span>
+                        Email Provider
+                    </h3>
                     <div class="form-group">
-                        <label>SMTP Host</label>
-                        <input type="text" id="smtp-host" placeholder="smtp.gmail.com">
+                        <label>Provider</label>
+                        <select id="smtp-provider">
+                            <option value="smtp">Custom SMTP</option>
+                            <option value="instantly">Instantly</option>
+                        </select>
                     </div>
-                    <div style="display:flex;gap:12px;">
-                        <div class="form-group" style="flex:2;">
+                    <div id="smtp-fields">
+                        <div style="display:grid;grid-template-columns:1fr 100px;gap:12px;">
+                            <div class="form-group">
+                                <label>SMTP Host</label>
+                                <input type="text" id="smtp-host" placeholder="smtp.gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Port</label>
+                                <input type="number" id="smtp-port" value="587">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Username / Email</label>
                             <input type="email" id="smtp-user" placeholder="your@email.com">
                         </div>
-                        <div class="form-group" style="flex:1;">
-                            <label>Port</label>
-                            <input type="number" id="smtp-port" value="587">
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="smtp-pass" placeholder="App password">
+                        </div>
+                        <div class="form-group">
+                            <label>From Name</label>
+                            <input type="text" id="smtp-from-name" placeholder="Your Company">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Password / App Password</label>
-                        <input type="password" id="smtp-pass" placeholder="••••••••••••">
+                    <div id="instantly-fields" style="display:none;">
+                        <div class="form-group">
+                            <label>Instantly API Key</label>
+                            <input type="text" id="instantly-api-key" placeholder="inst_xxxxxxxxxxxx">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>From Name</label>
-                        <input type="text" id="smtp-from-name" placeholder="Your Name or Company">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button id="save-smtp-btn" class="btn primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Settings
+                        </button>
+                        <button id="test-smtp-btn" class="btn">
+                            <i class="fa-solid fa-vial"></i> Test Connection
+                        </button>
                     </div>
+                    <div id="smtp-status" class="alert"></div>
                 </div>
-                <div id="instantly-fields" style="display:none;">
-                    <div class="form-group">
-                        <label>Instantly API Key</label>
-                        <input type="text" id="instantly-api-key" placeholder="inst_xxxxxxxxxxxx">
-                    </div>
-                </div>
-                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-                    <button class="btn primary" id="save-smtp-btn"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
-                    <button class="btn" id="test-smtp-btn"><i class="fa-solid fa-vial"></i> Test Connection</button>
-                </div>
-                <div id="smtp-status" class="alert" style="margin-top:12px;display:none;"></div>
-                <div id="gemini-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
-                    <h3 style="margin-bottom:16px;">AI Settings (Gemini)</h3>
+
+                <div class="glass" style="border-radius:16px;padding:28px;">
+                    <h3 style="margin-bottom:20px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;">
+                        <span style="width:32px;height:32px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;"><i class="fa-solid fa-robot"></i></span>
+                        AI Settings
+                    </h3>
                     <div class="form-group">
                         <label>Gemini API Key</label>
                         <input type="text" id="gemini-api-key" placeholder="AIzaSy...">
                     </div>
-                    <button class="btn primary" id="save-gemini-btn"><i class="fa-solid fa-floppy-disk"></i> Save AI Key</button>
-                    <div id="gemini-status" class="alert" style="margin-top:12px;display:none;"></div>
+                    <button id="save-gemini-btn" class="btn primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save AI Key
+                    </button>
+                    <div id="gemini-status" class="alert"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ADMIN VIEW -->
+        <!-- ADMIN -->
         <div id="admin-view" class="view">
             <div class="page-header">
                 <h1 class="page-title">Admin Panel</h1>
-                <p class="page-subtitle">Manage all users</p>
+                <p class="page-subtitle">Manage all platform users</p>
             </div>
             <div class="glass" style="border-radius:16px;padding:24px;">
-                <h3 style="margin-bottom:16px;">All Users</h3>
-                <table id="admin-users-table" style="width:100%;border-collapse:collapse;">
-                    <thead>
-                        <tr style="color:var(--text-muted);font-size:13px;border-bottom:1px solid var(--border-color);">
-                            <th style="text-align:left;padding:10px 12px;">ID</th>
-                            <th style="text-align:left;padding:10px 12px;">Email</th>
-                            <th style="text-align:left;padding:10px 12px;">Admin</th>
-                            <th style="text-align:left;padding:10px 12px;">Action</th>
-                        </tr>
-                    </thead>
+                <table>
+                    <thead><tr><th>ID</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
                     <tbody id="admin-users-body"></tbody>
                 </table>
             </div>
         </div>
 
-    </main><!-- /main-content -->
-</div><!-- /app-page -->
-
-<!-- Toast notification -->
-<div id="toast" style="position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;transition:bottom 0.3s;z-index:9999;white-space:nowrap;">
-    <span id="toast-msg"></span>
+    </main>
 </div>
 
-<!-- AI Chat Button -->
-<button id="ai-chat-btn" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,0.5);z-index:1000;display:none;" title="AI Assistant">
+<!-- Toast -->
+<div id="toast"><span id="toast-msg"></span></div>
+
+<!-- AI Chat Button (shown after login) -->
+<button id="ai-chat-btn" style="display:none;position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 6px 24px rgba(99,102,241,0.55);z-index:1000;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 8px 30px rgba(99,102,241,0.7)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 6px 24px rgba(99,102,241,0.55)'">
     <i class="fa-solid fa-robot"></i>
 </button>
-<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:340px;height:480px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.2);z-index:1001;flex-direction:column;overflow:hidden;">
+<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:360px;height:500px;background:#13131f;border:1px solid rgba(255,255,255,0.08);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,0.7);z-index:1001;flex-direction:column;overflow:hidden;">
     <div style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
-        <div><div style="font-weight:700;">AI Marketing Assistant</div><div style="font-size:12px;opacity:0.8;">Powered by Gemini</div></div>
-        <button id="ai-chat-close" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;"><i class="fa-solid fa-times"></i></button>
+        <div>
+            <div style="font-weight:800;font-size:15px;">AI Assistant</div>
+            <div style="font-size:12px;opacity:0.75;">Powered by Gemini</div>
+        </div>
+        <button id="ai-chat-close" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;opacity:0.8;padding:4px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8"><i class="fa-solid fa-times"></i></button>
     </div>
-    <div id="ai-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
-        <div style="background:#f1f5f9;padding:12px 16px;border-radius:12px;font-size:14px;color:#374151;">Hi! I'm your AI Marketing Assistant. Ask me anything about email marketing!</div>
-    </div>
-    <div style="padding:12px;border-top:1px solid #f1f5f9;display:flex;gap:8px;">
-        <input type="text" id="ai-chat-input" placeholder="Ask about subject lines..." style="flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;">
-        <button id="ai-chat-send" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:18px;"><i class="fa-solid fa-paper-plane"></i></button>
+    <div id="ai-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#0f0f1f;"></div>
+    <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:8px;background:#13131f;">
+        <input type="text" id="ai-chat-input" placeholder="Ask anything about email marketing..."
+               style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:13px;color:#f0f0ff;">
+        <button id="ai-chat-send" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:16px;flex-shrink:0;">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
     </div>
 </div>
 
 <!-- ============================================================
-     AUTH LOGIC - 100% self-contained inline JavaScript
-     No dependency on app.js
+     AUTH LOGIC (100% inline — no external dependency)
      ============================================================ -->
 <script>
 const API = 'https://email-marketer-ijk5.onrender.com/api';
 let _token = null;
 try { _token = localStorage.getItem('token'); } catch(e) {}
 
-// ---- Server wake-up check ----
+// Server wake-up
 (function() {
-    var started = Date.now();
     var overlay = document.getElementById('wake-overlay');
-    fetch(API + '/ping')
-        .then(function(r) {
-            if (!r.ok) throw new Error();
-            // Server is awake - hide overlay (might not be shown)
-            overlay.classList.remove('on');
-        })
-        .catch(function() {
-            // Server is sleeping - show overlay, poll until awake
-            overlay.classList.add('on');
-            var poll = setInterval(function() {
-                fetch(API + '/ping')
-                    .then(function(r) {
-                        if (r.ok) {
-                            clearInterval(poll);
-                            overlay.classList.remove('on');
-                            location.reload();
-                        }
-                    }).catch(function() {});
-            }, 3000);
-        });
-    // Also show overlay if no response within 4 seconds
-    setTimeout(function() {
-        fetch(API + '/ping', {signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined})
-            .catch(function() { overlay.classList.add('on'); });
-    }, 4000);
+    fetch(API + '/ping').then(function(r) {
+        if (r.ok) overlay.classList.remove('on');
+    }).catch(function() {
+        overlay.classList.add('on');
+        var poll = setInterval(function() {
+            fetch(API + '/ping').then(function(r) {
+                if (r.ok) { clearInterval(poll); overlay.classList.remove('on'); location.reload(); }
+            }).catch(function(){});
+        }, 3000);
+    });
 })();
 
-// ---- Auth state machine ----
+// Auth module
 var AUTH = (function() {
-
-    function showEl(id) { document.getElementById(id).classList.add('on'); }
-    function hideEl(id) { document.getElementById(id).classList.remove('on'); }
-    function showDisplay(id) { document.getElementById(id).style.display = 'block'; }
-    function hideDisplay(id) { document.getElementById(id).style.display = 'none'; }
+    function showEl(id) { var el = document.getElementById(id); if (el) el.classList.add('on'); }
+    function hideEl(id) { var el = document.getElementById(id); if (el) el.classList.remove('on'); }
+    function showDisplay(id) { var el = document.getElementById(id); if (el) el.style.display = 'block'; }
+    function hideDisplay(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
     function setAlert(id, msg, type) {
-        var el = document.getElementById(id);
-        el.textContent = msg;
-        el.className = 'auth-alert ' + (type === 'ok' ? 'ok' : 'err');
+        var el = document.getElementById(id); if (!el) return;
+        el.className = 'auth-alert ' + type;
+        el.innerHTML = (type === 'err' ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>') + ' ' + msg;
     }
-    function clearAlert(id) { var el = document.getElementById(id); el.className = 'auth-alert'; el.textContent = ''; }
+    function clearAlert(id) { var el = document.getElementById(id); if (el) { el.className = 'auth-alert'; el.textContent = ''; } }
 
     function setLoginMode() {
-        document.getElementById('auth-icon').className = 'auth-mode-icon login-icon';
-        document.getElementById('auth-icon').innerHTML = '<i class="fa-solid fa-lock-open"></i>';
-        document.getElementById('auth-title').textContent = 'Welcome back';
-        document.getElementById('auth-subtitle').textContent = 'Sign in to your MailClone account';
+        var icon = document.getElementById('auth-icon');
+        if (icon) { icon.className = 'auth-mode-icon login-icon'; icon.innerHTML = '<i class="fa-solid fa-lock-open"></i>'; }
+        var t = document.getElementById('auth-title'); if (t) t.textContent = 'Welcome back';
+        var s = document.getElementById('auth-subtitle'); if (s) s.textContent = 'Sign in to your MailClone account';
         document.getElementById('tab-login').classList.add('on');
         document.getElementById('tab-signup').classList.remove('on');
         document.getElementById('form-login').classList.add('on');
         document.getElementById('form-signup').classList.remove('on');
         hideEl('verify-box'); hideEl('forgot-box');
     }
-
     function setSignupMode() {
-        document.getElementById('auth-icon').className = 'auth-mode-icon signup-icon';
-        document.getElementById('auth-icon').innerHTML = '<i class="fa-solid fa-user-plus"></i>';
-        document.getElementById('auth-title').textContent = 'Create account';
-        document.getElementById('auth-subtitle').textContent = 'Join MailClone and start scaling';
+        var icon = document.getElementById('auth-icon');
+        if (icon) { icon.className = 'auth-mode-icon signup-icon'; icon.innerHTML = '<i class="fa-solid fa-user-plus"></i>'; }
+        var t = document.getElementById('auth-title'); if (t) t.textContent = 'Create account';
+        var s = document.getElementById('auth-subtitle'); if (s) s.textContent = 'Join MailClone and start growing';
         document.getElementById('tab-login').classList.remove('on');
         document.getElementById('tab-signup').classList.add('on');
         document.getElementById('form-login').classList.remove('on');
@@ -831,25 +1097,20 @@ var AUTH = (function() {
         } catch(e) {}
         document.getElementById('auth-page').classList.add('hidden');
         document.getElementById('app-page').classList.add('on');
-        if (data.is_admin) {
-            document.getElementById('nav-admin').style.display = 'flex';
-        }
+        if (data.is_admin) { var n = document.getElementById('nav-admin'); if (n) n.style.display = 'flex'; }
         if (typeof window.APP_INIT === 'function') window.APP_INIT();
     }
 
     async function doLogin() {
-        var email = document.getElementById('login-email').value.trim();
-        var pass = document.getElementById('login-pass').value;
+        var email = (document.getElementById('login-email') || {}).value || '';
+        var pass = (document.getElementById('login-pass') || {}).value || '';
         clearAlert('login-alert');
-        if (!email || !pass) { setAlert('login-alert', 'Please enter your email and password.', 'err'); return; }
-
+        if (!email.trim() || !pass) { setAlert('login-alert', 'Please fill in all fields.', 'err'); return; }
         var btn = document.getElementById('login-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
         try {
             var body = new URLSearchParams();
-            body.append('username', email);
+            body.append('username', email.trim());
             body.append('password', pass);
             var res = await fetch(API + '/auth/token', {
                 method: 'POST',
@@ -857,197 +1118,132 @@ var AUTH = (function() {
                 body: body
             });
             var data = await res.json();
-            if (res.ok) {
-                onLoginSuccess(data);
-            } else {
-                setAlert('login-alert', data.detail || 'Wrong email or password.', 'err');
-            }
-        } catch(e) {
-            setAlert('login-alert', 'Connection error. Is the server awake?', 'err');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right"></i>';
+            if (res.ok) { onLoginSuccess(data); }
+            else { setAlert('login-alert', data.detail || 'Wrong email or password.', 'err'); }
+        } catch(e) { setAlert('login-alert', 'Connection error. Server may be waking up.', 'err'); }
+        btn.disabled = false; btn.innerHTML = 'Sign In <i class="fa-solid fa-arrow-right"></i>';
     }
 
     async function doSignup() {
-        var email = document.getElementById('signup-email').value.trim();
-        var pass = document.getElementById('signup-pass').value;
-        var pass2 = document.getElementById('signup-pass2').value;
+        var email = (document.getElementById('signup-email') || {}).value || '';
+        var pass = (document.getElementById('signup-pass') || {}).value || '';
+        var pass2 = (document.getElementById('signup-pass2') || {}).value || '';
         clearAlert('signup-alert');
-        if (!email || !pass) { setAlert('signup-alert', 'Please fill in all fields.', 'err'); return; }
+        if (!email.trim() || !pass) { setAlert('signup-alert', 'Please fill in all fields.', 'err'); return; }
         if (pass !== pass2) { setAlert('signup-alert', 'Passwords do not match.', 'err'); return; }
         if (pass.length < 6) { setAlert('signup-alert', 'Password must be at least 6 characters.', 'err'); return; }
-
         var btn = document.getElementById('signup-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
         try {
             var res = await fetch(API + '/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: pass })
+                body: JSON.stringify({ email: email.trim(), password: pass })
             });
             var data = await res.json();
             if (res.ok) {
                 if (data.status === 'needs_verification') {
+                    window._verifyEmail = email.trim();
                     document.getElementById('form-signup').classList.remove('on');
-                    document.getElementById('auth-subtitle').textContent = 'Verify your email to continue';
+                    var s = document.getElementById('auth-subtitle'); if (s) s.textContent = 'Check your email for a code';
                     showEl('verify-box');
-                    // Store email for verification
-                    window._verifyEmail = email;
-                } else {
-                    onLoginSuccess(data);
-                }
-            } else {
-                setAlert('signup-alert', data.detail || 'Registration failed. Try another email.', 'err');
-            }
-        } catch(e) {
-            setAlert('signup-alert', 'Connection error. Please try again.', 'err');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Create Account</span><i class="fa-solid fa-arrow-right"></i>';
+                } else { onLoginSuccess(data); }
+            } else { setAlert('signup-alert', data.detail || 'Registration failed. Try another email.', 'err'); }
+        } catch(e) { setAlert('signup-alert', 'Connection error. Please try again.', 'err'); }
+        btn.disabled = false; btn.innerHTML = 'Create Account <i class="fa-solid fa-arrow-right"></i>';
     }
 
     async function doVerify() {
-        var code = document.getElementById('verify-code').value.trim();
+        var code = (document.getElementById('verify-code') || {}).value || '';
+        var email = window._verifyEmail || (document.getElementById('signup-email') || {}).value || '';
         if (!code || code.length < 6) { setAlert('verify-alert', 'Enter the 6-digit code.', 'err'); return; }
-        var email = window._verifyEmail || document.getElementById('signup-email').value.trim();
-
         var btn = document.getElementById('verify-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
         try {
             var res = await fetch(API + '/auth/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, code: code })
             });
             var data = await res.json();
-            if (res.ok) {
-                onLoginSuccess(data);
-            } else {
-                setAlert('verify-alert', data.detail || 'Invalid code. Try again.', 'err');
-            }
-        } catch(e) {
-            setAlert('verify-alert', 'Connection error.', 'err');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Verify Account</span>';
+            if (res.ok) { onLoginSuccess(data); }
+            else { setAlert('verify-alert', data.detail || 'Invalid code.', 'err'); }
+        } catch(e) { setAlert('verify-alert', 'Connection error.', 'err'); }
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Verify Account';
     }
 
     function showForgot() {
         document.getElementById('form-login').classList.remove('on');
-        document.getElementById('auth-title').textContent = 'Forgot Password';
-        document.getElementById('auth-subtitle').textContent = 'We will send you a reset code';
+        var t = document.getElementById('auth-title'); if (t) t.textContent = 'Forgot Password';
+        var s = document.getElementById('auth-subtitle'); if (s) s.textContent = 'We will email you a reset code';
         showEl('forgot-box');
     }
 
     async function sendReset() {
-        var email = document.getElementById('forgot-email').value.trim();
+        var email = (document.getElementById('forgot-email') || {}).value || '';
         clearAlert('forgot-alert');
         if (!email) { setAlert('forgot-alert', 'Enter your email address.', 'err'); return; }
-
         var btn = document.getElementById('forgot-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
         try {
             var res = await fetch(API + '/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email })
             });
             var data = await res.json();
             if (res.ok) {
-                hideDisplay('forgot-step1');
-                showDisplay('forgot-step2');
+                hideDisplay('forgot-step1'); showDisplay('forgot-step2');
                 setAlert('forgot-alert', 'Code sent! Check your inbox.', 'ok');
                 window._resetEmail = email;
-            } else {
-                setAlert('forgot-alert', data.detail || 'Error sending code.', 'err');
-            }
-        } catch(e) {
-            setAlert('forgot-alert', 'Connection error.', 'err');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Send Reset Code</span>';
+            } else { setAlert('forgot-alert', data.detail || 'Error sending code.', 'err'); }
+        } catch(e) { setAlert('forgot-alert', 'Connection error.', 'err'); }
+        btn.disabled = false; btn.innerHTML = 'Send Reset Code';
     }
 
     async function doReset() {
-        var code = document.getElementById('reset-code').value.trim();
-        var newPass = document.getElementById('new-pass').value;
+        var code = (document.getElementById('reset-code') || {}).value || '';
+        var newPass = (document.getElementById('new-pass') || {}).value || '';
         clearAlert('forgot-alert');
         if (!code || !newPass) { setAlert('forgot-alert', 'Fill in all fields.', 'err'); return; }
         if (newPass.length < 6) { setAlert('forgot-alert', 'Password must be 6+ characters.', 'err'); return; }
-
         var btn = document.getElementById('reset-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
         try {
             var res = await fetch(API + '/auth/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: window._resetEmail, code: code, new_password: newPass })
             });
             var data = await res.json();
-            if (res.ok) {
-                setAlert('forgot-alert', 'Password reset! Please sign in.', 'ok');
-                setTimeout(function() { setLoginMode(); }, 1500);
-            } else {
-                setAlert('forgot-alert', data.detail || 'Reset failed.', 'err');
-            }
-        } catch(e) {
-            setAlert('forgot-alert', 'Connection error.', 'err');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Reset Password</span>';
+            if (res.ok) { setAlert('forgot-alert', 'Password reset! Please sign in.', 'ok'); setTimeout(function() { setLoginMode(); }, 1500); }
+            else { setAlert('forgot-alert', data.detail || 'Reset failed.', 'err'); }
+        } catch(e) { setAlert('forgot-alert', 'Connection error.', 'err'); }
+        btn.disabled = false; btn.innerHTML = 'Reset Password';
     }
 
-    return {
-        showLogin: function() { setLoginMode(); },
-        showSignup: function() { setSignupMode(); },
-        showForgot: showForgot,
-        doLogin: doLogin,
-        doSignup: doSignup,
-        doVerify: doVerify,
-        sendReset: sendReset,
-        doReset: doReset
-    };
+    return { showLogin: setLoginMode, showSignup: setSignupMode, showForgot: showForgot, doLogin: doLogin, doSignup: doSignup, doVerify: doVerify, sendReset: sendReset, doReset: doReset };
 })();
 
-// ---- Check if already logged in ----
+// Auto-login if token exists
 (function() {
     if (_token) {
-        // Validate token with API
         fetch(API + '/contacts', { headers: { 'Authorization': 'Bearer ' + _token } })
             .then(function(r) {
                 if (r.ok) {
-                    // Token valid - show app
                     document.getElementById('auth-page').classList.add('hidden');
                     document.getElementById('app-page').classList.add('on');
                     var isAdmin = false;
                     try { isAdmin = localStorage.getItem('is_admin') === 'true'; } catch(e) {}
-                    if (isAdmin) document.getElementById('nav-admin').style.display = 'flex';
+                    if (isAdmin) { var n = document.getElementById('nav-admin'); if (n) n.style.display = 'flex'; }
                     if (typeof window.APP_INIT === 'function') window.APP_INIT();
                 } else {
-                    // Token expired - show login
                     try { localStorage.removeItem('token'); } catch(e) {}
                     _token = null;
                 }
-            })
-            .catch(function() {
-                // Network error - show login anyway (server might be waking up)
-            });
+            }).catch(function() {});
     }
 })();
 </script>
 
-<!-- Main app JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/assets/app.js?v=35"></script>
-
+<script src="/assets/app.js?v=36"></script>
 </body>
 </html>
