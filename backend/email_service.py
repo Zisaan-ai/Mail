@@ -59,10 +59,12 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
                 print(f"Sent successfully to {recipient}")
             except Exception as e:
                 print(f"Failed to send to {recipient}: {e}")
+                raise e
 
         server.quit()
     except Exception as e:
         print(f"SMTP Connection failed: {e}")
+        raise e
 
     return success_count
 
