@@ -37,6 +37,12 @@ def run_migration(db: Session = Depends(database.get_db)):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/api/reset-users")
+def reset_users(db: Session = Depends(database.get_db)):
+    db.query(database.User).delete()
+    db.commit()
+    return {"msg": "All users deleted."}
+
 # Pydantic models
 class Token(BaseModel):
     access_token: str
