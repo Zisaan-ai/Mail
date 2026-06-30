@@ -38,6 +38,7 @@ def run_migration(db: Session = Depends(database.get_db)):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    is_admin: bool = False
 
 class UserCreate(BaseModel):
     email: str
