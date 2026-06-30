@@ -146,3 +146,24 @@ def send_verification_email(email: str, code: str):
     """
     # Since it's a single email, we can reuse our bulk send logic or write a simpler one
     return send_bulk_emails(subject, body_html, [email]) > 0
+
+def send_password_reset_email(email: str, code: str):
+    """
+    Sends a 6-digit password reset code to the user.
+    """
+    if not SMTP_PASSWORD:
+        print(f"*** MOCK EMAIL: Password reset code for {email} is {code} ***")
+        return True
+
+    subject = "Reset your password"
+    body_html = f"""
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
+        <h2 style="color: #4F46E5; text-align: center;">Password Reset</h2>
+        <p>We received a request to reset your password. Please use the following 6-digit code to reset it:</p>
+        <div style="background: #F3F4F6; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 6px; margin: 20px 0;">
+            {code}
+        </div>
+        <p>If you did not request this, please ignore this email.</p>
+    </div>
+    """
+    return send_bulk_emails(subject, body_html, [email]) > 0

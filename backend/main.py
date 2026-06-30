@@ -57,6 +57,14 @@ class VerifyEmail(BaseModel):
     email: str
     code: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
 class ContactCreate(BaseModel):
     name: Optional[str] = ""
     email: str
@@ -152,6 +160,40 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
     db.refresh(new_user)
     
     return {"status": "needs_verification", "message": "Please verify your email address."}
+
+@app.post("/api/auth/forgot-password")
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(database.get_db)):
+    user = db.query(database.User).filter(database.User.email == req.email).first()
+    if not user:
+        # Don't reveal if user exists or not
+        return {"message": "If your email is registered, you will receive a reset code."}
+        
+    verification_code = ''.join(random.choices(string.digits, k=6))
+    user.verification_code = verification_code
+    db.commit()
+    
+    try:
+        email_service.send_password_reset_email(user.email, verification_code)
+    except Exception as e:
+        # Still return success to not break the flow or reveal info
+        print(f"Failed to send reset email: {e}")
+        
+    return {"message": "If your email is registered, you will receive a reset code."}
+
+@app.post("/api/auth/reset-password")
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(database.get_db)):
+    user = db.query(database.User).filter(database.User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if user.verification_code != req.code:
+        raise HTTPException(status_code=400, detail="Invalid reset code")
+        
+    user.hashed_password = auth.get_password_hash(req.new_password)
+    user.verification_code = None
+    db.commit()
+    
+    return {"message": "Password reset successfully"}
 
 @app.post("/api/auth/verify", response_model=Token)
 def verify_email(payload: VerifyEmail, db: Session = Depends(database.get_db)):

@@ -1359,3 +1359,84 @@ document.getElementById('verify-btn').addEventListener('click', async () => {
         showToast("Network error", "error");
     }
 });
+
+
+// --- Forgot Password Logic ---
+const forgotPwdLink = document.getElementById('forgot-pwd-link');
+const authFormBox = document.getElementById('auth-form');
+const authFooter = document.querySelector('.auth-footer');
+const forgotPwdBox = document.getElementById('forgot-password-box');
+const backToLoginBtn = document.getElementById('back-to-login');
+const sendResetBtn = document.getElementById('send-reset-btn');
+const resetPwdBtn = document.getElementById('reset-pwd-btn');
+const authDivider = document.querySelector('.auth-divider');
+
+forgotPwdLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    authFormBox.style.display = 'none';
+    authFooter.style.display = 'none';
+    if(authDivider) authDivider.style.display = 'none';
+    forgotPwdBox.style.display = 'block';
+});
+
+backToLoginBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    forgotPwdBox.style.display = 'none';
+    authFormBox.style.display = 'block';
+    authFooter.style.display = 'block';
+    if(authDivider) authDivider.style.display = 'flex';
+    document.getElementById('forgot-step-1').style.display = 'block';
+    document.getElementById('forgot-step-2').style.display = 'none';
+    document.getElementById('forgot-pwd-text').innerText = 'Enter your email to receive a reset code.';
+});
+
+sendResetBtn?.addEventListener('click', async () => {
+    const email = document.getElementById('forgot-email').value;
+    if(!email) return showToast('Please enter your email', 'error');
+    
+    sendResetBtn.innerText = 'Sending...';
+    try {
+        const res = await fetch(API_URL + '/auth/forgot-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email})
+        });
+        const data = await res.json();
+        
+        showToast(data.message, 'success');
+        document.getElementById('forgot-step-1').style.display = 'none';
+        document.getElementById('forgot-step-2').style.display = 'block';
+        document.getElementById('forgot-pwd-text').innerText = 'Enter the 6-digit code and your new password.';
+    } catch(err) {
+        showToast('Network error', 'error');
+    }
+    sendResetBtn.innerText = 'Send Code';
+});
+
+resetPwdBtn?.addEventListener('click', async () => {
+    const email = document.getElementById('forgot-email').value;
+    const code = document.getElementById('reset-code').value;
+    const new_password = document.getElementById('new-password').value;
+    
+    if(!code || !new_password) return showToast('Please fill all fields', 'error');
+    
+    resetPwdBtn.innerText = 'Resetting...';
+    try {
+        const res = await fetch(API_URL + '/auth/reset-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, code, new_password})
+        });
+        const data = await res.json();
+        
+        if(res.ok) {
+            showToast('Password reset successful! Please log in.', 'success');
+            backToLoginBtn.click();
+        } else {
+            showToast(data.detail || 'Error resetting password', 'error');
+        }
+    } catch(err) {
+        showToast('Network error', 'error');
+    }
+    resetPwdBtn.innerText = 'Reset Password';
+});
