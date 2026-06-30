@@ -529,8 +529,15 @@ function setupCampaignTabs() {
 // SEQUENCE BUILDER
 // ============================================================
 function setupSequenceBuilder() {
-    let steps = [{ step: 1, wait: 0, subject: '', body: '' }];
+    let steps = [{ step: 1, wait: 0, subject: '', body: '', is_ab: false, subject_b: '', body_b: '' }];
     let currentStep = 1;
+
+    window.toggleInstAB = function() {
+        const toggle = document.getElementById('inst-ab-toggle').checked;
+        document.getElementById('inst-ab-section').style.display = toggle ? 'block' : 'none';
+        document.getElementById('inst-subj-label').style.display = toggle ? 'inline' : 'none';
+        document.getElementById('inst-body-label').style.display = toggle ? 'inline' : 'none';
+    };
 
     function renderSteps() {
         const bar = document.getElementById('inst-steps-bar');
@@ -539,7 +546,7 @@ function setupSequenceBuilder() {
         steps.forEach(s => {
             const btn = document.createElement('button');
             btn.className = 'btn' + (s.step === currentStep ? ' primary' : '');
-            btn.textContent = `Step ${s.step}`;
+            btn.textContent = `Step ${s.step}` + (s.is_ab ? ' (A/B)' : '');
             btn.style.cssText = 'padding:8px 16px;font-size:13px;';
             btn.onclick = () => { saveStep(); currentStep = s.step; loadStep(); renderSteps(); };
             bar.appendChild(btn);
@@ -552,6 +559,9 @@ function setupSequenceBuilder() {
         s.subject = (document.getElementById('inst-subject') || {}).value || '';
         s.body = (document.getElementById('inst-body') || {}).value || '';
         s.wait = parseInt((document.getElementById('inst-wait') || {}).value) || 1;
+        s.is_ab = document.getElementById('inst-ab-toggle').checked;
+        s.subject_b = (document.getElementById('inst-subject-b') || {}).value || '';
+        s.body_b = (document.getElementById('inst-body-b') || {}).value || '';
     }
 
     function loadStep() {
@@ -560,26 +570,36 @@ function setupSequenceBuilder() {
         const subj = document.getElementById('inst-subject');
         const body = document.getElementById('inst-body');
         const wait = document.getElementById('inst-wait');
+        const toggle = document.getElementById('inst-ab-toggle');
+        const subjB = document.getElementById('inst-subject-b');
+        const bodyB = document.getElementById('inst-body-b');
+        
         if (subj) subj.value = s.subject;
         if (body) body.value = s.body;
         if (wait) wait.value = s.wait;
+        if (toggle) toggle.checked = !!s.is_ab;
+        if (subjB) subjB.value = s.subject_b || '';
+        if (bodyB) bodyB.value = s.body_b || '';
+        
+        window.toggleInstAB();
     }
 
     const addStepBtn = document.getElementById('inst-add-step-btn');
     if (addStepBtn) addStepBtn.addEventListener('click', () => {
         saveStep();
-        steps.push({ step: steps.length + 1, wait: 2, subject: '', body: '' });
+        steps.push({ step: steps.length + 1, wait: 2, subject: '', body: '', is_ab: false, subject_b: '', body_b: '' });
         currentStep = steps.length;
         loadStep();
         renderSteps();
     });
 
     const saveStepBtn = document.getElementById('inst-save-step-btn');
-    if (saveStepBtn) saveStepBtn.addEventListener('click', () => { saveStep(); showToast('Step saved'); });
+    if (saveStepBtn) saveStepBtn.addEventListener('click', () => { saveStep(); renderSteps(); showToast('Step saved'); });
 
     const sendSeqBtn = document.getElementById('inst-send-seq-btn');
     if (sendSeqBtn) sendSeqBtn.addEventListener('click', async () => {
         saveStep();
+        renderSteps();
         const emptySteps = steps.filter(s => !s.subject || !s.body.trim());
         if (emptySteps.length > 0) { showToast(`Step ${emptySteps[0].step} is incomplete`, 'error'); return; }
 
@@ -590,11 +610,21 @@ function setupSequenceBuilder() {
             leads.push({ email: parts[0], name: parts[1] || '', company: parts[2] || '' });
         });
 
-        let body = steps.map(s => `<div>${s.body}</div>`).join('<hr>');
+        // Convert sequence steps to a single campaign with A/B variants for MVP
+        const s1 = steps[0];
+        const payload = {
+            subject: s1.subject,
+            body: steps.map(s => `<div>${s.body}</div>`).join('<hr>'),
+            leads: leads,
+            is_ab_test: !!s1.is_ab,
+            subject_b: s1.subject_b || '',
+            body_b: steps.map(s => `<div>${s.is_ab ? (s.body_b || s.body) : s.body}</div>`).join('<hr>')
+        };
+
         sendSeqBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
         sendSeqBtn.disabled = true;
         try {
-            const res = await apiCall('/campaigns/send', 'POST', { subject: steps[0].subject, body, leads });
+            const res = await apiCall('/campaigns/send', 'POST', payload);
             if (res.ok) showToast('Sequence launched!');
             else { const d = await res.json(); showToast(d.detail || 'Failed', 'error'); }
         } catch(e) { showToast('Error', 'error'); }
