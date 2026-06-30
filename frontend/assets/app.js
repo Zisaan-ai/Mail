@@ -1,5 +1,10 @@
 const API_URL = 'https://email-marketer-ijk5.onrender.com/api';
-let token = localStorage.getItem('token');
+let token = null;
+try {
+    token = localStorage.getItem('token');
+} catch (e) {
+    console.error("localStorage access denied:", e);
+}
 
 // Elements
 const authView = document.getElementById('auth-view');
@@ -19,7 +24,11 @@ function checkAuth() {
         document.getElementById('app-view').classList.add('active');
         fetchDashboard();
         
-        if(localStorage.getItem('is_admin') === 'true') {
+        let isAdmin = false;
+        try {
+            isAdmin = localStorage.getItem('is_admin') === 'true';
+        } catch (e) {}
+        if(isAdmin) {
             document.getElementById('nav-admin').style.display = 'flex';
         } else {
             document.getElementById('nav-admin').style.display = 'none';
