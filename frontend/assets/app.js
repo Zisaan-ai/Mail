@@ -24,11 +24,19 @@ function checkAuth() {
     }
 }
 
-toggleAuthBtn.addEventListener('click', () => {
+toggleAuthBtn.addEventListener('click', (e) => {
+    e.preventDefault();
     isLoginMode = !isLoginMode;
-    document.querySelector('.auth-card h2').innerText = isLoginMode ? 'Welcome Back' : 'Create Account';
-    document.querySelector('#auth-btn').innerText = isLoginMode ? 'Login' : 'Register';
-    toggleAuthBtn.innerText = isLoginMode ? "Don't have an account? Register here." : "Already have an account? Login here.";
+    document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
+    document.getElementById('auth-subtitle').innerText = isLoginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
+    document.getElementById('auth-btn').innerText = isLoginMode ? 'Sign In' : 'Create Account';
+    
+    const options = document.getElementById('auth-options');
+    if(options) options.style.display = isLoginMode ? 'flex' : 'none';
+    
+    const p = document.getElementById('auth-toggle-text');
+    p.firstChild.textContent = isLoginMode ? "Don't have an account? " : "Already have an account? ";
+    document.getElementById('toggle-auth').innerText = isLoginMode ? "Sign up" : "Log in";
 });
 
 authForm.addEventListener('submit', async (e) => {
