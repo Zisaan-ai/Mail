@@ -48,6 +48,7 @@ window.APP_INIT = function() {
     setupLogout();
     // setupContacts(); removed
     setupSettings();
+    setupColdMailTabs();
     setupCampaignBuilder();
     setupCampaignTabs();
     setupSequenceBuilder();
@@ -204,9 +205,37 @@ window.editCampaign = function(id) {
 };
 
 // ============================================================
-//     // Contacts code removed as it is redundant with Leads};
-
+// COLD MAIL TABS
 // ============================================================
+function setupColdMailTabs() {
+    const tabs = document.querySelectorAll('.clean-tab[data-coldtab]');
+    const contents = document.querySelectorAll('.cold-tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active classes
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.fontWeight = '600';
+                t.style.color = 'var(--text-muted)';
+                t.style.borderBottom = 'none';
+            });
+            // Hide contents
+            contents.forEach(c => c.style.display = 'none');
+
+            // Add active to clicked
+            tab.classList.add('active');
+            tab.style.fontWeight = '700';
+            tab.style.color = 'var(--p)';
+            tab.style.borderBottom = '3px solid var(--p)';
+
+            // Show matching content
+            const targetId = 'cold-tab-' + tab.getAttribute('data-coldtab');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) targetEl.style.display = 'block';
+        });
+    });
+}
 // SETTINGS
 // ============================================================
 function setupSettings() {
