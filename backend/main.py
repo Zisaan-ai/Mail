@@ -11,6 +11,7 @@ import os
 import database
 import email_service
 import auth
+import ai_service
 
 app = FastAPI(title="MailChimp Clone API")
 
@@ -67,6 +68,29 @@ class CampaignResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- AI ENDPOINTS ---
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: Optional[List[ChatMessage]] = None
+
+class EmailGenerateRequest(BaseModel):
+    prompt: str
+
+@app.post("/api/ai/chat")
+def ai_chat(req: ChatRequest, current_user: database.User = Depends(auth.get_current_user)):
+    history_dict = [msg.model_dump() for msg in req.history] if req.history else None
+    response = ai_service.chat_with_assistant(req.message, history_dict)
+    return {"reply": response}
+
+@app.post("/api/ai/generate")
+def ai_generate_email(req: EmailGenerateRequest, current_user: database.User = Depends(auth.get_current_user)):
+    generated_html = ai_service.generate_email_content(req.prompt)
+    return {"html": generated_html}
 
 # --- AUTH ENDPOINTS ---
 @app.post("/api/auth/register", response_model=Token)

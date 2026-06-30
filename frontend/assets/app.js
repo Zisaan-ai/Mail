@@ -1073,3 +1073,152 @@ document.getElementById('inst-save-lead-btn').addEventListener('click', () => {
 });
 
 renderCampaignLeads();
+
+// --- AI Chatbot & Generator Logic ---
+
+let chatHistory = [];
+
+const aiToggle = document.getElementById('ai-chat-toggle');
+const aiWindow = document.getElementById('ai-chat-window');
+const aiClose = document.getElementById('ai-chat-close');
+const aiMessages = document.getElementById('ai-chat-messages');
+const aiInput = document.getElementById('ai-chat-input');
+const aiSend = document.getElementById('ai-chat-send');
+const aiWriteBtn = document.getElementById('ai-write-btn');
+
+// Toggle Chat
+if(aiToggle) {
+    aiToggle.addEventListener('click', () => {
+        aiWindow.classList.add('active');
+        aiToggle.style.display = 'none';
+    });
+}
+
+if(aiClose) {
+    aiClose.addEventListener('click', () => {
+        aiWindow.classList.remove('active');
+        aiToggle.style.display = 'flex';
+    });
+}
+
+// Send Message logic
+async function sendChatMessage() {
+    const text = aiInput.value.trim();
+    if(!text) return;
+
+    // Add User Message
+    appendMessage(text, 'user');
+    aiInput.value = '';
+    aiSend.disabled = true;
+
+    // Show typing
+    const typingId = showTypingIndicator();
+
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': Bearer  + token
+            },
+            body: JSON.stringify({ message: text, history: chatHistory })
+        });
+
+        removeTypingIndicator(typingId);
+        
+        if (res.ok) {
+            const data = await res.json();
+            appendMessage(data.reply, 'ai');
+            
+            // Save to history
+            chatHistory.push({role: 'user', content: text});
+            chatHistory.push({role: 'model', content: data.reply});
+        } else {
+            appendMessage('Sorry, I encountered an error. Make sure your Gemini API key is configured.', 'ai');
+        }
+    } catch (e) {
+        removeTypingIndicator(typingId);
+        appendMessage('Network error. Please try again later.', 'ai');
+    }
+    
+    aiSend.disabled = false;
+    aiInput.focus();
+}
+
+if(aiSend) {
+    aiSend.addEventListener('click', sendChatMessage);
+}
+
+if(aiInput) {
+    aiInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') sendChatMessage();
+    });
+}
+
+function appendMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = i-message  + sender;
+    // Basic formatting for markdown-like bold and breaks
+    let formattedText = text.replace(/\\*\\*(.*?)\\*\\*/g, '<strong></strong>');
+    formattedText = formattedText.replace(/\\n/g, '<br>');
+    div.innerHTML = formattedText;
+    aiMessages.appendChild(div);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'typing-indicator';
+    div.innerHTML = <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>;
+    aiMessages.appendChild(div);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+    return id;
+}
+
+function removeTypingIndicator(id) {
+    const el = document.getElementById(id);
+    if(el) el.remove();
+}
+
+// AI Write Button Logic
+if(aiWriteBtn) {
+    aiWriteBtn.addEventListener('click', async () => {
+        const subject = document.getElementById('instantly-subject').value;
+        let prompt = prompt("What should the email be about? (e.g. 'Invite to marketing webinar next Friday')");
+        
+        if(!prompt) return;
+        if(subject) prompt += \nSubject line of the email is:  + subject;
+        
+        const originalText = aiWriteBtn.innerHTML;
+        aiWriteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Writing...';
+        aiWriteBtn.disabled = true;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/ai/generate', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': Bearer  + token
+                },
+                body: JSON.stringify({ prompt: prompt })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('instantly-body').innerHTML = data.html;
+                showToast('AI successfully generated the email content!');
+            } else {
+                showToast('Failed to generate email. Ensure API Key is set.');
+            }
+        } catch (e) {
+            showToast('Network error while generating email.');
+        }
+
+        aiWriteBtn.innerHTML = originalText;
+        aiWriteBtn.disabled = false;
+    });
+}

@@ -295,6 +295,7 @@
                                 <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('createLink',false,prompt('URL:'))" title="Add Link"><i class="fa-solid fa-link"></i></button>
                                 <div style="width: 1px; background: #E5E7EB; margin: 0 5px;"></div>
                                 <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent; color: var(--primary);" id="inst-var-btn"><i class="fa-solid fa-code"></i> Insert Variable</button>
+                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; margin-left: auto; border-radius: 4px;" id="ai-write-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Write for me</button>
                             </div>
                             
                             <!-- Editor Body -->
@@ -469,6 +470,31 @@
     <!-- Toast Notification -->
     <div id="toast" style="position: fixed; bottom: -100px; right: 20px; background: #241C15; color: white; padding: 15px 25px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: bottom 0.3s ease; z-index: 1000; font-weight: 500; display: flex; align-items: center; gap: 10px;">
         <i class="fa-solid fa-circle-check" style="color: #10B981;"></i> <span id="toast-msg"></span>
+    </div>
+
+    <!-- AI Chatbot -->
+    <button id="ai-chat-toggle" class="ai-chat-toggle">
+        <i class="fa-solid fa-robot"></i>
+    </button>
+    
+    <div id="ai-chat-window" class="ai-chat-window">
+        <div class="ai-chat-header">
+            <div class="ai-header-info">
+                <i class="fa-solid fa-robot" style="font-size: 20px;"></i>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Marketing AI</h3>
+                    <span style="font-size: 12px; opacity: 0.8;">Powered by Gemini</span>
+                </div>
+            </div>
+            <button id="ai-chat-close"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div id="ai-chat-messages" class="ai-chat-messages">
+            <div class="ai-message ai">Hi there! I'm your Marketing AI Assistant. How can I help you grow your business today?</div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="ai-chat-input" placeholder="Ask about subject lines, strategies...">
+            <button id="ai-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <script src="/assets/app.js?v=24"></script>
