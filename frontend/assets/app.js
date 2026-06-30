@@ -39,7 +39,7 @@ function checkAuth() {
                 e.preventDefault();
                 // alert("Toggle clicked! Mode was: " + (isLoginMode ? "Login" : "Signup")); // Debug
                 isLoginMode = !isLoginMode;
-                document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
+                document.getElementById('auth-title').innerText = isLoginMode ? 'Login to MailClone' : 'Register for MailClone';
                 document.getElementById('auth-subtitle').innerText = isLoginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
                 document.getElementById('auth-btn').innerText = isLoginMode ? 'Sign In' : 'Create Account';
                 
