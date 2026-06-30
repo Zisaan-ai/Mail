@@ -23,6 +23,8 @@ class User(Base):
     hashed_password = Column(String)
     is_admin = Column(Boolean, default=False)
     is_approved = Column(Boolean, default=False)
+    verification_code = Column(String, nullable=True)
+    is_email_verified = Column(Boolean, default=False)
 
 class Contact(Base):
     __tablename__ = "contacts"

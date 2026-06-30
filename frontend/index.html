@@ -77,6 +77,13 @@
                         <button type="submit" class="btn primary full-width btn-large" id="auth-btn" style="margin-top:15px; font-size:16px;">Sign In</button>
                     </form>
                     
+                    <div id="verification-box" style="display:none; text-align:center;">
+                        <h3 style="margin-bottom:10px;">Verify your email</h3>
+                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:15px;">We've sent a 6-digit code to your email.</p>
+                        <input type="text" id="verification-code" placeholder="Enter 6-digit code" class="form-control" style="font-size:20px; text-align:center; letter-spacing:3px; margin-bottom:15px;" maxlength="6">
+                        <button class="btn primary full-width btn-large" id="verify-btn">Verify Account</button>
+                    </div>
+
                     <div class="auth-footer">
                         <p id="auth-toggle-text">Don't have an account? <a href="#" id="toggle-auth">Sign up</a></p>
                     </div>

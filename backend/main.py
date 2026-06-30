@@ -13,6 +13,8 @@ import email_service
 import auth
 import ai_service
 from sqlalchemy import text
+import random
+import string
 
 app = FastAPI(title="MailChimp Clone API")
 
@@ -28,7 +30,8 @@ app.add_middleware(
 @app.get("/api/migrate")
 def run_migration(db: Session = Depends(database.get_db)):
     try:
-        db.query(database.User).delete()
+        db.execute(text("ALTER TABLE users ADD COLUMN verification_code VARCHAR"))
+        db.execute(text("ALTER TABLE users ADD COLUMN is_email_verified BOOLEAN DEFAULT FALSE"))
         db.commit()
         return {"msg": "Migration successful"}
     except Exception as e:
@@ -43,6 +46,10 @@ class Token(BaseModel):
 class UserCreate(BaseModel):
     email: str
     password: str
+
+class VerifyEmail(BaseModel):
+    email: str
+    code: str
 
 class ContactCreate(BaseModel):
     name: Optional[str] = ""
@@ -104,7 +111,7 @@ def ai_generate_email(req: EmailGenerateRequest, current_user: database.User = D
     return {"html": generated_html}
 
 # --- AUTH ENDPOINTS ---
-@app.post("/api/auth/register", response_model=Token)
+@app.post("/api/auth/register")
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
     db_user = db.query(database.User).filter(database.User.email == user.email).first()
     if db_user:
@@ -114,18 +121,47 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
     is_admin = (user_count == 0)
     is_approved = is_admin
     
+    verification_code = ''.join(random.choices(string.digits, k=6))
+    
     hashed_password = auth.get_password_hash(user.password)
-    new_user = database.User(email=user.email, hashed_password=hashed_password, is_admin=is_admin, is_approved=is_approved)
+    new_user = database.User(
+        email=user.email, 
+        hashed_password=hashed_password, 
+        is_admin=is_admin, 
+        is_approved=is_approved,
+        verification_code=verification_code,
+        is_email_verified=False
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     
-    if not new_user.is_approved:
-        raise HTTPException(status_code=403, detail="Wait for admin approve")
+    email_service.send_verification_email(new_user.email, verification_code)
     
+    return {"status": "needs_verification", "message": "Please verify your email address."}
+
+@app.post("/api/auth/verify", response_model=Token)
+def verify_email(payload: VerifyEmail, db: Session = Depends(database.get_db)):
+    user = db.query(database.User).filter(database.User.email == payload.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.is_email_verified:
+        raise HTTPException(status_code=400, detail="Email already verified")
+        
+    if user.verification_code != payload.code:
+        raise HTTPException(status_code=400, detail="Invalid verification code")
+        
+    user.is_email_verified = True
+    user.verification_code = None
+    db.commit()
+    
+    if not user.is_approved:
+        raise HTTPException(status_code=403, detail="Wait for admin approve")
+        
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(data={"sub": new_user.email}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer", "is_admin": new_user.is_admin}
+    access_token = auth.create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer", "is_admin": user.is_admin}
 
 @app.post("/api/auth/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
@@ -133,6 +169,9 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     
+    if not user.is_email_verified:
+        raise HTTPException(status_code=403, detail="Please verify your email address first.")
+        
     if not user.is_approved:
         raise HTTPException(status_code=403, detail="Wait for admin approve")
     

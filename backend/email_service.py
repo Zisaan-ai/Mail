@@ -65,3 +65,26 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
         print(f"SMTP Connection failed: {e}")
 
     return success_count
+
+def send_verification_email(email: str, code: str):
+    """
+    Sends a 6-digit verification code to the user.
+    If SMTP credentials are not configured, it just prints it to the console.
+    """
+    if not SMTP_USERNAME or not SMTP_PASSWORD:
+        print(f"*** MOCK EMAIL: Verification code for {email} is {code} ***")
+        return True
+
+    subject = "Verify your account"
+    body_html = f"""
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
+        <h2 style="color: #4F46E5; text-align: center;">Account Verification</h2>
+        <p>Thank you for registering. Please use the following 6-digit code to verify your email address:</p>
+        <div style="background: #F3F4F6; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 6px; margin: 20px 0;">
+            {code}
+        </div>
+        <p>If you did not request this, please ignore this email.</p>
+    </div>
+    """
+    # Since it's a single email, we can reuse our bulk send logic or write a simpler one
+    return send_bulk_emails(subject, body_html, [email]) > 0

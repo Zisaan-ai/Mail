@@ -73,6 +73,13 @@ authForm.addEventListener('submit', async (e) => {
 
         const data = await res.json();
         if (res.ok) {
+            if (data.status === "needs_verification") {
+                document.getElementById('auth-form').style.display = 'none';
+                document.querySelector('.auth-footer').style.display = 'none';
+                document.getElementById('verification-box').style.display = 'block';
+                showToast("Verification code sent to your email!", "success");
+                return;
+            }
             token = data.access_token;
             localStorage.setItem('token', token);
             if (data.is_admin) {
@@ -1297,3 +1304,58 @@ window.deleteUser = async function(id) {
         showToast("Failed to delete user", "error");
     }
 }
+
+// --- VERIFICATION LOGIC ---
+document.getElementById('verify-btn').addEventListener('click', async () => {
+    const code = document.getElementById('verification-code').value;
+    const email = document.getElementById('auth-email').value;
+    
+    if(!code || code.length !== 6) {
+        showToast("Please enter a valid 6-digit code", "error");
+        return;
+    }
+    
+    try {
+        const res = await fetch(`${API_URL}/auth/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
+        
+        const data = await res.json();
+        if(res.ok) {
+            // Successfully verified and approved!
+            token = data.access_token;
+            localStorage.setItem('token', token);
+            if (data.is_admin) {
+                localStorage.setItem('is_admin', 'true');
+            } else {
+                localStorage.removeItem('is_admin');
+            }
+            showToast("Email verified successfully!");
+            document.getElementById('verification-box').style.display = 'none';
+            document.getElementById('auth-form').style.display = 'block';
+            document.querySelector('.auth-footer').style.display = 'block';
+            checkAuth();
+        } else {
+            // Might be 403 Wait for admin approve, or 400 invalid code
+            if(res.status === 403) {
+                // Verified but needs admin approval
+                showToast("Email verified! Please wait for admin approval.", "success");
+                document.getElementById('verification-box').style.display = 'none';
+                document.getElementById('auth-form').style.display = 'block';
+                document.querySelector('.auth-footer').style.display = 'block';
+                // Switch to login mode
+                isLoginMode = true;
+                document.getElementById('toggle-auth').innerText = "Sign up";
+                document.getElementById('auth-title').innerText = 'Welcome back';
+                document.getElementById('auth-subtitle').innerText = 'Enter your details to access your account.';
+                document.getElementById('auth-btn').innerText = 'Sign In';
+            } else {
+                showToast(data.detail || "Verification failed", "error");
+            }
+        }
+    } catch(err) {
+        showToast("Network error", "error");
+    }
+});
