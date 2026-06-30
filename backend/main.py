@@ -27,6 +27,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/ping")
+def ping():
+    return {"status": "ok", "msg": "Server is alive"}
+
 @app.get("/api/hard-reset-db")
 def hard_reset_db():
     try:
