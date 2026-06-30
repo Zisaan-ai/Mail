@@ -533,10 +533,16 @@ function setupSequenceBuilder() {
     let currentStep = 1;
 
     window.toggleInstAB = function() {
-        const toggle = document.getElementById('inst-ab-toggle').checked;
-        document.getElementById('inst-ab-section').style.display = toggle ? 'block' : 'none';
-        document.getElementById('inst-subj-label').style.display = toggle ? 'inline' : 'none';
-        document.getElementById('inst-body-label').style.display = toggle ? 'inline' : 'none';
+        const s = steps.find(x => x.step === currentStep);
+        if (!s) return;
+        s.is_ab = !s.is_ab;
+        document.getElementById('inst-ab-section').style.display = s.is_ab ? 'block' : 'none';
+        const abToggleBtn = document.getElementById('ab-toggle-btn');
+        if (abToggleBtn) {
+            abToggleBtn.style.color = s.is_ab ? 'var(--p)' : 'var(--text-muted)';
+            abToggleBtn.style.borderColor = s.is_ab ? 'var(--p)' : 'var(--border)';
+        }
+        renderSteps();
     };
 
     function renderSteps() {
@@ -544,10 +550,14 @@ function setupSequenceBuilder() {
         if (!bar) return;
         bar.innerHTML = '';
         steps.forEach(s => {
-            const btn = document.createElement('button');
-            btn.className = 'btn' + (s.step === currentStep ? ' primary' : '');
-            btn.textContent = `Step ${s.step}` + (s.is_ab ? ' (A/B)' : '');
-            btn.style.cssText = 'padding:8px 16px;font-size:13px;';
+            const btn = document.createElement('div');
+            btn.className = 'btn';
+            btn.innerHTML = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                <span style="font-weight:700;">Step ${s.step} ${s.is_ab ? '<i class="fa-solid fa-flask" style="font-size:10px;margin-left:4px;color:var(--p);"></i>' : ''}</span>
+                <span style="font-size:12px;opacity:0.8;">Wait: ${s.wait} day(s)</span>
+            </div>`;
+            btn.style.cssText = 'padding:12px 16px;font-size:14px;width:100%;text-align:left;justify-content:flex-start;background:' + (s.step === currentStep ? 'var(--surface-1)' : 'transparent') + ';color:' + (s.step === currentStep ? 'var(--text)' : 'var(--text-muted)') + ';border:1px solid ' + (s.step === currentStep ? 'var(--border)' : 'transparent') + ';cursor:pointer;border-radius:8px;';
+            if (s.step === currentStep) btn.style.boxShadow = 'var(--shadow-sm)';
             btn.onclick = () => { saveStep(); currentStep = s.step; loadStep(); renderSteps(); };
             bar.appendChild(btn);
         });
@@ -558,8 +568,7 @@ function setupSequenceBuilder() {
         if (!s) return;
         s.subject = (document.getElementById('inst-subject') || {}).value || '';
         s.body = (document.getElementById('inst-body') || {}).value || '';
-        s.wait = parseInt((document.getElementById('inst-wait') || {}).value) || 1;
-        s.is_ab = document.getElementById('inst-ab-toggle').checked;
+        s.wait = parseInt((document.getElementById('inst-wait') || {}).value) || 0;
         s.subject_b = (document.getElementById('inst-subject-b') || {}).value || '';
         s.body_b = (document.getElementById('inst-body-b') || {}).value || '';
     }
@@ -567,21 +576,28 @@ function setupSequenceBuilder() {
     function loadStep() {
         const s = steps.find(x => x.step === currentStep);
         if (!s) return;
+        
+        const titleEl = document.getElementById('inst-step-title');
+        if (titleEl) titleEl.textContent = 'Step ' + s.step;
+        
         const subj = document.getElementById('inst-subject');
         const body = document.getElementById('inst-body');
         const wait = document.getElementById('inst-wait');
-        const toggle = document.getElementById('inst-ab-toggle');
         const subjB = document.getElementById('inst-subject-b');
         const bodyB = document.getElementById('inst-body-b');
         
         if (subj) subj.value = s.subject;
         if (body) body.value = s.body;
         if (wait) wait.value = s.wait;
-        if (toggle) toggle.checked = !!s.is_ab;
         if (subjB) subjB.value = s.subject_b || '';
         if (bodyB) bodyB.value = s.body_b || '';
         
-        window.toggleInstAB();
+        document.getElementById('inst-ab-section').style.display = s.is_ab ? 'block' : 'none';
+        const abToggleBtn = document.getElementById('ab-toggle-btn');
+        if (abToggleBtn) {
+            abToggleBtn.style.color = s.is_ab ? 'var(--p)' : 'var(--text-muted)';
+            abToggleBtn.style.borderColor = s.is_ab ? 'var(--p)' : 'var(--border)';
+        }
     }
 
     const addStepBtn = document.getElementById('inst-add-step-btn');
@@ -621,19 +637,19 @@ function setupSequenceBuilder() {
             body_b: steps.map(s => `<div>${s.is_ab ? (s.body_b || s.body) : s.body}</div>`).join('<hr>')
         };
 
-        sendSeqBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+        sendSeqBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Launching...';
         sendSeqBtn.disabled = true;
         try {
             const res = await apiCall('/campaigns/send', 'POST', payload);
-            if (res.ok) showToast('Sequence launched!');
+            if (res.ok) showToast('Campaign launched successfully!');
             else { const d = await res.json(); showToast(d.detail || 'Failed', 'error'); }
-        } catch(e) { showToast('Error', 'error'); }
-        sendSeqBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Send Sequence';
+        } catch(e) { showToast('Error launching campaign', 'error'); }
+        sendSeqBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Launch Campaign';
         sendSeqBtn.disabled = false;
     });
 
-    renderSteps();
     loadStep();
+    renderSteps();
 }
 
 // ============================================================
