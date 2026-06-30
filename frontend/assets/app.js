@@ -868,6 +868,27 @@ document.querySelectorAll('.inst-nav').forEach(btn => {
     });
 });
 
+// Newsletter Builder Tab Logic
+document.querySelectorAll('.news-tab').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.news-tab').forEach(b => {
+            b.classList.remove('active');
+            b.style.color = 'var(--text-muted)';
+            b.style.borderBottomColor = 'transparent';
+            b.style.fontWeight = '500';
+        });
+        document.querySelectorAll('.news-view').forEach(v => v.style.display = 'none');
+        
+        btn.classList.add('active');
+        btn.style.color = 'var(--primary)';
+        btn.style.borderBottomColor = 'var(--primary)';
+        btn.style.fontWeight = '600';
+        
+        document.getElementById(btn.getAttribute('data-target')).style.display = 'block';
+    });
+});
+
 // Sequence Builder Logic
 let sequenceSteps = [
     { step: 1, day: 1, wait: 0, subject: '', body: '' }

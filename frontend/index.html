@@ -477,16 +477,77 @@
 
                 <!-- Visual Builder Tab -->
                 <div id="tab-mailchimp" class="tab-content" style="display: none;">
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label>Recipient Emails (comma separated)</label>
-                        <textarea id="newsletter-leads" class="form-control" rows="2" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" placeholder="john@example.com, jane@example.com"></textarea>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label>Subject Line</label>
-                        <input type="text" id="campaign-subject" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" required placeholder="Enter your email subject...">
+                    
+                    <nav class="news-nav" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; gap: 15px;">
+                        <button type="button" class="news-tab" data-target="news-analytics" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Analytics</button>
+                        <button type="button" class="news-tab" data-target="news-leads" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Leads</button>
+                        <button type="button" class="news-tab active" data-target="news-builder" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--primary); border-bottom:2px solid var(--primary);">Builder</button>
+                        <button type="button" class="news-tab" data-target="news-schedule" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Schedule</button>
+                    </nav>
+
+                    <!-- Analytics Tab -->
+                    <div id="news-analytics" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <h3 style="margin-bottom: 20px; font-weight: 600;">Newsletter Analytics</h3>
+                        <div style="display: flex; gap: 20px;">
+                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 14px; color: var(--text-muted);">Total Sent</div>
+                                <div style="font-size: 24px; font-weight: bold; color: var(--text-main);">0</div>
+                            </div>
+                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 14px; color: var(--text-muted);">Total Opens</div>
+                                <div style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+                            </div>
+                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 14px; color: var(--text-muted);">Total Clicks</div>
+                                <div style="font-size: 24px; font-weight: bold; color: var(--secondary);">0</div>
+                            </div>
+                        </div>
                     </div>
 
-                <div class="builder-container">
+                    <!-- Leads Tab -->
+                    <div id="news-leads" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div>
+                                <h3 style="font-weight: 600; font-size: 1.2em;">Newsletter Recipients</h3>
+                                <p style="font-size:12px; color:var(--text-muted);">Paste a comma-separated list of emails here to blast your newsletter.</p>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <textarea id="newsletter-leads" class="form-control" rows="10" style="width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace;" placeholder="john@example.com, jane@example.com"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Tab -->
+                    <div id="news-schedule" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="max-width: 500px; margin: 0 auto;">
+                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Broadcast Schedule</h3>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 500;">Timezone</label>
+                                <select class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
+                                    <option>UTC (Universal Coordinated Time)</option>
+                                    <option>EST (Eastern Standard Time)</option>
+                                    <option selected>Asia/Dhaka (BDT)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 25px;">
+                                <label style="font-weight: 500;">Send On</label>
+                                <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
+                                    <input type="date" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
+                                    <input type="time" value="09:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
+                                </div>
+                            </div>
+                            <button class="btn primary" style="border-radius: 4px;">Schedule Broadcast</button>
+                        </div>
+                    </div>
+
+                    <!-- Builder Tab (Active) -->
+                    <div id="news-builder" class="news-view active">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Subject Line</label>
+                            <input type="text" id="campaign-subject" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" required placeholder="Enter your email subject...">
+                        </div>
+                        
+                        <div class="builder-container">
                     <!-- Builder Canvas -->
                     <div class="builder-canvas-wrapper">
                         <!-- Device Preview Toggle -->
@@ -565,6 +626,7 @@
                         </div>
                     </div>
                     </div>
+                    </div> <!-- End news-builder -->
                 </div> <!-- End MailChimp Tab -->
             </section>
 
@@ -627,6 +689,6 @@
         </div>
     </div>
 
-    <script src="/assets/app.js?v=30"></script>
+    <script src="/assets/app.js?v=31"></script>
 </body>
 </html>
