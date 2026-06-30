@@ -478,8 +478,12 @@
                 <!-- Visual Builder Tab -->
                 <div id="tab-mailchimp" class="tab-content" style="display: none;">
                     <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Recipient Emails (comma separated)</label>
+                        <textarea id="newsletter-leads" class="form-control" rows="2" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" placeholder="john@example.com, jane@example.com"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
                         <label>Subject Line</label>
-                        <input type="text" id="campaign-subject" required placeholder="Enter your email subject...">
+                        <input type="text" id="campaign-subject" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" required placeholder="Enter your email subject...">
                     </div>
 
                 <div class="builder-container">
@@ -623,6 +627,6 @@
         </div>
     </div>
 
-    <script src="/assets/app.js?v=29"></script>
+    <script src="/assets/app.js?v=30"></script>
 </body>
 </html>

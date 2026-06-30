@@ -675,7 +675,13 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     btn.disabled = true;
     
     try {
-        const res = await apiCall('/campaigns/send', 'POST', { subject, body: finalHTML });
+        const leadsText = document.getElementById('newsletter-leads').value;
+        const leads = leadsText.split(',').map(e => e.trim()).filter(e => e).map(e => ({email: e, name: ''}));
+        const payload = { subject, body: finalHTML };
+        if (leads.length > 0) {
+            payload.leads = leads;
+        }
+        const res = await apiCall('/campaigns/send', 'POST', payload);
         if (res.ok) {
             statusDiv.className = 'alert success';
             statusDiv.innerText = "Campaign successfully queued and blasting!";
