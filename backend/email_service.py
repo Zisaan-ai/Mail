@@ -61,6 +61,28 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
                     raise e
             return success_count
 
+        # Check if using Google Apps Script URL
+        if SMTP_PASSWORD.startswith("https://script.google.com/"):
+            import requests
+            for recipient in recipients:
+                payload = {
+                    "to": recipient,
+                    "subject": subject,
+                    "htmlBody": body_html
+                }
+                try:
+                    res = requests.post(SMTP_PASSWORD, json=payload, timeout=15)
+                    # Handle redirect (Google Scripts often return 302 or 200)
+                    if res.status_code in [200, 201, 302]:
+                        success_count += 1
+                        print(f"Sent successfully to {recipient} via Apps Script")
+                    else:
+                        raise Exception(f"Apps Script Error: {res.text}")
+                except Exception as e:
+                    print(f"Apps Script Connection failed: {e}")
+                    raise e
+            return success_count
+
         # Otherwise, fall back to standard SMTP
         if int(SMTP_PORT) == 465:
             server = smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT), timeout=5)
