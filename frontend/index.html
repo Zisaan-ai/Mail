@@ -3,929 +3,1051 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Email Marketer</title>
-    <link rel="stylesheet" href="/assets/style.css?v=24">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>MailClone - Email Marketing Platform</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <!-- Server Wake-up Overlay (shown only on Render cold start) -->
-    <div id="wake-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,15,35,0.97); z-index:99999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:sans-serif;">
-        <div style="font-size:40px; margin-bottom:20px;">☕</div>
-        <div style="font-size:20px; font-weight:600; margin-bottom:10px;">Server is waking up...</div>
-        <div style="font-size:14px; color:#aaa; margin-bottom:30px;">Free hosting sleeps after inactivity. Please wait ~30 seconds.</div>
-        <div id="wake-dots" style="font-size:30px; letter-spacing:10px;">⠋</div>
-    </div>
-    <script>
-    // Check if server is awake, show overlay if cold-starting
-    (function() {
-        var API = 'https://email-marketer-ijk5.onrender.com/api';
-        var overlay = document.getElementById('wake-overlay');
-        var dots = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
-        var di = 0;
-        var timer;
-        
-        function showOverlay() {
-            overlay.style.display = 'flex';
-            timer = setInterval(function() {
-                document.getElementById('wake-dots').innerText = dots[di++ % dots.length];
-            }, 100);
-        }
-        function hideOverlay() {
-            overlay.style.display = 'none';
-            clearInterval(timer);
-        }
-        
-        // Quick check if API is up
-        var start = Date.now();
-        fetch(API + '/ping', {method:'GET'})
-            .then(function(r) {
-                if (Date.now() - start < 3000) {
-                    hideOverlay(); // Fast response = already awake
-                } else {
-                    hideOverlay();
-                }
-            })
-            .catch(function() {
-                // Server is sleeping - show overlay and poll
-                showOverlay();
-                var interval = setInterval(function() {
-                    fetch(API + '/ping', {method:'GET'})
-                        .then(function(r) { if(r.ok) { clearInterval(interval); hideOverlay(); location.reload(); } })
-                        .catch(function() {});
-                }, 3000);
-            });
-        
-        // If no response in 5 seconds, show overlay
-        setTimeout(function() {
-            fetch(API + '/ping', {signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined})
-                .catch(function() { showOverlay(); });
-        }, 0);
-    })();
-    </script>
 
-    <!-- ============================================
-         NEW AUTH VIEW - Completely rebuilt
-         Two static forms, simple show/hide toggle
-         ============================================ -->
-    <div id="auth-view" class="active">
-        <div class="new-auth-wrapper">
-
-            <!-- Left: Branding Panel -->
-            <div class="new-auth-left">
-                <div class="new-auth-brand">
-                    <div class="new-auth-logo">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span>MailClone</span>
-                    </div>
-                    <h1>Grow your audience with<br><span class="brand-accent">AI-powered campaigns</span></h1>
-                    <p>Send smarter. Reach farther. Convert better. The all-in-one email marketing platform built for modern marketers.</p>
-                    <div class="new-auth-stats">
-                        <div class="new-stat-item">
-                            <div class="new-stat-num">10M+</div>
-                            <div class="new-stat-label">Emails Sent</div>
-                        </div>
-                        <div class="new-stat-item">
-                            <div class="new-stat-num">45%</div>
-                            <div class="new-stat-label">Avg Open Rate</div>
-                        </div>
-                        <div class="new-stat-item">
-                            <div class="new-stat-num">98%</div>
-                            <div class="new-stat-label">Deliverability</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="new-auth-bg-blur"></div>
-            </div>
-
-            <!-- Right: Form Panel -->
-            <div class="new-auth-right">
-                <div class="new-auth-card">
-
-                    <!-- ======= LOGIN FORM ======= -->
-                    <div id="login-panel">
-                        <div class="new-auth-header">
-                            <div class="new-auth-icon"><i class="fa-solid fa-lock-open"></i></div>
-                            <h2>Welcome back</h2>
-                            <p>Sign in to your MailClone account</p>
-                        </div>
-
-                        <!-- Tab switcher -->
-                        <div class="new-auth-tabs">
-                            <button class="new-tab-btn active" onclick="switchToLogin()">Sign In</button>
-                            <button class="new-tab-btn" onclick="switchToSignup()">Sign Up</button>
-                        </div>
-
-                        <div id="login-alert" class="new-alert" style="display:none;"></div>
-
-                        <div class="new-form-group">
-                            <label>Email Address</label>
-                            <div class="new-input-wrap">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
-                            </div>
-                        </div>
-                        <div class="new-form-group">
-                            <label>Password</label>
-                            <div class="new-input-wrap">
-                                <i class="fa-solid fa-key"></i>
-                                <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
-                            </div>
-                        </div>
-                        <div style="text-align:right; margin-bottom:20px;">
-                            <a href="#" id="forgot-pwd-link" style="font-size:13px; color:var(--primary); text-decoration:none;">Forgot password?</a>
-                        </div>
-                        <button class="new-submit-btn" id="login-btn" onclick="doLogin()">
-                            <span>Sign In</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                        <p class="new-switch-text">Don't have an account? <a href="#" onclick="switchToSignup(); return false;">Sign up</a></p>
-                    </div>
-
-                    <!-- ======= SIGNUP FORM ======= -->
-                    <div id="signup-panel" style="display:none;">
-                        <div class="new-auth-header">
-                            <div class="new-auth-icon" style="background:linear-gradient(135deg,#10b981,#059669);"><i class="fa-solid fa-user-plus"></i></div>
-                            <h2>Create account</h2>
-                            <p>Join MailClone and start scaling</p>
-                        </div>
-
-                        <!-- Tab switcher -->
-                        <div class="new-auth-tabs">
-                            <button class="new-tab-btn" onclick="switchToLogin()">Sign In</button>
-                            <button class="new-tab-btn active" onclick="switchToSignup()">Sign Up</button>
-                        </div>
-
-                        <div id="signup-alert" class="new-alert" style="display:none;"></div>
-
-                        <div class="new-form-group">
-                            <label>Email Address</label>
-                            <div class="new-input-wrap">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
-                            </div>
-                        </div>
-                        <div class="new-form-group">
-                            <label>Password</label>
-                            <div class="new-input-wrap">
-                                <i class="fa-solid fa-key"></i>
-                                <input type="password" id="signup-password" placeholder="Choose a strong password" autocomplete="new-password">
-                            </div>
-                        </div>
-                        <div class="new-form-group">
-                            <label>Confirm Password</label>
-                            <div class="new-input-wrap">
-                                <i class="fa-solid fa-shield-halved"></i>
-                                <input type="password" id="signup-confirm" placeholder="Repeat your password" autocomplete="new-password">
-                            </div>
-                        </div>
-                        <button class="new-submit-btn" id="signup-btn" onclick="doSignup()" style="background:linear-gradient(135deg,#10b981,#059669);">
-                            <span>Create Account</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                        <p class="new-switch-text">Already have an account? <a href="#" onclick="switchToLogin(); return false;">Sign in</a></p>
-                    </div>
-
-                    <!-- ======= VERIFICATION BOX ======= -->
-                    <div id="verification-box" style="display:none; text-align:center;">
-                        <div class="new-auth-icon" style="margin:0 auto 20px; background:linear-gradient(135deg,#f59e0b,#d97706);"><i class="fa-solid fa-envelope-open-text"></i></div>
-                        <h3 style="margin-bottom:10px;">Verify your email</h3>
-                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">We've sent a 6-digit code to your email.</p>
-                        <input type="text" id="verification-code" placeholder="Enter 6-digit code" style="width:100%; padding:15px; font-size:22px; text-align:center; letter-spacing:6px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px;" maxlength="6">
-                        <button class="new-submit-btn" id="verify-btn">Verify Account</button>
-                    </div>
-
-                    <!-- ======= FORGOT PASSWORD BOX ======= -->
-                    <div id="forgot-password-box" style="display:none; text-align:center;">
-                        <div class="new-auth-icon" style="margin:0 auto 20px; background:linear-gradient(135deg,#8b5cf6,#6d28d9);"><i class="fa-solid fa-unlock-keyhole"></i></div>
-                        <h3 style="margin-bottom:5px;">Reset Password</h3>
-                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;" id="forgot-pwd-text">Enter your email to receive a reset code.</p>
-                        <div id="forgot-step-1">
-                            <input type="email" id="forgot-email" placeholder="your@email.com" style="width:100%; padding:12px 15px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px; font-size:15px;">
-                            <button class="new-submit-btn" id="send-reset-btn">Send Code</button>
-                        </div>
-                        <div id="forgot-step-2" style="display:none;">
-                            <input type="text" id="reset-code" placeholder="6-digit code" style="width:100%; padding:12px; font-size:20px; text-align:center; letter-spacing:4px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:10px;" maxlength="6">
-                            <input type="password" id="new-password" placeholder="New Password" style="width:100%; padding:12px 15px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px; font-size:15px;">
-                            <button class="new-submit-btn" id="reset-pwd-btn">Reset Password</button>
-                        </div>
-                        <a href="#" id="back-to-login" style="display:block; margin-top:20px; font-size:14px; color:var(--text-muted);">← Back to Login</a>
-                    </div>
-
-                </div><!-- /new-auth-card -->
-            </div><!-- /new-auth-right -->
-        </div><!-- /new-auth-wrapper -->
-    </div><!-- /auth-view -->
-
-    <!-- ============== NEW AUTH CSS ============== -->
+    <!-- ============================================================
+         AUTH STYLES - completely self-contained, no external deps
+         ============================================================ -->
     <style>
-    .new-auth-wrapper {
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #0f0f1a; }
+
+    /* ---- AUTH PAGE ---- */
+    #auth-page {
         display: flex;
         height: 100vh;
         overflow: hidden;
-        background: #0f0f23;
     }
-    .new-auth-left {
-        flex: 1.2;
-        position: relative;
+    #auth-page.hidden { display: none; }
+
+    /* Left branding side */
+    .auth-left {
+        flex: 1.3;
+        background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 60px;
-        background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%);
+        position: relative;
         overflow: hidden;
     }
-    .new-auth-bg-blur {
+    .auth-left::before {
+        content: '';
         position: absolute;
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
         top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        pointer-events: none;
     }
-    .new-auth-brand { position: relative; z-index: 2; max-width: 480px; }
-    .new-auth-logo {
-        display: flex; align-items: center; gap: 12px;
-        margin-bottom: 48px;
-        font-size: 24px; font-weight: 700; color: #fff;
+    .auth-brand { position: relative; z-index: 1; max-width: 460px; }
+    .auth-brand-logo {
+        display: flex; align-items: center; gap: 14px;
+        margin-bottom: 52px;
     }
-    .new-auth-logo i { color: #818cf8; font-size: 28px; }
-    .new-auth-brand h1 {
-        font-size: 2.6rem; font-weight: 800;
-        color: #fff; line-height: 1.2;
-        margin-bottom: 20px;
+    .auth-brand-logo i { font-size: 30px; color: #a5b4fc; }
+    .auth-brand-logo span { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+    .auth-brand h1 {
+        font-size: 2.8rem; font-weight: 800; color: #fff;
+        line-height: 1.2; margin-bottom: 20px; letter-spacing: -1px;
     }
-    .brand-accent {
-        background: linear-gradient(90deg, #818cf8, #c084fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .auth-brand h1 em {
+        font-style: normal;
+        background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .new-auth-brand p {
-        font-size: 1rem; color: #9ca3af; line-height: 1.7;
-        margin-bottom: 48px;
-    }
-    .new-auth-stats { display: flex; gap: 32px; }
-    .new-stat-item { text-align: center; }
-    .new-stat-num { font-size: 1.8rem; font-weight: 800; color: #818cf8; }
-    .new-stat-label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
-    .new-auth-right {
+    .auth-brand p { color: #a5b4fc; font-size: 1rem; line-height: 1.7; margin-bottom: 52px; }
+    .auth-stats { display: flex; gap: 40px; }
+    .auth-stat-num { font-size: 2rem; font-weight: 800; color: #e0e7ff; }
+    .auth-stat-label { font-size: 0.72rem; color: #818cf8; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+
+    /* Right form side */
+    .auth-right {
         flex: 1;
-        display: flex; align-items: center; justify-content: center;
         background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 40px;
         overflow-y: auto;
     }
-    .new-auth-card { width: 100%; max-width: 420px; }
-    .new-auth-header { text-align: center; margin-bottom: 28px; }
-    .new-auth-icon {
-        width: 60px; height: 60px; border-radius: 16px;
-        background: linear-gradient(135deg, #6366f1, #818cf8);
+    .auth-card { width: 100%; max-width: 400px; }
+
+    /* Mode indicator icon */
+    .auth-mode-icon {
+        width: 64px; height: 64px;
+        border-radius: 18px;
         display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 16px;
-        font-size: 24px; color: #fff;
-        box-shadow: 0 8px 20px rgba(99,102,241,0.35);
+        font-size: 26px; color: #fff;
+        margin: 0 auto 18px;
+        transition: background 0.3s;
     }
-    .new-auth-header h2 { font-size: 1.7rem; font-weight: 700; color: #111827; margin-bottom: 6px; }
-    .new-auth-header p { font-size: 0.9rem; color: #6b7280; }
-    .new-auth-tabs {
-        display: flex; gap: 0;
-        background: #f3f4f6; border-radius: 10px;
-        padding: 4px; margin-bottom: 24px;
+    .auth-mode-icon.login-icon { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 8px 24px rgba(99,102,241,0.4); }
+    .auth-mode-icon.signup-icon { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 8px 24px rgba(5,150,105,0.4); }
+
+    .auth-card-title { font-size: 1.7rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 6px; }
+    .auth-card-sub { font-size: 0.88rem; color: #6b7280; text-align: center; margin-bottom: 28px; }
+
+    /* Tab buttons */
+    .auth-tabs {
+        display: flex; background: #f1f5f9;
+        border-radius: 10px; padding: 4px; margin-bottom: 26px;
     }
-    .new-tab-btn {
-        flex: 1; padding: 10px;
-        border: none; border-radius: 8px;
+    .auth-tab {
+        flex: 1; padding: 10px 0;
+        border: none; background: transparent;
         font-size: 14px; font-weight: 600;
-        cursor: pointer;
-        background: transparent; color: #6b7280;
-        transition: all 0.2s;
-    }
-    .new-tab-btn.active {
-        background: #fff; color: #111827;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    .new-form-group { margin-bottom: 16px; }
-    .new-form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-    .new-input-wrap { position: relative; }
-    .new-input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
-    .new-input-wrap input {
-        width: 100%; padding: 13px 14px 13px 40px;
-        border: 2px solid #e5e7eb; border-radius: 10px;
-        font-size: 15px; outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        box-sizing: border-box;
+        color: #94a3b8; cursor: pointer;
+        border-radius: 8px; transition: all 0.2s;
         font-family: 'Inter', sans-serif;
     }
-    .new-input-wrap input:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    .auth-tab.on { background: #fff; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    /* Forms */
+    .auth-form { display: none; }
+    .auth-form.on { display: block; }
+
+    .auth-alert {
+        padding: 12px 16px; border-radius: 8px; font-size: 14px;
+        margin-bottom: 16px; display: none;
     }
-    .new-submit-btn {
-        width: 100%; padding: 14px 20px;
-        background: linear-gradient(135deg, #6366f1, #818cf8);
-        color: #fff; border: none; border-radius: 10px;
+    .auth-alert.err { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
+    .auth-alert.ok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+
+    .fld { margin-bottom: 16px; }
+    .fld label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px; }
+    .fld-wrap { position: relative; }
+    .fld-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; pointer-events: none; }
+    .fld-wrap input {
+        width: 100%; padding: 13px 13px 13px 40px;
+        border: 2px solid #e2e8f0; border-radius: 10px;
+        font-size: 15px; font-family: 'Inter', sans-serif;
+        outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        color: #111827;
+    }
+    .fld-wrap input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+    .forgot-link { display: block; text-align: right; font-size: 13px; color: #6366f1; text-decoration: none; margin-bottom: 20px; margin-top: -8px; }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .auth-btn {
+        width: 100%; padding: 14px;
+        border: none; border-radius: 10px;
         font-size: 16px; font-weight: 700;
-        cursor: pointer;
+        color: #fff; cursor: pointer;
         display: flex; align-items: center; justify-content: center; gap: 10px;
-        transition: opacity 0.2s, transform 0.1s;
         font-family: 'Inter', sans-serif;
-        box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+        transition: opacity 0.2s, transform 0.1s;
     }
-    .new-submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-    .new-submit-btn:active { transform: translateY(0); }
-    .new-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .new-switch-text { text-align: center; margin-top: 20px; font-size: 14px; color: #6b7280; }
-    .new-switch-text a { color: #6366f1; font-weight: 600; text-decoration: none; }
-    .new-switch-text a:hover { text-decoration: underline; }
-    .new-alert {
-        padding: 12px 16px; border-radius: 8px;
-        font-size: 14px; margin-bottom: 16px;
-        background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    .auth-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .auth-btn:active { transform: translateY(0); }
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .auth-btn.login-btn { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
+    .auth-btn.signup-btn { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 14px rgba(5,150,105,0.35); }
+
+    .auth-switch { text-align: center; margin-top: 20px; font-size: 14px; color: #6b7280; }
+    .auth-switch a { color: #6366f1; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* Verification box */
+    #verify-box { display: none; text-align: center; }
+    #verify-box.on { display: block; }
+    .verify-code-input {
+        width: 100%; padding: 16px; font-size: 24px;
+        text-align: center; letter-spacing: 8px;
+        border: 2px solid #e2e8f0; border-radius: 10px;
+        outline: none; margin-bottom: 16px;
+        font-family: 'Inter', sans-serif; color: #111827;
     }
-    .new-alert.success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+    .verify-code-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+    /* Forgot password box */
+    #forgot-box { display: none; text-align: center; }
+    #forgot-box.on { display: block; }
+    .plain-input {
+        width: 100%; padding: 13px 16px; font-size: 15px;
+        border: 2px solid #e2e8f0; border-radius: 10px;
+        outline: none; margin-bottom: 14px;
+        font-family: 'Inter', sans-serif; color: #111827;
+    }
+    .plain-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+    .back-link { display: inline-block; margin-top: 16px; font-size: 14px; color: #6b7280; cursor: pointer; text-decoration: none; }
+    .back-link:hover { color: #374151; }
+
     @media (max-width: 768px) {
-        .new-auth-left { display: none; }
-        .new-auth-right { padding: 24px; }
+        .auth-left { display: none; }
+        .auth-right { padding: 28px 20px; }
     }
+
+    /* ---- MAIN APP HIDDEN BY DEFAULT ---- */
+    #app-page { display: none; }
+    #app-page.on { display: flex; }
+
+    /* Wake overlay */
+    #wake-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(15,15,26,0.96); z-index: 99999;
+        flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; font-family: 'Inter', sans-serif;
+    }
+    #wake-overlay.on { display: flex; }
     </style>
+</head>
+<body>
 
-    <!-- Main App View -->
-    <div id="app-view">
-        <aside class="sidebar glass">
-            <div class="logo">
+<!-- ============================================================
+     SERVER WAKE-UP OVERLAY
+     Shown when Render free tier is cold-starting
+     ============================================================ -->
+<div id="wake-overlay">
+    <div style="font-size:48px;margin-bottom:20px;">☕</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Server waking up...</div>
+    <div style="font-size:14px;color:#a5b4fc;margin-bottom:32px;">Free hosting sleeps after 15min. Please wait ~30 sec.</div>
+    <div id="wake-spinner" style="width:40px;height:40px;border:3px solid rgba(165,180,252,0.3);border-top-color:#a5b4fc;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+</div>
+
+<!-- ============================================================
+     AUTH PAGE - 100% self-contained
+     No dependency on app.js for auth functionality
+     ============================================================ -->
+<div id="auth-page">
+
+    <!-- LEFT BRANDING -->
+    <div class="auth-left">
+        <div class="auth-brand">
+            <div class="auth-brand-logo">
                 <i class="fa-solid fa-paper-plane"></i>
-                <h2>MailClone</h2>
+                <span>MailClone</span>
             </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active" data-target="dashboard">
-                    <i class="fa-solid fa-chart-pie"></i> Dashboard
-                </a>
-                <a href="#" class="nav-item" data-target="contacts-view">
-                    <i class="fa-solid fa-users"></i> Contacts
-                </a>
-                <a href="#" class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;">
-                    <i class="fa-solid fa-user-shield"></i> Admin Panel
-                </a>
-                <a href="#" class="nav-item" data-target="campaigns">
-                    <i class="fa-solid fa-envelope-open-text"></i> Campaigns
-                </a>
-            </nav>
-            <div style="margin-top: auto;">
-                <button id="logout-btn" class="btn danger full-width"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+            <h1>Grow your audience with <em>AI campaigns</em></h1>
+            <p>Send smarter. Reach farther. Convert better. The all-in-one email marketing platform built for modern marketers.</p>
+            <div class="auth-stats">
+                <div>
+                    <div class="auth-stat-num">10M+</div>
+                    <div class="auth-stat-label">Emails Sent</div>
+                </div>
+                <div>
+                    <div class="auth-stat-num">45%</div>
+                    <div class="auth-stat-label">Open Rate</div>
+                </div>
+                <div>
+                    <div class="auth-stat-num">98%</div>
+                    <div class="auth-stat-label">Deliverability</div>
+                </div>
             </div>
-        </aside>
+        </div>
+    </div>
 
-        <main class="main-content">
-            <!-- Dashboard View -->
-            <section id="dashboard" class="view active">
-                <header>
-                    <h1>Dashboard</h1>
-                    <p>Overview of your marketing performance</p>
-                </header>
-                <div class="stats-grid">
-                    <div class="stat-card glass">
-                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                        <div class="stat-info">
-                            <h3>Total Audience</h3>
-                            <p id="stat-contacts">0</p>
-                        </div>
-                    </div>
-                    <div class="stat-card glass">
-                        <div class="stat-icon"><i class="fa-solid fa-envelope-circle-check"></i></div>
-                        <div class="stat-info">
-                            <h3>Emails Sent</h3>
-                            <p id="stat-sent">0</p>
-                        </div>
-                    </div>
-                    <div class="stat-card glass">
-                        <div class="stat-icon" style="color:var(--success); background:rgba(16,185,129,0.1);"><i class="fa-solid fa-eye"></i></div>
-                        <div class="stat-info">
-                            <h3>Total Opens</h3>
-                            <p id="stat-opens">0</p>
-                        </div>
-                    </div>
-                    <div class="stat-card glass">
-                        <div class="stat-icon" style="color:#F59E0B; background:rgba(245,158,11,0.1);"><i class="fa-solid fa-hand-pointer"></i></div>
-                        <div class="stat-info">
-                            <h3>Total Clicks</h3>
-                            <p id="stat-clicks">0</p>
-                        </div>
+    <!-- RIGHT FORMS -->
+    <div class="auth-right">
+        <div class="auth-card">
+
+            <!-- MODE ICON (changes with tab) -->
+            <div id="auth-icon" class="auth-mode-icon login-icon"><i class="fa-solid fa-lock-open"></i></div>
+            <div id="auth-title" class="auth-card-title">Welcome back</div>
+            <div id="auth-subtitle" class="auth-card-sub">Sign in to your MailClone account</div>
+
+            <!-- TAB SWITCHER -->
+            <div class="auth-tabs">
+                <button class="auth-tab on" id="tab-login" onclick="AUTH.showLogin()">Sign In</button>
+                <button class="auth-tab" id="tab-signup" onclick="AUTH.showSignup()">Sign Up</button>
+            </div>
+
+            <!-- ===== LOGIN FORM ===== -->
+            <div id="form-login" class="auth-form on">
+                <div id="login-alert" class="auth-alert"></div>
+                <div class="fld">
+                    <label>Email Address</label>
+                    <div class="fld-wrap">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
                     </div>
                 </div>
-
-                <h2>Recent Campaigns</h2>
-                <div class="table-container glass">
-                    <table id="dashboard-campaigns">
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Sent</th>
-                                <th>Opens</th>
-                                <th>Clicks</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Contacts View -->
-            <section id="contacts" class="view">
-                <header>
-                    <div>
-                        <h1>Audience</h1>
-                        <p>Manage your contacts and tags</p>
+                <div class="fld">
+                    <label>Password</label>
+                    <div class="fld-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password"
+                               onkeydown="if(event.key==='Enter') AUTH.doLogin()">
                     </div>
-                </header>
-                
-                <div class="card glass">
-                    <h3>Add Contact</h3>
-                    <form id="contact-form" style="display:flex; gap:10px; margin-top:15px; align-items:flex-end;">
-                        <div class="form-group" style="margin:0; flex:1;">
-                            <label>Name</label>
-                            <input type="text" id="contact-name" placeholder="Optional">
-                        </div>
-                        <div class="form-group" style="margin:0; flex:1;">
-                            <label>Email</label>
-                            <input type="email" id="contact-email" required>
-                        </div>
-                        <div class="form-group" style="margin:0; flex:1;">
-                            <label>Tags (Comma separated)</label>
-                            <input type="text" id="contact-tags" placeholder="e.g. VIP, Client">
-                        </div>
-                        <button type="submit" class="btn primary">Add</button>
-                    </form>
                 </div>
+                <a class="forgot-link" onclick="AUTH.showForgot()">Forgot password?</a>
+                <button class="auth-btn login-btn" id="login-btn" onclick="AUTH.doLogin()">
+                    <span>Sign In</span><i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <p class="auth-switch">No account? <a onclick="AUTH.showSignup()">Sign up free</a></p>
+            </div>
 
-                <div class="table-container glass">
-                    <table id="contacts-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Tags</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+            <!-- ===== SIGNUP FORM ===== -->
+            <div id="form-signup" class="auth-form">
+                <div id="signup-alert" class="auth-alert"></div>
+                <div class="fld">
+                    <label>Email Address</label>
+                    <div class="fld-wrap">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
+                    </div>
                 </div>
-            </section>
+                <div class="fld">
+                    <label>Password</label>
+                    <div class="fld-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="signup-pass" placeholder="Min 6 characters" autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="fld">
+                    <label>Confirm Password</label>
+                    <div class="fld-wrap">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <input type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password"
+                               onkeydown="if(event.key==='Enter') AUTH.doSignup()">
+                    </div>
+                </div>
+                <button class="auth-btn signup-btn" id="signup-btn" onclick="AUTH.doSignup()">
+                    <span>Create Account</span><i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <p class="auth-switch">Have an account? <a onclick="AUTH.showLogin()">Sign in</a></p>
+            </div>
 
-            <!-- Campaigns View -->
-            <section id="campaigns" class="view">
-                <header>
-                    <h1>Create Campaign</h1>
-                    <p>Design and blast your email campaign</p>
-                </header>
-                
-                <!-- Tabs -->
-                <div class="campaign-tabs" style="margin-bottom: 20px; border-bottom: 2px solid var(--border-color); display: flex; gap: 20px;">
-                    <button class="tab-btn active" data-tab="tab-instantly" style="background:none; border:none; padding:10px 0; font-size:16px; font-weight:600; cursor:pointer; color:var(--primary); border-bottom: 2px solid var(--primary); margin-bottom:-2px; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-bolt"></i> Cold Email Builder
-                    </button>
-                    <button class="tab-btn" data-tab="tab-mailchimp" style="background:none; border:none; padding:10px 0; font-size:16px; font-weight:600; cursor:pointer; color:var(--text-muted); border-bottom: 2px solid transparent; margin-bottom:-2px; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-paintbrush"></i> Visual Newsletter Builder
+            <!-- ===== VERIFICATION BOX ===== -->
+            <div id="verify-box">
+                <div style="font-size:48px;margin-bottom:12px;">📧</div>
+                <div style="font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;">Check your email</div>
+                <div style="font-size:14px;color:#6b7280;margin-bottom:24px;">We sent a 6-digit code to your email. Enter it below.</div>
+                <div id="verify-alert" class="auth-alert"></div>
+                <input type="text" id="verify-code" class="verify-code-input" placeholder="000000" maxlength="6"
+                       onkeydown="if(event.key==='Enter') AUTH.doVerify()">
+                <button class="auth-btn login-btn" id="verify-btn" onclick="AUTH.doVerify()">
+                    <span>Verify Account</span>
+                </button>
+                <a class="back-link" onclick="AUTH.showLogin()">← Back to login</a>
+            </div>
+
+            <!-- ===== FORGOT PASSWORD BOX ===== -->
+            <div id="forgot-box">
+                <div style="font-size:48px;margin-bottom:12px;">🔐</div>
+                <div style="font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;">Reset Password</div>
+                <div id="forgot-text" style="font-size:14px;color:#6b7280;margin-bottom:24px;">Enter your email to receive a reset code.</div>
+                <div id="forgot-alert" class="auth-alert"></div>
+
+                <div id="forgot-step1">
+                    <input type="email" id="forgot-email" class="plain-input" placeholder="your@email.com">
+                    <button class="auth-btn" id="forgot-btn"
+                            style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);box-shadow:0 4px 14px rgba(139,92,246,0.35);"
+                            onclick="AUTH.sendReset()">
+                        <span>Send Reset Code</span>
                     </button>
                 </div>
-                
-                <!-- Cold Email Tab -->
-                <div id="tab-instantly" class="tab-content active" style="display: block;">
-                    
-                    <!-- Cold Email Sub-Navigation -->
-                    <div class="instantly-subnav" style="display: flex; gap: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
-                        <a href="#" class="inst-nav" data-target="inst-analytics" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Analytics</a>
-                        <a href="#" class="inst-nav" data-target="inst-leads" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Leads</a>
-                        <a href="#" class="inst-nav active" data-target="inst-sequences" style="text-decoration:none; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:15px; margin-bottom:-16px; font-weight:600;">Sequences</a>
-                        <a href="#" class="inst-nav" data-target="inst-schedule" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Schedule</a>
-                        <a href="#" class="inst-nav" data-target="inst-options" style="text-decoration:none; color:var(--text-muted); font-weight:500;">Options</a>
-                    </div>
-                    
-                    <!-- Analytics View (Dummy) -->
-                    <div id="inst-analytics" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <h3 style="margin-bottom: 20px; font-weight: 600; font-size: 1.2em;">Campaign Analytics</h3>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
-                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 600; color: var(--primary);">0</div>
-                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Contacted</div>
-                            </div>
-                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 600; color: #10B981;">0%</div>
-                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Open Rate</div>
-                            </div>
-                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 600; color: #3B82F6;">0%</div>
-                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Reply Rate</div>
-                            </div>
-                            <div style="padding: 15px; background: #F9FAFB; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 600; color: #F59E0B;">0%</div>
-                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Click Rate</div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Leads View -->
-                    <div id="inst-leads" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <div>
-                                <h3 style="font-weight: 600; font-size: 1.2em;">Campaign Leads</h3>
-                                <p style="font-size:12px; color:var(--text-muted);">Leads added here are isolated to this specific campaign.</p>
-                            </div>
-                            <button class="btn" style="border: 1px solid var(--border-color);" onclick="document.getElementById('inst-add-lead-modal').style.display='flex'">
-                                <i class="fa-solid fa-plus"></i> Add Lead
+                <div id="forgot-step2" style="display:none;">
+                    <input type="text" id="reset-code" class="plain-input" placeholder="6-digit code" maxlength="6" style="text-align:center;letter-spacing:6px;font-size:20px;">
+                    <input type="password" id="new-pass" class="plain-input" placeholder="New password">
+                    <button class="auth-btn" id="reset-btn"
+                            style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);box-shadow:0 4px 14px rgba(139,92,246,0.35);"
+                            onclick="AUTH.doReset()">
+                        <span>Reset Password</span>
+                    </button>
+                </div>
+                <a class="back-link" onclick="AUTH.showLogin()">← Back to login</a>
+            </div>
+
+        </div><!-- /auth-card -->
+    </div><!-- /auth-right -->
+</div><!-- /auth-page -->
+
+
+<!-- ============================================================
+     MAIN APP PAGE
+     ============================================================ -->
+<div id="app-page">
+    <aside class="sidebar glass">
+        <div class="logo">
+            <i class="fa-solid fa-paper-plane"></i>
+            <h2>MailClone</h2>
+        </div>
+        <nav>
+            <a class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+            <a class="nav-item" data-target="campaigns"><i class="fa-solid fa-paper-plane"></i><span>Campaigns</span></a>
+            <a class="nav-item" data-target="contacts"><i class="fa-solid fa-users"></i><span>Contacts</span></a>
+            <a class="nav-item" data-target="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+            <a class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;"><i class="fa-solid fa-user-shield"></i><span>Admin</span></a>
+        </nav>
+        <div style="margin-top:auto; padding:20px 0 0;">
+            <button class="btn" id="logout-btn" style="width:100%; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8);">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard" class="view active">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Overview of your email marketing performance</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card glass">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-value" id="stat-contacts">0</div>
+                    <div class="stat-label">Total Contacts</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fa-solid fa-paper-plane"></i></div>
+                    <div class="stat-value" id="stat-sent">0</div>
+                    <div class="stat-label">Emails Sent</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fa-solid fa-envelope-open"></i></div>
+                    <div class="stat-value" id="stat-opens">0</div>
+                    <div class="stat-label">Total Opens</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fa-solid fa-mouse-pointer"></i></div>
+                    <div class="stat-value" id="stat-clicks">0</div>
+                    <div class="stat-label">Total Clicks</div>
+                </div>
+            </div>
+            <div class="glass" style="border-radius:16px; padding:24px; margin-top:24px;">
+                <h3 style="margin-bottom:16px; color:var(--text-color);">Recent Campaigns</h3>
+                <table id="dashboard-campaigns" style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="color:var(--text-muted); font-size:13px; border-bottom:1px solid var(--border-color);">
+                            <th style="text-align:left; padding:10px 12px;">Subject</th>
+                            <th style="text-align:left; padding:10px 12px;">Sent</th>
+                            <th style="text-align:left; padding:10px 12px;">Opens</th>
+                            <th style="text-align:left; padding:10px 12px;">Clicks</th>
+                            <th style="text-align:left; padding:10px 12px;">Status</th>
+                            <th style="text-align:left; padding:10px 12px;">Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CAMPAIGNS VIEW -->
+        <div id="campaigns" class="view">
+            <div class="page-header">
+                <h1 class="page-title">Campaigns</h1>
+                <p class="page-subtitle">Create and send email campaigns</p>
+            </div>
+            <div class="tabs-bar">
+                <button class="tab-btn active" data-tab="tab-builder">
+                    <i class="fa-solid fa-paintbrush"></i> Visual Builder
+                </button>
+                <button class="tab-btn" data-tab="tab-instantly">
+                    <i class="fa-solid fa-bolt"></i> Sequence
+                </button>
+                <button class="tab-btn" data-tab="tab-abtest">
+                    <i class="fa-solid fa-flask"></i> A/B Test
+                </button>
+            </div>
+
+            <!-- Visual Builder Tab -->
+            <div class="tab-content active" id="tab-builder">
+                <div class="builder-layout">
+                    <div class="builder-sidebar glass">
+                        <div class="form-group">
+                            <label>Subject Line</label>
+                            <input type="text" id="campaign-subject" placeholder="Enter email subject...">
+                        </div>
+                        <div class="form-group">
+                            <label>Recipient Emails (optional, one per line)</label>
+                            <textarea id="newsletter-leads" rows="4" placeholder="email@example.com, Name&#10;or just email@example.com"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Template</label>
+                            <select id="premade-templates">
+                                <option value="">Choose template...</option>
+                                <option value="sell_products">Sell Products</option>
+                                <option value="make_announcement">Announcement</option>
+                                <option value="newsletter">Newsletter</option>
+                                <option value="welcome_email">Welcome Email</option>
+                                <option value="cold_email">Cold Email</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Canvas Color</label>
+                            <input type="color" id="global-bg-color" value="#ffffff" style="width:100%;height:40px;border:1px solid var(--border-color);border-radius:8px;cursor:pointer;padding:2px;">
+                        </div>
+                        <div style="display:flex;gap:8px;margin-bottom:16px;">
+                            <button id="preview-desktop" class="btn active" style="flex:1;padding:8px;font-size:13px;">
+                                <i class="fa-solid fa-desktop"></i> Desktop
+                            </button>
+                            <button id="preview-mobile" class="btn" style="flex:1;padding:8px;font-size:13px;">
+                                <i class="fa-solid fa-mobile-alt"></i> Mobile
                             </button>
                         </div>
-                        <div style="overflow-x: auto;">
-                            <table class="table" id="inst-campaign-leads-table" style="display:none;">
-                                <thead>
-                                    <tr>
-                                        <th>Email</th>
-                                        <th>Name</th>
-                                        <th>Company</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inst-campaign-leads-tbody">
-                                    <!-- Leads will be dynamically added here -->
-                                </tbody>
-                            </table>
-                            <div id="inst-no-leads-msg" style="text-align:center; padding: 40px 20px; color:var(--text-muted);">
-                                No leads added to this campaign yet.
+                        <hr style="border:none;border-top:1px solid var(--border-color);margin-bottom:16px;">
+                        <div id="block-palette">
+                            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Drag blocks to canvas:</p>
+                            <div class="draggable-block" data-type="text" draggable="true" ondragstart="window.drag(event)">
+                                <i class="fa-solid fa-font"></i> Text Block
+                            </div>
+                            <div class="draggable-block" data-type="image" draggable="true" ondragstart="window.drag(event)">
+                                <i class="fa-solid fa-image"></i> Image Block
+                            </div>
+                            <div class="draggable-block" data-type="button" draggable="true" ondragstart="window.drag(event)">
+                                <i class="fa-solid fa-hand-pointer"></i> Button Block
+                            </div>
+                            <div class="draggable-block" data-type="divider" draggable="true" ondragstart="window.drag(event)">
+                                <i class="fa-solid fa-minus"></i> Divider
                             </div>
                         </div>
-                        
-                        <!-- Add Lead Modal -->
-                        <div id="inst-add-lead-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-                            <div style="background:#fff; padding:25px; border-radius:8px; width:400px; max-width:90%;">
-                                <h3 style="margin-bottom:20px;">Add Campaign Lead</h3>
-                                <div class="form-group" style="margin-bottom:20px;">
-                                    <label>Emails (email, name, company/brand) - separated by newline</label>
-                                    <textarea id="inst-lead-emails" class="form-control" rows="6" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:4px; font-family: monospace;" placeholder="john@example.com, John Doe, Example Corp&#10;jane@example.com, Jane, JaneBrand&#10;test@example.com"></textarea>
-                                </div>
-                                <div style="display:flex; justify-content:flex-end; gap:10px;">
-                                    <button class="btn" onclick="document.getElementById('inst-add-lead-modal').style.display='none'">Cancel</button>
-                                    <button class="btn primary" id="inst-save-lead-btn">Add Lead</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sequences View (Active) -->
-                    <div id="inst-sequences" class="inst-view active" style="display:flex; min-height: 600px; border: 1px solid var(--border-color); background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        
-                        <!-- Left Sidebar: Steps -->
-                        <div class="inst-steps-sidebar" style="width: 250px; background: #F9FAFB; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                            <div style="padding: 15px; font-weight: 600; border-bottom: 1px solid var(--border-color); color:var(--mc-black);">Steps</div>
-                            <div id="inst-steps-list" style="flex: 1; overflow-y: auto;">
-                                <!-- Step 1 (Default) -->
-                                <div class="inst-step-item active" data-step="1" style="padding: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; background: #fff; border-left: 3px solid var(--primary);">
-                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Step 1</div>
-                                    <div style="font-size: 12px; color: var(--text-muted);">Day 1</div>
-                                </div>
-                            </div>
-                            <div style="padding: 15px; border-top: 1px solid var(--border-color); background: #fff;">
-                                <button type="button" id="inst-add-step" class="btn" style="width: 100%; border-style: dashed; color: var(--primary);"><i class="fa-solid fa-plus"></i> Add Step</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Right Area: Editor -->
-                        <div class="inst-editor-area" style="flex: 1; display: flex; flex-direction: column; padding: 20px; background: #fff;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                                <h3 id="inst-current-step-title" style="font-size:1.2em; font-weight: 500; margin:0;">Step 1</h3>
-                                <div id="inst-wait-container" style="display:none; align-items:center; gap:10px; font-size:14px; color:var(--text-main);">
-                                    Wait <input type="number" id="inst-wait-days" value="2" min="1" style="width:60px; padding:5px; border:1px solid #ccc; border-radius:4px; text-align:center;"> days
-                                </div>
-                            </div>
-                            
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-                                <div style="font-weight: 500;">Variant A</div>
-                                <label style="display:flex; align-items:center; gap: 8px; font-size: 14px; cursor: pointer; color: var(--primary); font-weight: 500;">
-                                    <input type="checkbox" id="inst-ab-test-toggle" style="width:16px; height:16px; cursor:pointer;"> Enable A/B Testing
-                                </label>
-                            </div>
-                            <input type="text" id="instantly-subject" placeholder="Subject" style="width: 100%; border: none; border-bottom: 1px solid #E5E7EB; padding: 10px 0; font-size: 16px; margin-bottom: 15px; outline: none; transition: border-color 0.2s;">
-                            
-                            <!-- Editor Toolbar -->
-                            <div class="inst-toolbar" style="display: flex; gap: 8px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #E5E7EB;">
-                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('bold',false,null)" title="Bold"><i class="fa-solid fa-bold"></i></button>
-                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('italic',false,null)" title="Italic"><i class="fa-solid fa-italic"></i></button>
-                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('createLink',false,prompt('URL:'))" title="Add Link"><i class="fa-solid fa-link"></i></button>
-                                <div style="width: 1px; background: #E5E7EB; margin: 0 5px;"></div>
-                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent; color: var(--primary);" id="inst-var-btn"><i class="fa-solid fa-code"></i> Insert Variable</button>
-                                <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: linear-gradient(135deg, #a855f7, #6366f1); color: white; border: none; margin-left: auto; border-radius: 4px;" id="ai-write-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Write for me</button>
-                            </div>
-                            
-                            <!-- Editor Body -->
-                            <div id="instantly-body" contenteditable="true" style="flex: 1; min-height: 150px; padding: 10px; border: 1px solid transparent; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;" onfocus="this.style.borderColor='#E5E7EB'" onblur="this.style.borderColor='transparent'"></div>
-                            
-                            <!-- Variant B Section (Hidden by default) -->
-                            <div id="inst-variant-b-container" style="display:none; margin-top: 20px; border-top: 2px dashed #E5E7EB; padding-top: 20px;">
-                                <div style="font-weight: 500; margin-bottom: 15px; color: var(--primary);">Variant B</div>
-                                <input type="text" id="instantly-subject-b" placeholder="Subject B" style="width: 100%; border: none; border-bottom: 1px solid #E5E7EB; padding: 10px 0; font-size: 16px; margin-bottom: 15px; outline: none; transition: border-color 0.2s;">
-                                
-                                <div class="inst-toolbar" style="display: flex; gap: 8px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #E5E7EB;">
-                                    <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('bold',false,null)" title="Bold"><i class="fa-solid fa-bold"></i></button>
-                                    <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent;" onclick="document.execCommand('italic',false,null)" title="Italic"><i class="fa-solid fa-italic"></i></button>
-                                    <div style="width: 1px; background: #E5E7EB; margin: 0 5px;"></div>
-                                    <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent; color: var(--primary);" onclick="document.getElementById('instantly-body-b').focus(); document.execCommand('insertText', false, '{{Name}}')"><i class="fa-solid fa-code"></i> Insert Variable</button>
-                                </div>
-                                <div id="instantly-body-b" contenteditable="true" style="min-height: 150px; padding: 10px; border: 1px solid transparent; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;" onfocus="this.style.borderColor='#E5E7EB'" onblur="this.style.borderColor='transparent'"></div>
-                            </div>
-                            
-                            <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; border-top: 1px solid #E5E7EB; padding-top: 15px;">
-                                <div id="instantly-status" style="display:none; font-size:14px; font-weight:500;"></div>
-                                <button type="button" class="btn primary btn-large" id="instantly-send-btn" style="border-radius: 6px;">
-                                    <i class="fa-solid fa-paper-plane"></i> Launch Sequence
+                        <div id="property-editor" style="display:none;">
+                            <div class="property-editor-header">
+                                <button id="back-to-palette-btn" class="btn" style="padding:8px 12px;font-size:12px;">
+                                    <i class="fa-solid fa-arrow-left"></i> Back
                                 </button>
+                                <span style="font-size:14px;font-weight:600;color:var(--text-color);">Edit Block</span>
+                            </div>
+                            <div id="property-fields"></div>
+                            <div style="display:flex;gap:8px;margin-top:16px;">
+                                <button id="save-block-btn" class="btn primary" style="flex:1;">Apply</button>
+                                <button id="delete-block-btn" class="btn danger" style="flex:1;">Delete</button>
                             </div>
                         </div>
+                        <button class="btn primary" id="send-btn" style="width:100%;margin-top:16px;padding:14px;">
+                            <i class="fa-solid fa-paper-plane"></i> Blast Campaign
+                        </button>
+                        <div id="campaign-status" class="alert" style="margin-top:12px;display:none;"></div>
                     </div>
-
-                    <!-- Schedule View -->
-                    <div id="inst-schedule" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="max-width: 500px; margin: 0 auto;">
-                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Campaign Schedule</h3>
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label style="font-weight: 500;">Timezone</label>
-                                <select class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
-                                    <option>UTC (Universal Coordinated Time)</option>
-                                    <option>EST (Eastern Standard Time)</option>
-                                    <option>PST (Pacific Standard Time)</option>
-                                    <option selected>Asia/Dhaka (BDT)</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label style="font-weight: 500;">Sending Days</label>
-                                <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Mon</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Tue</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Wed</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Thu</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" checked> Fri</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox"> Sat</label>
-                                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox"> Sun</label>
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 25px;">
-                                <label style="font-weight: 500;">Sending Time</label>
-                                <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
-                                    <input type="time" value="09:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
-                                    <span style="color:var(--text-muted);">to</span>
-                                    <input type="time" value="17:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
-                                </div>
-                            </div>
-                            <button class="btn primary" style="border-radius: 4px;">Save Schedule</button>
-                        </div>
-                    </div>
-
-                    <!-- Options View -->
-                    <div id="inst-options" class="inst-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="max-width: 500px; margin: 0 auto;">
-                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Campaign Options</h3>
-                            <div class="form-group" style="margin-bottom: 15px; display:flex; align-items:center; justify-content:space-between;">
-                                <div>
-                                    <label style="font-weight: 600; margin-bottom: 3px; display:block;">Stop on Reply</label>
-                                    <span style="font-size: 12px; color: var(--text-muted);">Automatically stop sending follow-ups if a lead replies.</span>
-                                </div>
-                                <input type="checkbox" checked style="width:18px; height:18px; cursor:pointer;">
-                            </div>
-                            <hr style="border-top:1px solid #E5E7EB; margin: 20px 0;">
-                            <div class="form-group" style="margin-bottom: 15px; display:flex; align-items:center; justify-content:space-between;">
-                                <div>
-                                    <label style="font-weight: 600; margin-bottom: 3px; display:block;">Track Opens & Link Clicks</label>
-                                    <span style="font-size: 12px; color: var(--text-muted);">Insert a tracking pixel to monitor engagement.</span>
-                                </div>
-                                <input type="checkbox" checked style="width:18px; height:18px; cursor:pointer;">
-                            </div>
-                            <hr style="border-top:1px solid #E5E7EB; margin: 20px 0;">
-                            <div class="form-group" style="margin-bottom: 25px;">
-                                <label style="font-weight: 600;">Daily Sending Limit</label>
-                                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Max emails to send per day for this campaign to avoid spam filters.</p>
-                                <input type="number" value="50" style="width: 100px; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
-                            </div>
-                            <button class="btn primary" style="border-radius: 4px;">Save Options</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visual Builder Tab -->
-                <div id="tab-mailchimp" class="tab-content" style="display: none;">
-                    
-                    <nav class="news-nav" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; gap: 15px;">
-                        <button type="button" class="news-tab" data-target="news-analytics" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Analytics</button>
-                        <button type="button" class="news-tab" data-target="news-leads" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Leads</button>
-                        <button type="button" class="news-tab active" data-target="news-builder" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--primary); border-bottom:2px solid var(--primary);">Builder</button>
-                        <button type="button" class="news-tab" data-target="news-schedule" style="background:none; border:none; padding:10px; cursor:pointer; font-weight:600; color:var(--text-muted);">Schedule</button>
-                    </nav>
-
-                    <!-- Analytics Tab -->
-                    <div id="news-analytics" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <h3 style="margin-bottom: 20px; font-weight: 600;">Newsletter Analytics</h3>
-                        <div style="display: flex; gap: 20px;">
-                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-                                <div style="font-size: 14px; color: var(--text-muted);">Total Sent</div>
-                                <div style="font-size: 24px; font-weight: bold; color: var(--text-main);">0</div>
-                            </div>
-                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-                                <div style="font-size: 14px; color: var(--text-muted);">Total Opens</div>
-                                <div style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
-                            </div>
-                            <div style="flex: 1; padding: 20px; background: #F9FAFB; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-                                <div style="font-size: 14px; color: var(--text-muted);">Total Clicks</div>
-                                <div style="font-size: 24px; font-weight: bold; color: var(--secondary);">0</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Leads Tab -->
-                    <div id="news-leads" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <div>
-                                <h3 style="font-weight: 600; font-size: 1.2em;">Newsletter Recipients</h3>
-                                <p style="font-size:12px; color:var(--text-muted);">Format: email, name, company/brand (newline separated)</p>
-                            </div>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <textarea id="newsletter-leads" class="form-control" rows="10" style="width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace;" placeholder="john@example.com, John Doe, Example Corp&#10;jane@example.com, Jane, JaneBrand&#10;test@example.com"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Schedule Tab -->
-                    <div id="news-schedule" class="news-view" style="display:none; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <div style="max-width: 500px; margin: 0 auto;">
-                            <h3 style="margin-bottom: 25px; font-weight: 600; font-size: 1.2em;">Broadcast Schedule</h3>
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label style="font-weight: 500;">Timezone</label>
-                                <select class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;">
-                                    <option>UTC (Universal Coordinated Time)</option>
-                                    <option>EST (Eastern Standard Time)</option>
-                                    <option selected>Asia/Dhaka (BDT)</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 25px;">
-                                <label style="font-weight: 500;">Send On</label>
-                                <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
-                                    <input type="date" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
-                                    <input type="time" value="09:00" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; outline:none;"> 
-                                </div>
-                            </div>
-                            <button class="btn primary" style="border-radius: 4px;">Schedule Broadcast</button>
-                        </div>
-                    </div>
-
-                    <!-- Builder Tab (Active) -->
-                    <div id="news-builder" class="news-view active">
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label>Subject Line</label>
-                            <input type="text" id="campaign-subject" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" required placeholder="Enter your email subject...">
-                        </div>
-                        
-                        <div class="builder-container">
-                    <!-- Builder Canvas -->
                     <div class="builder-canvas-wrapper">
-                        <!-- Device Preview Toggle -->
-                        <div class="device-toggle" style="text-align: center; margin-bottom: 15px;">
-                            <div class="btn-group" style="display: inline-flex; background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 5px;">
-                                <button type="button" class="btn active" id="preview-desktop" style="background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-desktop"></i> Desktop</button>
-                                <button type="button" class="btn" id="preview-mobile" style="background: transparent; color: var(--text-color); border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-mobile-screen"></i> Mobile</button>
-                            </div>
-                        </div>
-
-                        <div class="email-wrapper" id="builder-canvas">
+                        <div id="builder-canvas" class="email-canvas">
                             <div class="canvas-placeholder">Drag blocks here to build your email</div>
                         </div>
                     </div>
-                    
-                    <!-- Builder Sidebar -->
-                    <div class="builder-sidebar glass">
-                        <!-- Block Palette -->
-                        <div id="block-palette">
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label>Premade Templates</label>
-                                <select id="premade-templates">
-                                    <option value="">-- Choose Template --</option>
-                                    <optgroup label="Featured">
-                                        <option value="sell_products">Sell Products</option>
-                                        <option value="make_announcement">Make an Announcement</option>
-                                        <option value="newsletter">Weekly Newsletter</option>
-                                        <option value="welcome_email">Welcome Subscribers</option>
-                                    </optgroup>
-                                    <optgroup label="Plain Text">
-                                        <option value="cold_email">Cold Outreach</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <h3>Blocks</h3>
-                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="text">
-                                <i class="fa-solid fa-font"></i> Text
-                            </div>
-                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="image">
-                                <i class="fa-solid fa-image"></i> Image
-                            </div>
-                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="button">
-                                <i class="fa-solid fa-link"></i> Button
-                            </div>
-                            <div class="draggable-block" draggable="true" ondragstart="drag(event)" data-type="divider">
-                                <i class="fa-solid fa-minus"></i> Divider
-                            </div>
-                            
-                            <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                                <h3>Global Settings</h3>
-                                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label style="margin:0;">Email Background Color</label>
-                                    <input type="color" id="global-bg-color" value="#FFFFFF" style="width:40px; height:40px; cursor:pointer; padding:0; border:none; border-radius:4px;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Property Editor -->
-                        <div id="property-editor" style="display: none; margin-top: 30px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <div style="display:flex; align-items:center; gap: 10px;">
-                                    <button type="button" class="btn" style="padding: 5px 10px; font-size: 14px;" id="back-to-palette-btn"><i class="fa-solid fa-arrow-left"></i></button>
-                                    <h3 style="margin: 0;">Edit Block</h3>
-                                </div>
-                                <button type="button" class="btn danger" style="padding: 5px 10px;" id="delete-block-btn"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                            <div id="property-fields"></div>
-                            <button type="button" class="btn primary full-width" style="margin-top: 15px;" id="save-block-btn">Done</button>
-                        </div>
-
-                        <div style="margin-top: auto; padding-top: 30px;">
-                            <button type="button" class="btn primary btn-large full-width" id="send-btn">
-                                <i class="fa-solid fa-paper-plane"></i> Blast Campaign
-                            </button>
-                            <div id="campaign-status" class="alert" style="margin-top:10px;"></div>
-                        </div>
-                    </div>
-                    </div>
-                    </div> <!-- End news-builder -->
-                </div> <!-- End MailChimp Tab -->
-            </section>
-
-            <!-- Admin View -->
-            <section id="admin-view" class="view">
-                <header>
-                    <h1>Admin Panel</h1>
-                    <p>Manage user approvals and accounts.</p>
-                </header>
-                
-                <div class="card">
-                    <h3>Registered Users</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-users-list">
-                                <!-- Users injected here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" style="position: fixed; bottom: -100px; right: 20px; background: #241C15; color: white; padding: 15px 25px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: bottom 0.3s ease; z-index: 1000; font-weight: 500; display: flex; align-items: center; gap: 10px;">
-        <i class="fa-solid fa-circle-check" style="color: #10B981;"></i> <span id="toast-msg"></span>
-    </div>
-
-    <!-- AI Chatbot -->
-    <button id="ai-chat-toggle" class="ai-chat-toggle">
-        <i class="fa-solid fa-robot"></i>
-    </button>
-    
-    <div id="ai-chat-window" class="ai-chat-window">
-        <div class="ai-chat-header">
-            <div class="ai-header-info">
-                <i class="fa-solid fa-robot" style="font-size: 20px;"></i>
-                <div>
-                    <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Marketing AI</h3>
-                    <span style="font-size: 12px; opacity: 0.8;">Powered by Gemini</span>
                 </div>
             </div>
-            <button id="ai-chat-close"><i class="fa-solid fa-times"></i></button>
-        </div>
-        <div id="ai-chat-messages" class="ai-chat-messages">
-            <div class="ai-message ai">Hi there! I'm your Marketing AI Assistant. How can I help you grow your business today?</div>
-        </div>
-        <div class="ai-chat-input-area">
-            <input type="text" id="ai-chat-input" placeholder="Ask about subject lines, strategies...">
-            <button id="ai-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/assets/app.js?v=34"></script>
+            <!-- Sequence Tab -->
+            <div class="tab-content" id="tab-instantly" style="display:none;">
+                <div class="glass" style="border-radius:16px;padding:24px;max-width:900px;">
+                    <h3 style="margin-bottom:20px;">Email Sequence Builder</h3>
+                    <div id="inst-steps-bar" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;"></div>
+                    <div style="display:flex;gap:16px;margin-bottom:16px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Step Subject</label>
+                            <input type="text" id="inst-subject" placeholder="Subject for this step...">
+                        </div>
+                        <div class="form-group" style="width:120px;">
+                            <label>Wait (days)</label>
+                            <input type="number" id="inst-wait" value="1" min="0" max="365">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Body (HTML allowed)</label>
+                        <textarea id="inst-body" rows="12" style="font-family:monospace;" placeholder="Write your email here..."></textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn primary" id="inst-save-step-btn"><i class="fa-solid fa-floppy-disk"></i> Save Step</button>
+                        <button class="btn" id="inst-add-step-btn"><i class="fa-solid fa-plus"></i> Add Step</button>
+                        <button class="btn" id="inst-send-seq-btn" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
+                            <i class="fa-solid fa-rocket"></i> Send Sequence
+                        </button>
+                    </div>
+                    <div id="seq-lead-section" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);">
+                        <div class="form-group">
+                            <label>Leads (email, name, company — one per line)</label>
+                            <textarea id="seq-leads" rows="5" placeholder="john@example.com, John Doe, ACME Corp"></textarea>
+                        </div>
+                    </div>
+                    <div id="inst-status" class="alert" style="margin-top:12px;display:none;"></div>
+                </div>
+            </div>
+
+            <!-- A/B Test Tab -->
+            <div class="tab-content" id="tab-abtest" style="display:none;">
+                <div class="glass" style="border-radius:16px;padding:24px;max-width:900px;">
+                    <h3 style="margin-bottom:20px;">A/B Test Campaign</h3>
+                    <div class="form-group">
+                        <label>Variant A — Subject</label>
+                        <input type="text" id="ab-subject-a" placeholder="Subject A...">
+                    </div>
+                    <div class="form-group">
+                        <label>Variant A — Body</label>
+                        <textarea id="ab-body-a" rows="6" placeholder="Email body for Variant A..."></textarea>
+                    </div>
+                    <hr style="border:none;border-top:1px solid var(--border-color);margin:20px 0;">
+                    <div class="form-group">
+                        <label>Variant B — Subject</label>
+                        <input type="text" id="ab-subject-b" placeholder="Subject B...">
+                    </div>
+                    <div class="form-group">
+                        <label>Variant B — Body</label>
+                        <textarea id="ab-body-b" rows="6" placeholder="Email body for Variant B..."></textarea>
+                    </div>
+                    <button class="btn primary" id="ab-send-btn" style="margin-top:8px;">
+                        <i class="fa-solid fa-flask"></i> Run A/B Test
+                    </button>
+                    <div id="ab-status" class="alert" style="margin-top:12px;display:none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACTS VIEW -->
+        <div id="contacts" class="view">
+            <div class="page-header">
+                <h1 class="page-title">Contacts</h1>
+                <p class="page-subtitle">Manage your email list</p>
+            </div>
+            <div class="glass" style="border-radius:16px;padding:24px;margin-bottom:24px;">
+                <h3 style="margin-bottom:16px;">Add Contact</h3>
+                <form id="contact-form" style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:160px;">
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Name</label>
+                        <input type="text" id="contact-name" placeholder="Full name" required>
+                    </div>
+                    <div style="flex:1;min-width:200px;">
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Email</label>
+                        <input type="email" id="contact-email" placeholder="email@example.com" required>
+                    </div>
+                    <div style="flex:1;min-width:160px;">
+                        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Tags</label>
+                        <input type="text" id="contact-tags" placeholder="vip,newsletter">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;">
+                        <button type="submit" class="btn primary" style="padding:12px 20px;">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="glass" style="border-radius:16px;padding:24px;">
+                <h3 style="margin-bottom:16px;">All Contacts</h3>
+                <table id="contacts-table" style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="color:var(--text-muted);font-size:13px;border-bottom:1px solid var(--border-color);">
+                            <th style="text-align:left;padding:10px 12px;">Name</th>
+                            <th style="text-align:left;padding:10px 12px;">Email</th>
+                            <th style="text-align:left;padding:10px 12px;">Tags</th>
+                            <th style="text-align:left;padding:10px 12px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="settings" class="view">
+            <div class="page-header">
+                <h1 class="page-title">Settings</h1>
+                <p class="page-subtitle">Configure your email sending preferences</p>
+            </div>
+            <div class="glass settings-card" style="border-radius:16px;padding:32px;max-width:700px;">
+                <h3 style="margin-bottom:24px;">Email Provider</h3>
+                <div class="form-group">
+                    <label>Provider</label>
+                    <select id="smtp-provider">
+                        <option value="smtp">Custom SMTP</option>
+                        <option value="instantly">Instantly</option>
+                    </select>
+                </div>
+                <div id="smtp-fields">
+                    <div class="form-group">
+                        <label>SMTP Host</label>
+                        <input type="text" id="smtp-host" placeholder="smtp.gmail.com">
+                    </div>
+                    <div style="display:flex;gap:12px;">
+                        <div class="form-group" style="flex:2;">
+                            <label>Username / Email</label>
+                            <input type="email" id="smtp-user" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Port</label>
+                            <input type="number" id="smtp-port" value="587">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password / App Password</label>
+                        <input type="password" id="smtp-pass" placeholder="••••••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>From Name</label>
+                        <input type="text" id="smtp-from-name" placeholder="Your Name or Company">
+                    </div>
+                </div>
+                <div id="instantly-fields" style="display:none;">
+                    <div class="form-group">
+                        <label>Instantly API Key</label>
+                        <input type="text" id="instantly-api-key" placeholder="inst_xxxxxxxxxxxx">
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+                    <button class="btn primary" id="save-smtp-btn"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+                    <button class="btn" id="test-smtp-btn"><i class="fa-solid fa-vial"></i> Test Connection</button>
+                </div>
+                <div id="smtp-status" class="alert" style="margin-top:12px;display:none;"></div>
+                <div id="gemini-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
+                    <h3 style="margin-bottom:16px;">AI Settings (Gemini)</h3>
+                    <div class="form-group">
+                        <label>Gemini API Key</label>
+                        <input type="text" id="gemini-api-key" placeholder="AIzaSy...">
+                    </div>
+                    <button class="btn primary" id="save-gemini-btn"><i class="fa-solid fa-floppy-disk"></i> Save AI Key</button>
+                    <div id="gemini-status" class="alert" style="margin-top:12px;display:none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN VIEW -->
+        <div id="admin-view" class="view">
+            <div class="page-header">
+                <h1 class="page-title">Admin Panel</h1>
+                <p class="page-subtitle">Manage all users</p>
+            </div>
+            <div class="glass" style="border-radius:16px;padding:24px;">
+                <h3 style="margin-bottom:16px;">All Users</h3>
+                <table id="admin-users-table" style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="color:var(--text-muted);font-size:13px;border-bottom:1px solid var(--border-color);">
+                            <th style="text-align:left;padding:10px 12px;">ID</th>
+                            <th style="text-align:left;padding:10px 12px;">Email</th>
+                            <th style="text-align:left;padding:10px 12px;">Admin</th>
+                            <th style="text-align:left;padding:10px 12px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main><!-- /main-content -->
+</div><!-- /app-page -->
+
+<!-- Toast notification -->
+<div id="toast" style="position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;transition:bottom 0.3s;z-index:9999;white-space:nowrap;">
+    <span id="toast-msg"></span>
+</div>
+
+<!-- AI Chat Button -->
+<button id="ai-chat-btn" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,0.5);z-index:1000;display:none;" title="AI Assistant">
+    <i class="fa-solid fa-robot"></i>
+</button>
+<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:340px;height:480px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.2);z-index:1001;flex-direction:column;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;">AI Marketing Assistant</div><div style="font-size:12px;opacity:0.8;">Powered by Gemini</div></div>
+        <button id="ai-chat-close" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div id="ai-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <div style="background:#f1f5f9;padding:12px 16px;border-radius:12px;font-size:14px;color:#374151;">Hi! I'm your AI Marketing Assistant. Ask me anything about email marketing!</div>
+    </div>
+    <div style="padding:12px;border-top:1px solid #f1f5f9;display:flex;gap:8px;">
+        <input type="text" id="ai-chat-input" placeholder="Ask about subject lines..." style="flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;">
+        <button id="ai-chat-send" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:18px;"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- ============================================================
+     AUTH LOGIC - 100% self-contained inline JavaScript
+     No dependency on app.js
+     ============================================================ -->
+<script>
+const API = 'https://email-marketer-ijk5.onrender.com/api';
+let _token = null;
+try { _token = localStorage.getItem('token'); } catch(e) {}
+
+// ---- Server wake-up check ----
+(function() {
+    var started = Date.now();
+    var overlay = document.getElementById('wake-overlay');
+    fetch(API + '/ping')
+        .then(function(r) {
+            if (!r.ok) throw new Error();
+            // Server is awake - hide overlay (might not be shown)
+            overlay.classList.remove('on');
+        })
+        .catch(function() {
+            // Server is sleeping - show overlay, poll until awake
+            overlay.classList.add('on');
+            var poll = setInterval(function() {
+                fetch(API + '/ping')
+                    .then(function(r) {
+                        if (r.ok) {
+                            clearInterval(poll);
+                            overlay.classList.remove('on');
+                            location.reload();
+                        }
+                    }).catch(function() {});
+            }, 3000);
+        });
+    // Also show overlay if no response within 4 seconds
+    setTimeout(function() {
+        fetch(API + '/ping', {signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined})
+            .catch(function() { overlay.classList.add('on'); });
+    }, 4000);
+})();
+
+// ---- Auth state machine ----
+var AUTH = (function() {
+
+    function showEl(id) { document.getElementById(id).classList.add('on'); }
+    function hideEl(id) { document.getElementById(id).classList.remove('on'); }
+    function showDisplay(id) { document.getElementById(id).style.display = 'block'; }
+    function hideDisplay(id) { document.getElementById(id).style.display = 'none'; }
+
+    function setAlert(id, msg, type) {
+        var el = document.getElementById(id);
+        el.textContent = msg;
+        el.className = 'auth-alert ' + (type === 'ok' ? 'ok' : 'err');
+    }
+    function clearAlert(id) { var el = document.getElementById(id); el.className = 'auth-alert'; el.textContent = ''; }
+
+    function setLoginMode() {
+        document.getElementById('auth-icon').className = 'auth-mode-icon login-icon';
+        document.getElementById('auth-icon').innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+        document.getElementById('auth-title').textContent = 'Welcome back';
+        document.getElementById('auth-subtitle').textContent = 'Sign in to your MailClone account';
+        document.getElementById('tab-login').classList.add('on');
+        document.getElementById('tab-signup').classList.remove('on');
+        document.getElementById('form-login').classList.add('on');
+        document.getElementById('form-signup').classList.remove('on');
+        hideEl('verify-box'); hideEl('forgot-box');
+    }
+
+    function setSignupMode() {
+        document.getElementById('auth-icon').className = 'auth-mode-icon signup-icon';
+        document.getElementById('auth-icon').innerHTML = '<i class="fa-solid fa-user-plus"></i>';
+        document.getElementById('auth-title').textContent = 'Create account';
+        document.getElementById('auth-subtitle').textContent = 'Join MailClone and start scaling';
+        document.getElementById('tab-login').classList.remove('on');
+        document.getElementById('tab-signup').classList.add('on');
+        document.getElementById('form-login').classList.remove('on');
+        document.getElementById('form-signup').classList.add('on');
+        hideEl('verify-box'); hideEl('forgot-box');
+    }
+
+    function onLoginSuccess(data) {
+        _token = data.access_token;
+        try {
+            localStorage.setItem('token', _token);
+            localStorage.setItem('is_admin', data.is_admin ? 'true' : 'false');
+        } catch(e) {}
+        document.getElementById('auth-page').classList.add('hidden');
+        document.getElementById('app-page').classList.add('on');
+        if (data.is_admin) {
+            document.getElementById('nav-admin').style.display = 'flex';
+        }
+        if (typeof window.APP_INIT === 'function') window.APP_INIT();
+    }
+
+    async function doLogin() {
+        var email = document.getElementById('login-email').value.trim();
+        var pass = document.getElementById('login-pass').value;
+        clearAlert('login-alert');
+        if (!email || !pass) { setAlert('login-alert', 'Please enter your email and password.', 'err'); return; }
+
+        var btn = document.getElementById('login-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+
+        try {
+            var body = new URLSearchParams();
+            body.append('username', email);
+            body.append('password', pass);
+            var res = await fetch(API + '/auth/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            });
+            var data = await res.json();
+            if (res.ok) {
+                onLoginSuccess(data);
+            } else {
+                setAlert('login-alert', data.detail || 'Wrong email or password.', 'err');
+            }
+        } catch(e) {
+            setAlert('login-alert', 'Connection error. Is the server awake?', 'err');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right"></i>';
+    }
+
+    async function doSignup() {
+        var email = document.getElementById('signup-email').value.trim();
+        var pass = document.getElementById('signup-pass').value;
+        var pass2 = document.getElementById('signup-pass2').value;
+        clearAlert('signup-alert');
+        if (!email || !pass) { setAlert('signup-alert', 'Please fill in all fields.', 'err'); return; }
+        if (pass !== pass2) { setAlert('signup-alert', 'Passwords do not match.', 'err'); return; }
+        if (pass.length < 6) { setAlert('signup-alert', 'Password must be at least 6 characters.', 'err'); return; }
+
+        var btn = document.getElementById('signup-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+
+        try {
+            var res = await fetch(API + '/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+            var data = await res.json();
+            if (res.ok) {
+                if (data.status === 'needs_verification') {
+                    document.getElementById('form-signup').classList.remove('on');
+                    document.getElementById('auth-subtitle').textContent = 'Verify your email to continue';
+                    showEl('verify-box');
+                    // Store email for verification
+                    window._verifyEmail = email;
+                } else {
+                    onLoginSuccess(data);
+                }
+            } else {
+                setAlert('signup-alert', data.detail || 'Registration failed. Try another email.', 'err');
+            }
+        } catch(e) {
+            setAlert('signup-alert', 'Connection error. Please try again.', 'err');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Account</span><i class="fa-solid fa-arrow-right"></i>';
+    }
+
+    async function doVerify() {
+        var code = document.getElementById('verify-code').value.trim();
+        if (!code || code.length < 6) { setAlert('verify-alert', 'Enter the 6-digit code.', 'err'); return; }
+        var email = window._verifyEmail || document.getElementById('signup-email').value.trim();
+
+        var btn = document.getElementById('verify-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+
+        try {
+            var res = await fetch(API + '/auth/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, code: code })
+            });
+            var data = await res.json();
+            if (res.ok) {
+                onLoginSuccess(data);
+            } else {
+                setAlert('verify-alert', data.detail || 'Invalid code. Try again.', 'err');
+            }
+        } catch(e) {
+            setAlert('verify-alert', 'Connection error.', 'err');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Verify Account</span>';
+    }
+
+    function showForgot() {
+        document.getElementById('form-login').classList.remove('on');
+        document.getElementById('auth-title').textContent = 'Forgot Password';
+        document.getElementById('auth-subtitle').textContent = 'We will send you a reset code';
+        showEl('forgot-box');
+    }
+
+    async function sendReset() {
+        var email = document.getElementById('forgot-email').value.trim();
+        clearAlert('forgot-alert');
+        if (!email) { setAlert('forgot-alert', 'Enter your email address.', 'err'); return; }
+
+        var btn = document.getElementById('forgot-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+        try {
+            var res = await fetch(API + '/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            var data = await res.json();
+            if (res.ok) {
+                hideDisplay('forgot-step1');
+                showDisplay('forgot-step2');
+                setAlert('forgot-alert', 'Code sent! Check your inbox.', 'ok');
+                window._resetEmail = email;
+            } else {
+                setAlert('forgot-alert', data.detail || 'Error sending code.', 'err');
+            }
+        } catch(e) {
+            setAlert('forgot-alert', 'Connection error.', 'err');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Send Reset Code</span>';
+    }
+
+    async function doReset() {
+        var code = document.getElementById('reset-code').value.trim();
+        var newPass = document.getElementById('new-pass').value;
+        clearAlert('forgot-alert');
+        if (!code || !newPass) { setAlert('forgot-alert', 'Fill in all fields.', 'err'); return; }
+        if (newPass.length < 6) { setAlert('forgot-alert', 'Password must be 6+ characters.', 'err'); return; }
+
+        var btn = document.getElementById('reset-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
+
+        try {
+            var res = await fetch(API + '/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: window._resetEmail, code: code, new_password: newPass })
+            });
+            var data = await res.json();
+            if (res.ok) {
+                setAlert('forgot-alert', 'Password reset! Please sign in.', 'ok');
+                setTimeout(function() { setLoginMode(); }, 1500);
+            } else {
+                setAlert('forgot-alert', data.detail || 'Reset failed.', 'err');
+            }
+        } catch(e) {
+            setAlert('forgot-alert', 'Connection error.', 'err');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Reset Password</span>';
+    }
+
+    return {
+        showLogin: function() { setLoginMode(); },
+        showSignup: function() { setSignupMode(); },
+        showForgot: showForgot,
+        doLogin: doLogin,
+        doSignup: doSignup,
+        doVerify: doVerify,
+        sendReset: sendReset,
+        doReset: doReset
+    };
+})();
+
+// ---- Check if already logged in ----
+(function() {
+    if (_token) {
+        // Validate token with API
+        fetch(API + '/contacts', { headers: { 'Authorization': 'Bearer ' + _token } })
+            .then(function(r) {
+                if (r.ok) {
+                    // Token valid - show app
+                    document.getElementById('auth-page').classList.add('hidden');
+                    document.getElementById('app-page').classList.add('on');
+                    var isAdmin = false;
+                    try { isAdmin = localStorage.getItem('is_admin') === 'true'; } catch(e) {}
+                    if (isAdmin) document.getElementById('nav-admin').style.display = 'flex';
+                    if (typeof window.APP_INIT === 'function') window.APP_INIT();
+                } else {
+                    // Token expired - show login
+                    try { localStorage.removeItem('token'); } catch(e) {}
+                    _token = null;
+                }
+            })
+            .catch(function() {
+                // Network error - show login anyway (server might be waking up)
+            });
+    }
+})();
+</script>
+
+<!-- Main app JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/assets/app.js?v=35"></script>
+
 </body>
 </html>
