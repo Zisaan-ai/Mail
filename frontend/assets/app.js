@@ -30,24 +30,26 @@ function checkAuth() {
     }
 }
 
-toggleAuthBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    isLoginMode = !isLoginMode;
-    document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
-    document.getElementById('auth-subtitle').innerText = isLoginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
-    document.getElementById('auth-btn').innerText = isLoginMode ? 'Sign In' : 'Create Account';
-    
-    const options = document.getElementById('auth-options');
-    if(options) options.style.display = isLoginMode ? 'flex' : 'none';
-    
-    const p = document.getElementById('auth-toggle-text');
-    const linkText = isLoginMode ? "Sign up" : "Log in";
-    const prefixText = isLoginMode ? "Don't have an account? " : "Already have an account? ";
-    p.innerHTML = `${prefixText} <a href="#" id="toggle-auth">${linkText}</a>`;
-    
-    // Reattach listener since we replaced the DOM element
-    document.getElementById('toggle-auth').addEventListener('click', arguments.callee);
-});
+    const authFooter = document.querySelector('.auth-footer');
+    if (authFooter) {
+        authFooter.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'toggle-auth') {
+                e.preventDefault();
+                isLoginMode = !isLoginMode;
+                document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
+                document.getElementById('auth-subtitle').innerText = isLoginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
+                document.getElementById('auth-btn').innerText = isLoginMode ? 'Sign In' : 'Create Account';
+                
+                const options = document.getElementById('auth-options');
+                if(options) options.style.display = isLoginMode ? 'flex' : 'none';
+                
+                const p = document.getElementById('auth-toggle-text');
+                const linkText = isLoginMode ? "Sign up" : "Log in";
+                const prefixText = isLoginMode ? "Don't have an account? " : "Already have an account? ";
+                p.innerHTML = `${prefixText} <a href="#" id="toggle-auth">${linkText}</a>`;
+            }
+        });
+    }
 
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
