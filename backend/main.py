@@ -27,6 +27,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def startup_event():
+    db = database.SessionLocal()
+    try:
+        db.execute(text("ALTER TABLE campaigns ADD COLUMN type VARCHAR DEFAULT 'newsletter'"))
+        db.commit()
+    except Exception:
+        db.rollback()
+    finally:
+        db.close()
+
 @app.get("/api/ping")
 def ping():
     return {"status": "ok", "msg": "Server is alive"}
@@ -101,6 +112,7 @@ class CampaignLeadBase(BaseModel):
 class CampaignCreate(BaseModel):
     subject: str
     body: str
+    type: str = "newsletter"
     leads: Optional[List[CampaignLeadBase]] = None
     is_ab_test: Optional[bool] = False
     subject_b: Optional[str] = None
@@ -110,6 +122,7 @@ class CampaignResponse(BaseModel):
     id: int
     subject: str
     body: str
+    type: str
     sent_count: int
     opens: int
     clicks: int
@@ -347,6 +360,7 @@ def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, d
     new_campaign = database.Campaign(
         subject=campaign.subject, 
         body=campaign.body, 
+        type=campaign.type,
         status="processing",
         is_ab_test=campaign.is_ab_test,
         subject_b=campaign.subject_b,

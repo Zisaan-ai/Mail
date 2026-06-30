@@ -460,11 +460,11 @@
             <a class="nav-item active" data-target="dashboard">
                 <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
             </a>
-            <a class="nav-item" data-target="view-campaign-details">
-                <i class="fa-solid fa-chart-line"></i><span>Analytics</span>
-            </a>
             <a class="nav-item" data-target="campaigns">
                 <i class="fa-solid fa-paper-plane"></i><span>Campaigns</span>
+            </a>
+            <a class="nav-item" data-target="cold-mail">
+                <i class="fa-solid fa-snowflake"></i><span>Cold Mail</span>
             </a>
             <a class="nav-item" data-target="contacts">
                 <i class="fa-solid fa-users"></i><span>Contacts</span>
@@ -598,19 +598,15 @@
             </div>
         </div>
 
-        <!-- CAMPAIGNS -->
+        <!-- CAMPAIGNS (Visual Builder) -->
         <div id="campaigns" class="view">
-            <div class="page-header">
+            <div class="page-header" style="padding-bottom: 24px;">
                 <h1 class="page-title">Campaigns</h1>
-                <p class="page-subtitle">Design, build, and launch your emails</p>
-            </div>
-            <div class="tabs-bar">
-                <button class="tab-btn active" data-tab="tab-builder">Visual Builder</button>
-                <button class="tab-btn" data-tab="tab-instantly">Sequence Builder</button>
+                <p class="page-subtitle">Design, build, and launch your newsletters</p>
             </div>
 
             <!-- Visual Builder -->
-            <div class="tab-content active" id="tab-builder">
+            <div id="tab-builder">
                 <div class="builder-top-bar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);">
                     <div class="builder-top-left" style="flex:1;">
                         <input type="text" id="campaign-subject" placeholder="Campaign Subject Line..." style="border:1px solid transparent;background:transparent;font-size:18px;font-weight:700;padding:8px;width:100%;max-width:500px;outline:none;border-radius:8px;transition:all 0.2s;" onfocus="this.style.background='#f1f5f9';this.style.borderColor='var(--border)'" onblur="this.style.background='transparent';this.style.borderColor='transparent'">
@@ -700,11 +696,17 @@
 
                         <div id="campaign-status" class="alert" style="margin:20px;display:none;"></div>
                     </div>
-                </div>
+            </div>
+        </div>
+
+        <!-- COLD MAIL (Sequence Builder) -->
+        <div id="cold-mail" class="view">
+            <div class="page-header" style="padding-bottom: 24px;">
+                <h1 class="page-title">Cold Mail</h1>
+                <p class="page-subtitle">Build and launch automated cold email sequences</p>
             </div>
 
-            <!-- Sequence -->
-            <div class="tab-content" id="tab-instantly" style="display:none;">
+            <div id="tab-instantly">
                 <div style="display:flex;gap:24px;min-height:600px;align-items:stretch;">
                     <!-- LEFT: Steps list -->
                     <div style="width:260px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;">

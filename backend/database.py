@@ -40,6 +40,7 @@ class Campaign(Base):
     id = Column(Integer, primary_key=True, index=True)
     subject = Column(String, index=True)
     body = Column(String)
+    type = Column(String, default="newsletter") # newsletter or cold_mail
     sent_count = Column(Integer, default=0)
     opens = Column(Integer, default=0)
     clicks = Column(Integer, default=0)

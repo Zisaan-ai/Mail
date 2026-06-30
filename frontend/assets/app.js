@@ -113,8 +113,10 @@ function populateAnalytics(campaignId) {
 }
 
 window.viewAnalytics = function(id) {
-    const navItem = document.querySelector('.nav-item[data-target="view-campaign-details"]');
-    if (navItem) navItem.click();
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('view-campaign-details');
+    if (target) target.classList.add('active');
     populateAnalytics(id);
 };
 
@@ -154,13 +156,13 @@ async function fetchDashboard() {
                 totalClicks += c.clicks;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${c.subject} ${c.is_ab_test ? '<span style="background:#f3e8ff;color:#a855f7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">A/B</span>' : ''}</td>
+                    <td>${c.subject} ${c.is_ab_test ? '<span style="background:#f3e8ff;color:#a855f7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">A/B</span>' : ''} ${c.type === 'cold_mail' ? '<span style="background:#e0f2fe;color:#0284c7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">Sequence</span>' : ''}</td>
                     <td>${c.sent_count}</td>
                     <td>${c.opens} <span style="font-size:0.8em;color:var(--text-muted)">(${c.sent_count > 0 ? Math.round((c.opens/c.sent_count)*100) : 0}%)</span></td>
                     <td>${c.clicks}</td>
                     <td><span class="status-badge ${c.status.toLowerCase()}">${c.status}</span></td>
                     <td style="display:flex;gap:4px;">
-                        <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="viewAnalytics(${c.id})" title="View Analytics"><i class="fa-solid fa-chart-line"></i></button>
+                        ${c.type === 'cold_mail' ? `<button class="btn" style="padding:5px 10px;font-size:13px;" onclick="viewAnalytics(${c.id})" title="View Analytics"><i class="fa-solid fa-chart-line"></i></button>` : ''}
                         <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="editCampaign(${c.id})" title="Edit Campaign"><i class="fa-solid fa-pen-to-square"></i></button>
                     </td>
                 `;
@@ -537,7 +539,7 @@ function setupCampaignBuilder() {
                 const parts = line.split(',').map(p => p.trim());
                 leads.push({ email: parts[0], name: parts[1] || '', company: parts[2] || '' });
             });
-            const payload = { subject, body: finalHTML };
+            const payload = { subject, body: finalHTML, type: 'newsletter' };
             if (leads.length > 0) payload.leads = leads;
             const res = await apiCall('/campaigns/send', 'POST', payload);
             if (res.ok) {
@@ -689,6 +691,7 @@ function setupSequenceBuilder() {
         const payload = {
             subject: s1.subject,
             body: steps.map(s => `<div>${s.body}</div>`).join('<hr>'),
+            type: 'cold_mail',
             leads: leads,
             is_ab_test: !!s1.is_ab,
             subject_b: s1.subject_b || '',
