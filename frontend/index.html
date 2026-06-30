@@ -458,10 +458,10 @@
         </div>
         <nav>
             <a class="nav-item active" data-target="dashboard">
-                <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+                <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
             </a>
             <a class="nav-item" data-target="campaigns">
-                <i class="fa-solid fa-paper-plane"></i><span>Campaigns</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i><span>Visual Builder</span>
             </a>
             <a class="nav-item" data-target="cold-mail">
                 <i class="fa-solid fa-snowflake"></i><span>Cold Mail</span>
@@ -601,8 +601,8 @@
         <!-- CAMPAIGNS (Visual Builder) -->
         <div id="campaigns" class="view">
             <div class="page-header" style="padding-bottom: 24px;">
-                <h1 class="page-title">Campaigns</h1>
-                <p class="page-subtitle">Design, build, and launch your newsletters</p>
+                <h1 class="page-title">Visual Builder</h1>
+                <p class="page-subtitle">Design, build, and launch your visually appealing newsletters</p>
             </div>
 
             <!-- Visual Builder -->
@@ -613,7 +613,6 @@
                     </div>
                     <div class="builder-top-right" style="display:flex;gap:12px;">
                         <button class="btn" style="background:#fff;"><i class="fa-solid fa-paper-plane"></i> Send Test</button>
-                        <button id="send-btn" class="btn primary" style="background:#0f172a;border-color:#0f172a;">Save & Close</button>
                     </div>
                 </div>
 
@@ -673,10 +672,6 @@
                                         <option value="cold_email">❄️ Cold Email</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label>Recipients (Leads)</label>
-                                    <textarea id="newsletter-leads" rows="3" placeholder="email@example.com, Name..."></textarea>
-                                </div>
                             </div>
                         </div>
 
@@ -697,6 +692,17 @@
                         <div id="campaign-status" class="alert" style="margin:20px;display:none;"></div>
                     </div>
                 </div>
+
+                <div class="glass" style="margin-top:32px;">
+                    <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;">Campaign Audience</h4>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;">
+                        <div class="form-group" style="flex:1;margin-bottom:0;">
+                            <textarea id="newsletter-leads" rows="3" placeholder="john@example.com, John Doe, ACME Corp&#10;(One lead per line)" style="font-size:14px;"></textarea>
+                        </div>
+                        <button id="send-btn" class="btn" style="padding:16px 32px;background:var(--text);color:#fff;border:none;height:100%;font-size:15px;"><i class="fa-solid fa-rocket"></i> Launch Campaign</button>
+                    </div>
+                </div>
+
             </div>
         </div>
 
