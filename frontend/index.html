@@ -633,8 +633,8 @@
                         <!-- DEFAULT MODE (Blocks & Styles) -->
                         <div id="builder-sidebar-default" style="display:flex;flex-direction:column;flex:1;">
                             <div class="mc-tabs" style="display:flex;border-bottom:1px solid var(--border);">
-                                <div class="mc-tab active" data-mctab="blocks" style="flex:1;text-align:center;padding:14px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:2px solid var(--p);color:var(--p);">Content</div>
-                                <div class="mc-tab" data-mctab="styles" style="flex:1;text-align:center;padding:14px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);">Style</div>
+                                <div class="mc-tab active" data-mctab="blocks" onclick="window.switchMcTab('blocks')" style="flex:1;text-align:center;padding:14px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:2px solid var(--p);color:var(--p);">Content</div>
+                                <div class="mc-tab" data-mctab="styles" onclick="window.switchMcTab('styles')" style="flex:1;text-align:center;padding:14px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);">Style</div>
                             </div>
                             
                             <!-- BLOCKS TAB -->
@@ -665,11 +665,18 @@
                                     <label>Load Template</label>
                                     <select id="premade-templates">
                                         <option value="">Choose template...</option>
-                                        <option value="sell_products">🛍 Sell Products</option>
+                                        <option value="sell_products">🛍️ Sell Products</option>
                                         <option value="make_announcement">📢 Announcement</option>
                                         <option value="newsletter">📰 Newsletter</option>
                                         <option value="welcome_email">👋 Welcome Email</option>
                                         <option value="cold_email">❄️ Cold Email</option>
+                                        <option value="flash_sale">⚡ Flash Sale</option>
+                                        <option value="app_download">📱 App Download</option>
+                                        <option value="webinar_invite">🎥 Webinar Invite</option>
+                                        <option value="thank_you">💖 Thank You</option>
+                                        <option value="educational">📚 Educational</option>
+                                        <option value="review_request">⭐ Review Request</option>
+                                        <option value="abandoned_cart">🛒 Abandoned Cart</option>
                                     </select>
                                 </div>
                             </div>
@@ -1131,6 +1138,7 @@ var AUTH = (function() {
 })();
 </script>
 
-<script src="/assets/app.js?v=37"></script>
+    <script src="assets/templates.js"></script>
+    <script src="assets/app.js"></script>
 </body>
 </html>

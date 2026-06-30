@@ -416,7 +416,7 @@ function setupCampaignBuilder() {
         if (b) e.dataTransfer.setData('type', b.getAttribute('data-type'));
     };
 
-    window.addBlockToCanvas = (type, targetBlock = null) => {
+    window.addBlockToCanvas = (type, targetBlock = null, customContent = null) => {
         const placeholder = canvas.querySelector('.canvas-placeholder');
         if (placeholder) placeholder.remove();
         const block = document.createElement('div');
@@ -432,10 +432,16 @@ function setupCampaignBuilder() {
         block.appendChild(actions);
         const content = document.createElement('div');
         content.className = 'block-content';
-        if (type === 'text') content.innerHTML = `<p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#241C15;line-height:1.5;padding:20px;">New Text Block. Click pencil to edit.</p>`;
-        else if (type === 'image') content.innerHTML = `<img src="https://via.placeholder.com/600x200?text=Your+Image" style="max-width:100%;height:auto;display:block;">`;
-        else if (type === 'button') content.innerHTML = `<div style="text-align:center;padding:20px;"><a href="#" style="background:#6366f1;color:#fff;padding:12px 28px;text-decoration:none;display:inline-block;border-radius:8px;font-weight:bold;font-family:Helvetica,Arial,sans-serif;">Click Me</a></div>`;
-        else if (type === 'divider') content.innerHTML = `<hr style="border:0;border-top:2px solid #E0E0DF;margin:20px 0;">`;
+        
+        if (customContent) {
+            content.innerHTML = customContent;
+        } else {
+            if (type === 'text') content.innerHTML = `<p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#241C15;line-height:1.5;padding:20px;">New Text Block. Click pencil to edit.</p>`;
+            else if (type === 'image') content.innerHTML = `<img src="https://via.placeholder.com/600x200?text=Your+Image" style="max-width:100%;height:auto;display:block;">`;
+            else if (type === 'button') content.innerHTML = `<div style="text-align:center;padding:20px;"><a href="#" style="background:#6366f1;color:#fff;padding:12px 28px;text-decoration:none;display:inline-block;border-radius:8px;font-weight:bold;font-family:Helvetica,Arial,sans-serif;">Click Me</a></div>`;
+            else if (type === 'divider') content.innerHTML = `<hr style="border:0;border-top:2px solid #E0E0DF;margin:20px 0;">`;
+        }
+        
         block.appendChild(content);
         if (targetBlock) canvas.insertBefore(block, targetBlock);
         else canvas.appendChild(block);
@@ -542,9 +548,31 @@ function setupCampaignBuilder() {
         const blocks = Array.from(canvas.querySelectorAll('.block-content'));
         if (blocks.length === 0) { if (statusDiv) { statusDiv.textContent = 'Your email is empty! Add blocks first.'; statusDiv.className = 'alert error'; statusDiv.style.display = 'block'; } return; }
         let rawHTML = '';
-        blocks.forEach(b => rawHTML += b.outerHTML + '\n');
+        blocks.forEach(b => rawHTML += `<tr><td style="padding:0;">${b.innerHTML}</td></tr>\n`);
         const canvasBg = canvas.style.backgroundColor || '#FFFFFF';
-        const finalHTML = `<div style="background:#F6F6F4;padding:20px;"><div style="max-width:600px;margin:0 auto;background:${canvasBg};border:1px solid #E0E0DF;"><div style="padding:40px;">${rawHTML}</div><div style="background:#F6F6F4;padding:20px;text-align:center;font-size:12px;color:#6C6D67;border-top:1px solid #E0E0DF;"><p>You received this email because you subscribed.</p></div></div></div>`;
+        const finalHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#F6F6F4;font-family:Helvetica,Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F6F6F4;padding:20px 0;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${canvasBg};max-width:600px;width:100%;border:1px solid #E0E0DF;">
+                    ${rawHTML}
+                    <tr>
+                        <td align="center" style="background-color:#F6F6F4;padding:20px;font-size:12px;color:#6C6D67;border-top:1px solid #E0E0DF;">
+                            <p style="margin:0;">You received this email because you subscribed.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
         sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
         sendBtn.disabled = true;
         try {
@@ -575,13 +603,19 @@ function setupCampaignBuilder() {
         const val = e.target.value;
         if (!val) return;
         canvas.innerHTML = '';
-        const subjects = { sell_products: 'New Fall Collection is Here!', make_announcement: 'Big News: We are Expanding!', newsletter: 'The Weekly Digest', welcome_email: 'Welcome! Here\'s 20% off', cold_email: 'Quick idea for your website' };
-        window.addBlockToCanvas('text');
-        window.addBlockToCanvas('image');
-        window.addBlockToCanvas('button');
-        const subjEl = document.getElementById('campaign-subject');
-        if (subjEl) subjEl.value = subjects[val] || '';
-        showToast('Template loaded');
+        
+        const tmpl = window.EmailTemplates ? window.EmailTemplates.find(t => t.id === val) : null;
+        if (tmpl) {
+            const subjEl = document.getElementById('campaign-subject');
+            if (subjEl) subjEl.value = tmpl.subject || '';
+            
+            tmpl.blocks.forEach(b => {
+                window.addBlockToCanvas(b.type, null, b.content);
+            });
+            showToast('Template loaded');
+        } else {
+            showToast('Template not found', 'error');
+        }
     });
 }
 
