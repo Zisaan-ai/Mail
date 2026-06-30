@@ -338,7 +338,7 @@
                     </div>
 
                     <!-- Sequences View (Active) -->
-                    <div id="inst-sequences" class="inst-view active" style="display:flex; height: 600px; border: 1px solid var(--border-color); background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <div id="inst-sequences" class="inst-view active" style="display:flex; min-height: 600px; border: 1px solid var(--border-color); background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                         
                         <!-- Left Sidebar: Steps -->
                         <div class="inst-steps-sidebar" style="width: 250px; background: #F9FAFB; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
@@ -383,7 +383,7 @@
                             </div>
                             
                             <!-- Editor Body -->
-                            <div id="instantly-body" contenteditable="true" style="flex: 1; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;"></div>
+                            <div id="instantly-body" contenteditable="true" style="flex: 1; min-height: 150px; padding: 10px; border: 1px solid transparent; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;" onfocus="this.style.borderColor='#E5E7EB'" onblur="this.style.borderColor='transparent'"></div>
                             
                             <!-- Variant B Section (Hidden by default) -->
                             <div id="inst-variant-b-container" style="display:none; margin-top: 20px; border-top: 2px dashed #E5E7EB; padding-top: 20px;">
@@ -396,7 +396,7 @@
                                     <div style="width: 1px; background: #E5E7EB; margin: 0 5px;"></div>
                                     <button type="button" class="btn" style="padding: 5px 10px; font-size: 13px; background: #F3F4F6; border-color: transparent; color: var(--primary);" onclick="document.getElementById('instantly-body-b').focus(); document.execCommand('insertText', false, '{{Name}}')"><i class="fa-solid fa-code"></i> Insert Variable</button>
                                 </div>
-                                <div id="instantly-body-b" contenteditable="true" style="min-height: 150px; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;"></div>
+                                <div id="instantly-body-b" contenteditable="true" style="min-height: 150px; padding: 10px; border: 1px solid transparent; outline: none; overflow-y: auto; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; color: #374151;" onfocus="this.style.borderColor='#E5E7EB'" onblur="this.style.borderColor='transparent'"></div>
                             </div>
                             
                             <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; border-top: 1px solid #E5E7EB; padding-top: 15px;">
