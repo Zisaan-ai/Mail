@@ -540,7 +540,7 @@
         <!-- CAMPAIGN ANALYTICS (Instantly Clone) -->
         <div id="view-campaign-details" class="view">
             <div class="page-header" style="margin-bottom:24px;">
-                <h1 class="page-title" style="font-size:24px;">Campaign Name</h1>
+                <h1 class="page-title" style="font-size:24px;" id="analytics-title">Loading Campaign...</h1>
             </div>
             
             <div class="clean-tabs-bar">
@@ -557,9 +557,9 @@
             
             <div style="display:flex;align-items:center;margin-bottom:32px;">
                 <span style="font-size:14px;color:var(--text-muted);font-weight:600;margin-right:12px;">Status:</span>
-                <span class="status-pill">Paused</span>
-                <span style="font-size:14px;font-weight:700;margin-left:16px;margin-right:8px;">0%</span>
-                <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
+                <span class="status-pill" id="analytics-status">Loading</span>
+                <span style="font-size:14px;font-weight:700;margin-left:16px;margin-right:8px;" id="analytics-progress-text">0%</span>
+                <div class="progress-bar-container"><div class="progress-bar-fill" id="analytics-progress-bar"></div></div>
                 
                 <div style="flex:1;"></div>
                 
@@ -577,15 +577,15 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
                 <div class="metric-card">
                     <div class="metric-card-title">Sequence started <i class="fa-solid fa-circle-info"></i></div>
-                    <div class="metric-card-value">91</div>
+                    <div class="metric-card-value" id="analytics-seq-started">0</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-card-title">Open rate <i class="fa-solid fa-circle-info"></i></div>
-                    <div class="metric-card-value">2.2% <span class="metric-card-sub">2</span></div>
+                    <div class="metric-card-value"><span id="analytics-open-rate">0%</span> <span class="metric-card-sub" id="analytics-open-count">0</span></div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-card-title">Click rate <i class="fa-solid fa-circle-info"></i></div>
-                    <div class="metric-card-value">0% <span class="metric-card-sub">0</span></div>
+                    <div class="metric-card-value"><span id="analytics-click-rate">0%</span> <span class="metric-card-sub" id="analytics-click-count">0</span></div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-card-title">Opportunities <i class="fa-solid fa-circle-info"></i></div>

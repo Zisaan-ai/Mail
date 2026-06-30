@@ -75,10 +75,48 @@ function setupNavigation() {
             if (target) target.classList.add('active');
             if (targetId === 'admin-view') loadAdminUsers();
             if (targetId === 'dashboard') fetchDashboard();
-            if (targetId === 'contacts') fetchContacts();
+            if (targetId === 'view-campaign-details') {
+                if (window.lastFetchedCampaigns && window.lastFetchedCampaigns.length > 0) {
+                    populateAnalytics(window.lastFetchedCampaigns[0].id);
+                }
+            }
         });
     });
 }
+
+function populateAnalytics(campaignId) {
+    if (!window.lastFetchedCampaigns) return;
+    const c = window.lastFetchedCampaigns.find(x => x.id === campaignId);
+    if (!c) return;
+
+    document.getElementById('analytics-title').textContent = c.subject || 'Untitled Campaign';
+    const statusEl = document.getElementById('analytics-status');
+    statusEl.textContent = c.status;
+    statusEl.style.background = c.status.toLowerCase() === 'completed' ? '#059669' : (c.status.toLowerCase() === 'failed' ? '#dc2626' : '#333');
+
+    // Stats calculations
+    const started = c.sent_count; // sequence started = leads sent to
+    const opens = c.opens;
+    const clicks = c.clicks;
+    const openRate = started > 0 ? ((opens / started) * 100).toFixed(1) : '0';
+    const clickRate = started > 0 ? ((clicks / started) * 100).toFixed(1) : '0';
+    let progress = started > 0 ? 100 : 0; // Simple progress mock based on having sent something
+
+    document.getElementById('analytics-progress-text').textContent = progress + '%';
+    document.getElementById('analytics-progress-bar').style.width = progress + '%';
+
+    document.getElementById('analytics-seq-started').textContent = started;
+    document.getElementById('analytics-open-rate').textContent = openRate + '%';
+    document.getElementById('analytics-open-count').textContent = opens;
+    document.getElementById('analytics-click-rate').textContent = clickRate + '%';
+    document.getElementById('analytics-click-count').textContent = clicks;
+}
+
+window.viewAnalytics = function(id) {
+    const navItem = document.querySelector('.nav-item[data-target="view-campaign-details"]');
+    if (navItem) navItem.click();
+    populateAnalytics(id);
+};
 
 // ============================================================
 // LOGOUT
@@ -121,7 +159,10 @@ async function fetchDashboard() {
                     <td>${c.opens} <span style="font-size:0.8em;color:var(--text-muted)">(${c.sent_count > 0 ? Math.round((c.opens/c.sent_count)*100) : 0}%)</span></td>
                     <td>${c.clicks}</td>
                     <td><span class="status-badge ${c.status.toLowerCase()}">${c.status}</span></td>
-                    <td><button class="btn" style="padding:5px 10px;font-size:13px;" onclick="editCampaign(${c.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
+                    <td style="display:flex;gap:4px;">
+                        <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="viewAnalytics(${c.id})" title="View Analytics"><i class="fa-solid fa-chart-line"></i></button>
+                        <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="editCampaign(${c.id})" title="Edit Campaign"><i class="fa-solid fa-pen-to-square"></i></button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
