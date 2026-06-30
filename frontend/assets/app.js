@@ -30,11 +30,14 @@ function checkAuth() {
     }
 }
 
-    const authFooter = document.querySelector('.auth-footer');
-    if (authFooter) {
-        authFooter.addEventListener('click', (e) => {
-            if (e.target && e.target.id === 'toggle-auth') {
+    // Fallback: Global event listener for any element with id toggle-auth
+    document.addEventListener('click', (e) => {
+        let target = e.target;
+        // If target is inside the a tag, get the a tag
+        while (target && target !== document) {
+            if (target.id === 'toggle-auth') {
                 e.preventDefault();
+                // alert("Toggle clicked! Mode was: " + (isLoginMode ? "Login" : "Signup")); // Debug
                 isLoginMode = !isLoginMode;
                 document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
                 document.getElementById('auth-subtitle').innerText = isLoginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
@@ -47,9 +50,11 @@ function checkAuth() {
                 const linkText = isLoginMode ? "Sign up" : "Log in";
                 const prefixText = isLoginMode ? "Don't have an account? " : "Already have an account? ";
                 p.innerHTML = `${prefixText} <a href="#" id="toggle-auth">${linkText}</a>`;
+                break;
             }
-        });
-    }
+            target = target.parentNode;
+        }
+    });
 
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
