@@ -182,11 +182,26 @@ window.editCampaign = function(id) {
     if (!window.lastFetchedCampaigns) return;
     const c = window.lastFetchedCampaigns.find(x => x.id === id);
     if (!c) return;
-    const navCamp = document.querySelector('.nav-item[data-target="campaigns"]');
-    if (navCamp) navCamp.click();
-    const subjectEl = document.getElementById('campaign-subject');
-    if (subjectEl) subjectEl.value = c.subject;
-    showToast('Campaign loaded for editing');
+    
+    if (c.type === 'cold_mail') {
+        const navCamp = document.querySelector('.nav-item[data-target="cold-mail"]');
+        if (navCamp) navCamp.click();
+        const subjectEl = document.getElementById('inst-subject');
+        if (subjectEl) subjectEl.value = c.subject;
+        const bodyEl = document.getElementById('inst-body');
+        if (bodyEl) {
+            const firstStepHtml = c.body.split('<hr>')[0] || '';
+            const textContent = firstStepHtml.replace(/<[^>]+>/g, '');
+            bodyEl.value = textContent;
+        }
+        showToast('Cold Mail sequence loaded for editing');
+    } else {
+        const navCamp = document.querySelector('.nav-item[data-target="campaigns"]');
+        if (navCamp) navCamp.click();
+        const subjectEl = document.getElementById('campaign-subject');
+        if (subjectEl) subjectEl.value = c.subject;
+        showToast('Campaign loaded for editing');
+    }
 };
 
 // ============================================================
@@ -685,6 +700,11 @@ function setupSequenceBuilder() {
             const parts = line.split(',').map(p => p.trim());
             leads.push({ email: parts[0], name: parts[1] || '', company: parts[2] || '' });
         });
+
+        if (leads.length === 0) {
+            showToast('Please add at least one lead in the Campaign Audience', 'error');
+            return;
+        }
 
         // Convert sequence steps to a single campaign with A/B variants for MVP
         const s1 = steps[0];
