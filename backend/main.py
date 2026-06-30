@@ -522,10 +522,20 @@ if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
     
     @app.get("/{full_path:path}")
-    def serve_frontend(full_path: str, response: Response):
+    def serve_frontend(full_path: str):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API route not found")
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return FileResponse(os.path.join(frontend_path, "index.html"), headers=response.headers)
+        # Read file fresh every time - bypasses any server-side caching
+        index_path = os.path.join(frontend_path, "index.html")
+        with open(index_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return Response(
+            content=content,
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+                "Pragma": "no-cache",
+                "Expires": "0",
+                "Surrogate-Control": "no-store",
+            }
+        )
