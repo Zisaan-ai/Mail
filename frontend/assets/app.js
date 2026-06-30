@@ -1258,8 +1258,9 @@ if(aiWriteBtn) {
 
 // --- ADMIN LOGIC ---
 async function loadAdminUsers() {
-    const data = await apiCall('/admin/users');
-    if(!data) return;
+    const res = await apiCall('/admin/users');
+    if(!res) return;
+    const data = await res.json();
     const tbody = document.getElementById('admin-users-list');
     tbody.innerHTML = '';
     data.forEach(u => {
