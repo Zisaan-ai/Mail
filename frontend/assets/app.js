@@ -333,10 +333,38 @@ function setupSettings() {
 function setupCampaignBuilder() {
     const canvasWrapper = document.querySelector('.builder-canvas-wrapper');
     const canvas = document.getElementById('builder-canvas');
-    const palette = document.getElementById('block-palette');
-    const propertyEditor = document.getElementById('property-editor');
+    const defaultSidebar = document.getElementById('builder-sidebar-default');
+    const editSidebar = document.getElementById('builder-sidebar-edit');
     const propertyFields = document.getElementById('property-fields');
+    const mcEditTitle = document.getElementById('mc-edit-title');
     if (!canvas || !canvasWrapper) return;
+
+    window.switchMcTab = function(tab) {
+        document.querySelectorAll('.mc-tab').forEach(t => {
+            t.classList.remove('active');
+            t.style.borderBottomColor = 'transparent';
+            t.style.color = 'var(--text-muted)';
+        });
+        const selectedTab = document.querySelector(`.mc-tab[data-mctab="${tab}"]`);
+        if(selectedTab) {
+            selectedTab.classList.add('active');
+            selectedTab.style.borderBottomColor = 'var(--p)';
+            selectedTab.style.color = 'var(--p)';
+        }
+        
+        document.querySelectorAll('.mc-tab-content').forEach(c => c.style.display = 'none');
+        const content = document.getElementById(`mc-tab-${tab}`);
+        if (content) content.style.display = 'block';
+    };
+
+    window.closeMcEdit = () => {
+        if (defaultSidebar && editSidebar) {
+            editSidebar.style.display = 'none';
+            defaultSidebar.style.display = 'flex';
+        }
+        document.querySelectorAll('.email-block').forEach(b => b.classList.remove('selected'));
+        selectedBlock = null;
+    };
 
     let selectedBlock = null;
     const dropIndicator = document.createElement('div');
@@ -415,8 +443,8 @@ function setupCampaignBuilder() {
             e.stopPropagation();
             if (confirm('Delete this block?')) {
                 block.remove();
-                if (selectedBlock === block) { propertyEditor.style.display = 'none'; palette.style.display = 'block'; selectedBlock = null; }
-                if (canvas.querySelectorAll('.email-block').length === 0) canvas.innerHTML = '<div class="canvas-placeholder">Drag blocks here to build your email</div>';
+                if (selectedBlock === block) { window.closeMcEdit(); }
+                if (canvas.querySelectorAll('.email-block').length === 0) canvas.innerHTML = '<div class="canvas-placeholder" style="text-align:center;padding:60px 20px;color:var(--text-muted);border:2px dashed var(--border);border-radius:8px;"><i class="fa-solid fa-layer-group" style="font-size:32px;color:#cbd5e1;margin-bottom:16px;display:block;"></i>Drag blocks here to build your email</div>';
                 showToast('Block deleted');
             }
         });
@@ -427,43 +455,37 @@ function setupCampaignBuilder() {
         document.querySelectorAll('.email-block').forEach(b => b.classList.remove('selected'));
         selectedBlock = block;
         block.classList.add('selected');
-        palette.style.display = 'none';
-        propertyEditor.style.display = 'block';
+        
+        if (defaultSidebar && editSidebar) {
+            defaultSidebar.style.display = 'none';
+            editSidebar.style.display = 'flex';
+        }
         const type = block.getAttribute('data-type');
         const contentDiv = block.querySelector('.block-content');
         propertyFields.innerHTML = '';
+        if (mcEditTitle) mcEditTitle.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+        
         if (type === 'text') {
-            propertyFields.innerHTML = `<div class="form-group"><label>Text (HTML allowed)</label><textarea id="prop-text" rows="5" style="width:100%;border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;">${contentDiv.innerHTML}</textarea></div>`;
+            propertyFields.innerHTML = `<div class="form-group"><label>Text (HTML allowed)</label><textarea id="prop-text" rows="5" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:10px;font-family:monospace;">${contentDiv.innerHTML}</textarea></div>`;
         } else if (type === 'image') {
             const img = contentDiv.querySelector('img');
-            propertyFields.innerHTML = `<div class="form-group"><label>Image URL</label><input type="text" id="prop-img-src" value="${img ? img.src : ''}"></div>`;
+            propertyFields.innerHTML = `<div class="form-group"><label>Image URL</label><input type="text" id="prop-img-src" value="${img ? img.src : ''}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;"></div>`;
         } else if (type === 'button') {
             const a = contentDiv.querySelector('a');
-            propertyFields.innerHTML = `<div class="form-group"><label>Button Text</label><input type="text" id="prop-btn-text" value="${a ? a.innerText : 'Click Me'}"></div><div class="form-group"><label>Button URL</label><input type="text" id="prop-btn-url" value="${a ? a.getAttribute('href') : '#'}"></div>`;
+            propertyFields.innerHTML = `<div class="form-group"><label>Button Text</label><input type="text" id="prop-btn-text" value="${a ? a.innerText : 'Click Me'}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;"></div><div class="form-group"><label>Button URL</label><input type="text" id="prop-btn-url" value="${a ? a.getAttribute('href') : '#'}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;"></div>`;
         } else if (type === 'divider') {
             propertyFields.innerHTML = `<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Divider has no properties.</p>`;
         }
     }
 
     canvasWrapper.addEventListener('click', e => {
-        if (e.target === canvas) {
-            document.querySelectorAll('.email-block').forEach(b => b.classList.remove('selected'));
-            selectedBlock = null;
-            palette.style.display = 'block';
-            propertyEditor.style.display = 'none';
+        if (e.target === canvas || e.target === canvasWrapper) {
+            window.closeMcEdit();
         }
     });
 
     document.querySelectorAll('.draggable-block').forEach(block => {
         block.addEventListener('click', () => window.addBlockToCanvas(block.getAttribute('data-type')));
-    });
-
-    const backBtn = document.getElementById('back-to-palette-btn');
-    if (backBtn) backBtn.addEventListener('click', () => {
-        if (selectedBlock) selectedBlock.classList.remove('selected');
-        selectedBlock = null;
-        propertyEditor.style.display = 'none';
-        palette.style.display = 'block';
     });
 
     const saveBlockBtn = document.getElementById('save-block-btn');
@@ -474,10 +496,7 @@ function setupCampaignBuilder() {
         if (type === 'text') contentDiv.innerHTML = document.getElementById('prop-text').value;
         else if (type === 'image') { const img = contentDiv.querySelector('img'); if (img) img.src = document.getElementById('prop-img-src').value; }
         else if (type === 'button') { const a = contentDiv.querySelector('a'); if (a) { a.innerText = document.getElementById('prop-btn-text').value; a.setAttribute('href', document.getElementById('prop-btn-url').value); } }
-        selectedBlock.classList.remove('selected');
-        selectedBlock = null;
-        palette.style.display = 'block';
-        propertyEditor.style.display = 'none';
+        window.closeMcEdit();
         showToast('Changes applied');
     });
 
@@ -485,10 +504,8 @@ function setupCampaignBuilder() {
     if (deleteBlockBtn) deleteBlockBtn.addEventListener('click', () => {
         if (!selectedBlock) return;
         selectedBlock.remove();
-        selectedBlock = null;
-        palette.style.display = 'block';
-        propertyEditor.style.display = 'none';
-        if (canvas.children.length === 0) canvas.innerHTML = '<div class="canvas-placeholder">Drag blocks here to build your email</div>';
+        window.closeMcEdit();
+        if (canvas.children.length === 0) canvas.innerHTML = '<div class="canvas-placeholder" style="text-align:center;padding:60px 20px;color:var(--text-muted);border:2px dashed var(--border);border-radius:8px;"><i class="fa-solid fa-layer-group" style="font-size:32px;color:#cbd5e1;margin-bottom:16px;display:block;"></i>Drag blocks here to build your email</div>';
     });
 
     const desktopBtn = document.getElementById('preview-desktop');
