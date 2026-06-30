@@ -173,7 +173,7 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
         is_admin=is_admin, 
         is_approved=is_approved,
         verification_code=verification_code,
-        is_email_verified=False
+        is_email_verified=is_admin  # Automatically verify admin
     )
     db.add(new_user)
     db.commit()
@@ -249,13 +249,14 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     
-    if not user.is_email_verified:
-        raise HTTPException(status_code=403, detail="Please verify your email address first.")
-        
     if user.email == "zmonemrahman@gmail.com":
         user.is_admin = True
         user.is_approved = True
+        user.is_email_verified = True
         db.commit()
+        
+    if not user.is_email_verified:
+        raise HTTPException(status_code=403, detail="Please verify your email address first.")
         
     if not user.is_approved:
         raise HTTPException(status_code=403, detail="Wait for admin approve")
