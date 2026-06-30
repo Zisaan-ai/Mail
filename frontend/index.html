@@ -7,35 +7,6 @@
     <link rel="stylesheet" href="/assets/style.css?v=24">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-    // AUTH TOGGLE - defined in <head>, runs FIRST before any external script
-    window._authIsLogin = true;
-    document.addEventListener('click', function(e) {
-        var t = e.target;
-        while (t && t.tagName) {
-            if (t.id === 'toggle-auth') {
-                e.preventDefault();
-                e.stopPropagation();
-                window._authIsLogin = !window._authIsLogin;
-                var L = window._authIsLogin;
-                // Sync with app.js
-                if (typeof window.isLoginMode !== 'undefined') window.isLoginMode = L;
-                var title = document.getElementById('auth-title');
-                var sub   = document.getElementById('auth-subtitle');
-                var btn   = document.getElementById('auth-btn');
-                var opts  = document.getElementById('auth-options');
-                var txt   = document.getElementById('auth-toggle-text');
-                if (title) title.innerText = L ? 'Login to MailClone' : 'Create an Account';
-                if (sub)   sub.innerText   = L ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
-                if (btn)   btn.innerText   = L ? 'Sign In' : 'Create Account';
-                if (opts)  opts.style.display = L ? 'flex' : 'none';
-                if (txt)   txt.innerHTML = (L ? "Don't have an account? " : "Already have an account? ") + '<a href="#" id="toggle-auth">' + (L ? 'Sign up' : 'Log in') + '</a>';
-                return false;
-            }
-            t = t.parentElement;
-        }
-    }, true);
-    </script>
 </head>
 <body>
     <!-- Server Wake-up Overlay (shown only on Render cold start) -->
@@ -955,68 +926,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/assets/app.js?v=30"></script>
-    <script>
-    // Inline auth toggle - runs AFTER app.js, completely self-contained
-    // This handles the sign-up/login switch regardless of JS cache issues
-    (function() {
-        function doToggle(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            // Sync with app.js variable if exists
-            if (typeof isLoginMode !== 'undefined') {
-                isLoginMode = !isLoginMode;
-            } else {
-                window.__authIsLogin = (window.__authIsLogin === undefined) ? false : !window.__authIsLogin;
-            }
-            var loginMode = (typeof isLoginMode !== 'undefined') ? isLoginMode : window.__authIsLogin;
-            
-            var title = document.getElementById('auth-title');
-            var subtitle = document.getElementById('auth-subtitle');
-            var btn = document.getElementById('auth-btn');
-            var opts = document.getElementById('auth-options');
-            var toggleText = document.getElementById('auth-toggle-text');
-            
-            if(title) title.innerText = loginMode ? 'Login to MailClone' : 'Register for MailClone';
-            if(subtitle) subtitle.innerText = loginMode ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
-            if(btn) btn.innerText = loginMode ? 'Sign In' : 'Create Account';
-            if(opts) opts.style.display = loginMode ? 'flex' : 'none';
-            if(toggleText) {
-                var link = loginMode ? 'Sign up' : 'Log in';
-                var prefix = loginMode ? "Don't have an account? " : "Already have an account? ";
-                toggleText.innerHTML = prefix + '<a href="#" id="toggle-auth">' + link + '</a>';
-                // Re-attach for new element
-                var newLink = document.getElementById('toggle-auth');
-                if(newLink) newLink.addEventListener('click', doToggle);
-            }
-            return false;
-        }
-        
-        // Attach immediately
-        function attachToggle() {
-            var link = document.getElementById('toggle-auth');
-            if(link) link.addEventListener('click', doToggle);
-        }
-        
-        // Also use event delegation as backup
-        document.body.addEventListener('click', function(e) {
-            var t = e.target;
-            while (t && t !== document.body) {
-                if (t.id === 'toggle-auth') {
-                    doToggle(e);
-                    return;
-                }
-                t = t.parentNode;
-            }
-        }, true); // true = capture phase, fires before any other listener
-        
-        // Attach on DOM ready
-        if(document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', attachToggle);
-        } else {
-            attachToggle();
-        }
-    })();
-    </script>
+    <script src="/assets/app.js?v=34"></script>
 </body>
 </html>
