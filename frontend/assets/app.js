@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'https://email-marketer-ijk5.onrender.com/api';
 let token = localStorage.getItem('token');
 
 // Elements
