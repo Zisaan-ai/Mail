@@ -143,7 +143,7 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user_count = db.query(database.User).count()
-    is_admin = (user_count == 0) or (user.email == "mzisan367@gmail.com")
+    is_admin = (user_count == 0) or (user.email == "zmonemrahman@gmail.com")
     is_approved = is_admin
     
     verification_code = ''.join(random.choices(string.digits, k=6))
@@ -222,7 +222,7 @@ def verify_email(payload: VerifyEmail, db: Session = Depends(database.get_db)):
     user.verification_code = None
     db.commit()
     
-    if user.email == "mzisan367@gmail.com":
+    if user.email == "zmonemrahman@gmail.com":
         user.is_admin = True
         user.is_approved = True
         db.commit()
@@ -243,7 +243,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     if not user.is_email_verified:
         raise HTTPException(status_code=403, detail="Please verify your email address first.")
         
-    if user.email == "mzisan367@gmail.com":
+    if user.email == "zmonemrahman@gmail.com":
         user.is_admin = True
         user.is_approved = True
         db.commit()
