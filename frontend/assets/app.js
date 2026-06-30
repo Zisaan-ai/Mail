@@ -41,8 +41,12 @@ toggleAuthBtn.addEventListener('click', (e) => {
     if(options) options.style.display = isLoginMode ? 'flex' : 'none';
     
     const p = document.getElementById('auth-toggle-text');
-    p.firstChild.textContent = isLoginMode ? "Don't have an account? " : "Already have an account? ";
-    document.getElementById('toggle-auth').innerText = isLoginMode ? "Sign up" : "Log in";
+    const linkText = isLoginMode ? "Sign up" : "Log in";
+    const prefixText = isLoginMode ? "Don't have an account? " : "Already have an account? ";
+    p.innerHTML = `${prefixText} <a href="#" id="toggle-auth">${linkText}</a>`;
+    
+    // Reattach listener since we replaced the DOM element
+    document.getElementById('toggle-auth').addEventListener('click', arguments.callee);
 });
 
 authForm.addEventListener('submit', async (e) => {
