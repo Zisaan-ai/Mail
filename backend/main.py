@@ -28,8 +28,7 @@ app.add_middleware(
 @app.get("/api/migrate")
 def run_migration(db: Session = Depends(database.get_db)):
     try:
-        db.execute(text("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE"))
-        db.execute(text("ALTER TABLE users ADD COLUMN is_approved BOOLEAN DEFAULT FALSE"))
+        db.execute(text("ALTER TABLE users RENAME COLUMN username TO email;"))
         db.commit()
         return {"msg": "Migration successful"}
     except Exception as e:
@@ -41,7 +40,7 @@ class Token(BaseModel):
     token_type: str
 
 class UserCreate(BaseModel):
-    username: str
+    email: str
     password: str
 
 class ContactCreate(BaseModel):
@@ -106,16 +105,16 @@ def ai_generate_email(req: EmailGenerateRequest, current_user: database.User = D
 # --- AUTH ENDPOINTS ---
 @app.post("/api/auth/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(database.User).filter(database.User.username == user.username).first()
+    db_user = db.query(database.User).filter(database.User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=400, detail="Email already registered")
     
     user_count = db.query(database.User).count()
     is_admin = (user_count == 0)
     is_approved = is_admin
     
     hashed_password = auth.get_password_hash(user.password)
-    new_user = database.User(username=user.username, hashed_password=hashed_password, is_admin=is_admin, is_approved=is_approved)
+    new_user = database.User(email=user.email, hashed_password=hashed_password, is_admin=is_admin, is_approved=is_approved)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -124,20 +123,20 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=403, detail="Account created successfully, but pending admin approval.")
     
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(data={"sub": new_user.username}, expires_delta=access_token_expires)
+    access_token = auth.create_access_token(data={"sub": new_user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer", "is_admin": new_user.is_admin}
 
 @app.post("/api/auth/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = db.query(database.User).filter(database.User.username == form_data.username).first()
+    user = db.query(database.User).filter(database.User.email == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password", headers={"WWW-Authenticate": "Bearer"})
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     
     if not user.is_approved:
         raise HTTPException(status_code=403, detail="Your account is pending admin approval.")
     
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+    access_token = auth.create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer", "is_admin": user.is_admin}
 
 # --- ADMIN ENDPOINTS ---
@@ -146,7 +145,7 @@ def get_all_users(db: Session = Depends(database.get_db), current_user: database
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
     users = db.query(database.User).all()
-    return [{"id": u.id, "username": u.username, "is_admin": u.is_admin, "is_approved": u.is_approved} for u in users]
+    return [{"id": u.id, "email": u.email, "is_admin": u.is_admin, "is_approved": u.is_approved} for u in users]
 
 @app.post("/api/admin/users/{user_id}/approve")
 def approve_user(user_id: int, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):

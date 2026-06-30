@@ -47,7 +47,7 @@ toggleAuthBtn.addEventListener('click', (e) => {
 
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById('auth-username').value;
+    const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
     
     authAlert.style.display = 'none';
@@ -56,7 +56,7 @@ authForm.addEventListener('submit', async (e) => {
         let res;
         if (isLoginMode) {
             const formData = new URLSearchParams();
-            formData.append('username', username);
+            formData.append('username', email); // OAuth2 expects 'username' field
             formData.append('password', password);
             res = await fetch(`${API_URL}/auth/token`, {
                 method: 'POST',
@@ -67,7 +67,7 @@ authForm.addEventListener('submit', async (e) => {
             res = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email: email, password: password })
             });
         }
 
@@ -1256,7 +1256,7 @@ async function loadAdminUsers() {
     data.forEach(u => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${u.username}</td>
+            <td>${u.email}</td>
             <td>${u.is_admin ? '<span style="color:var(--primary); font-weight:bold;">Admin</span>' : 'User'}</td>
             <td>${u.is_approved ? '<span style="color:green; font-weight:bold;">Approved</span>' : '<span style="color:#f59e0b; font-weight:bold;">Pending</span>'}</td>
             <td style="display:flex; gap:10px;">
