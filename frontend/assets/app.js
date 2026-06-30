@@ -676,7 +676,15 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     
     try {
         const leadsText = document.getElementById('newsletter-leads').value;
-        const leads = leadsText.split(',').map(e => e.trim()).filter(e => e).map(e => ({email: e, name: ''}));
+        const leads = [];
+        leadsText.split('\n').map(l => l.trim()).filter(l => l).forEach(line => {
+            const parts = line.split(',').map(p => p.trim());
+            leads.push({
+                email: parts[0],
+                name: parts.length > 1 ? parts[1] : '',
+                company: parts.length > 2 ? parts[2] : ''
+            });
+        });
         const payload = { subject, body: finalHTML };
         if (leads.length > 0) {
             payload.leads = leads;
@@ -1120,8 +1128,10 @@ function renderCampaignLeads() {
         currentCampaignLeads.forEach((lead, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
+            tr.innerHTML = `
                 <td>${lead.email}</td>
                 <td>${lead.name || '-'}</td>
+                <td>${lead.company || '-'}</td>
                 <td><span class="badge" style="background:#E5E7EB; color:#374151;">Draft</span></td>
                 <td>
                     <button class="btn icon-btn" style="color:var(--danger);" onclick="removeCampaignLead(${index})"><i class="fa-solid fa-trash"></i></button>
@@ -1140,18 +1150,23 @@ window.removeCampaignLead = function(index) {
 document.getElementById('inst-save-lead-btn').addEventListener('click', () => {
     const emailsText = document.getElementById('inst-lead-emails').value;
     
-    // Split by comma or newline and filter out empty strings
-    const emails = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => e);
+    // Split by newline to get each lead
+    const lines = emailsText.split('\n').map(l => l.trim()).filter(l => l);
     
-    if(emails.length === 0) {
+    if(lines.length === 0) {
         alert("Please enter at least one email");
         return;
     }
     
     let added = 0;
-    emails.forEach(email => {
-        if(!currentCampaignLeads.find(l => l.email === email)) {
-            currentCampaignLeads.push({ email, name: '' });
+    lines.forEach(line => {
+        const parts = line.split(',').map(p => p.trim());
+        const email = parts[0];
+        const name = parts.length > 1 ? parts[1] : '';
+        const company = parts.length > 2 ? parts[2] : '';
+        
+        if(email && !currentCampaignLeads.find(l => l.email === email)) {
+            currentCampaignLeads.push({ email, name, company });
             added++;
         }
     });

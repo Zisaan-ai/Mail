@@ -59,6 +59,7 @@ class CampaignLead(Base):
     campaign_id = Column(Integer, index=True)
     email = Column(String, index=True)
     name = Column(String, nullable=True)
+    company = Column(String, nullable=True)
     status = Column(String, default="pending") # pending, sent, bounced
     variant = Column(String, nullable=True) # 'A' or 'B'
     created_at = Column(DateTime, default=datetime.utcnow)

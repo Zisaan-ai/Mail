@@ -83,6 +83,7 @@ class ContactResponse(BaseModel):
 class CampaignLeadBase(BaseModel):
     name: Optional[str] = ""
     email: str
+    company: Optional[str] = ""
 
 class CampaignCreate(BaseModel):
     subject: str
@@ -336,7 +337,7 @@ def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, d
 
     if campaign.leads and len(campaign.leads) > 0:
         for lead_in in campaign.leads:
-            db_lead = database.CampaignLead(campaign_id=new_campaign.id, name=lead_in.name, email=lead_in.email)
+            db_lead = database.CampaignLead(campaign_id=new_campaign.id, name=lead_in.name, email=lead_in.email, company=lead_in.company)
             db.add(db_lead)
         db.commit()
         # In a real app, this goes to Celery/Redis
