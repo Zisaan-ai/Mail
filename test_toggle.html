@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+    <h2 id="auth-title">Welcome back</h2>
+    <div id="auth-options">Options</div>
+    <p id="auth-toggle-text">Prefix <a href="#" id="toggle-auth">Sign up</a></p>
+
+    <script>
+    let isLoginMode = true;
+    document.addEventListener('click', (e) => {
+        let target = e.target;
+        while (target && target !== document) {
+            if (target.id === 'toggle-auth') {
+                e.preventDefault();
+                isLoginMode = !isLoginMode;
+                document.getElementById('auth-title').innerText = isLoginMode ? 'Welcome back' : 'Create an account';
+                const p = document.getElementById('auth-toggle-text');
+                const linkText = isLoginMode ? 'Sign up' : 'Log in';
+                const prefixText = isLoginMode ? 'Don\'t have an account? ' : 'Already have an account? ';
+                p.innerHTML = `${prefixText} <a href="#" id="toggle-auth">${linkText}</a>`;
+                console.log('Toggled to', isLoginMode);
+                break;
+            }
+            target = target.parentNode;
+        }
+    });
+    </script>
+</body>
+</html>

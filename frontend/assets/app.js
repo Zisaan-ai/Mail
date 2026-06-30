@@ -1,100 +1,163 @@
 const API_URL = 'https://email-marketer-ijk5.onrender.com/api';
 let token = null;
-try {
-    token = localStorage.getItem('token');
-} catch (e) {
-    console.error("localStorage access denied:", e);
+try { token = localStorage.getItem('token'); } catch(e) {}
+
+// =============================================
+// NEW AUTH FUNCTIONS - Simple & Reliable
+// =============================================
+
+function switchToLogin() {
+    document.getElementById('login-panel').style.display = 'block';
+    document.getElementById('signup-panel').style.display = 'none';
 }
 
-// Elements
-const authView = document.getElementById('auth-view');
-const appView = document.getElementById('app-view');
-const navItems = document.querySelectorAll('.nav-item');
-const views = document.querySelectorAll('.view');
+function switchToSignup() {
+    document.getElementById('login-panel').style.display = 'none';
+    document.getElementById('signup-panel').style.display = 'block';
+}
 
-// Auth Logic
-const authForm = document.getElementById('auth-form');
-const authAlert = document.getElementById('auth-alert');
-const toggleAuthBtn = document.getElementById('toggle-auth');
-window.isLoginMode = true;
+function showLoginAlert(msg, type) {
+    var el = document.getElementById('login-alert');
+    el.innerText = msg;
+    el.className = 'new-alert' + (type === 'success' ? ' success' : '');
+    el.style.display = 'block';
+}
 
+function showSignupAlert(msg, type) {
+    var el = document.getElementById('signup-alert');
+    el.innerText = msg;
+    el.className = 'new-alert' + (type === 'success' ? ' success' : '');
+    el.style.display = 'block';
+}
+
+function onAuthSuccess(data) {
+    token = data.access_token;
+    try {
+        localStorage.setItem('token', token);
+        if (data.is_admin) { localStorage.setItem('is_admin', 'true'); }
+        else { localStorage.removeItem('is_admin'); }
+    } catch(e) {}
+    checkAuth();
+}
+
+async function doLogin() {
+    var email = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value.trim();
+    if (!email || !password) { showLoginAlert('Please enter email and password.'); return; }
+
+    var btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Signing in...</span>';
+    document.getElementById('login-alert').style.display = 'none';
+
+    try {
+        var formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+        var res = await fetch(API_URL + '/auth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+        var data = await res.json();
+        if (res.ok) {
+            onAuthSuccess(data);
+        } else {
+            showLoginAlert(data.detail || 'Invalid email or password.');
+        }
+    } catch(err) {
+        showLoginAlert('Network error. Please try again.');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right"></i>';
+}
+
+async function doSignup() {
+    var email = document.getElementById('signup-email').value.trim();
+    var password = document.getElementById('signup-password').value.trim();
+    var confirm = document.getElementById('signup-confirm').value.trim();
+
+    if (!email || !password) { showSignupAlert('Please fill in all fields.'); return; }
+    if (password !== confirm) { showSignupAlert('Passwords do not match.'); return; }
+    if (password.length < 6) { showSignupAlert('Password must be at least 6 characters.'); return; }
+
+    var btn = document.getElementById('signup-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Creating account...</span>';
+    document.getElementById('signup-alert').style.display = 'none';
+
+    try {
+        var res = await fetch(API_URL + '/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        var data = await res.json();
+        if (res.ok) {
+            if (data.status === 'needs_verification') {
+                document.getElementById('signup-panel').style.display = 'none';
+                document.getElementById('verification-box').style.display = 'block';
+                showToast('Verification code sent!', 'success');
+            } else {
+                onAuthSuccess(data);
+            }
+        } else {
+            showSignupAlert(data.detail || 'Registration failed. Please try again.');
+        }
+    } catch(err) {
+        showSignupAlert('Network error. Please try again.');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span>Create Account</span><i class="fa-solid fa-arrow-right"></i>';
+}
+
+// Also support Enter key on login inputs
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        if (document.getElementById('login-panel') && document.getElementById('login-panel').style.display !== 'none') {
+            var activeEl = document.activeElement;
+            if (activeEl && (activeEl.id === 'login-email' || activeEl.id === 'login-password')) {
+                doLogin();
+            }
+        }
+        if (document.getElementById('signup-panel') && document.getElementById('signup-panel').style.display !== 'none') {
+            var activeEl = document.activeElement;
+            if (activeEl && (activeEl.id === 'signup-email' || activeEl.id === 'signup-password' || activeEl.id === 'signup-confirm')) {
+                doSignup();
+            }
+        }
+    }
+});
+
+// =============================================
+// CORE AUTH STATE
+// =============================================
 function checkAuth() {
     if (token) {
         document.getElementById('auth-view').classList.remove('active');
         document.getElementById('app-view').classList.add('active');
         fetchDashboard();
-        
         let isAdmin = false;
-        try {
-            isAdmin = localStorage.getItem('is_admin') === 'true';
-        } catch (e) {}
-        if(isAdmin) {
-            document.getElementById('nav-admin').style.display = 'flex';
-        } else {
-            document.getElementById('nav-admin').style.display = 'none';
-        }
+        try { isAdmin = localStorage.getItem('is_admin') === 'true'; } catch(e) {}
+        document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
     } else {
         document.getElementById('app-view').classList.remove('active');
         document.getElementById('auth-view').classList.add('active');
     }
 }
 
-
-
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value.trim();
-    
-    authAlert.style.display = 'none';
-
-    try {
-        let res;
-        // Use window._authIsLogin (set by head script) as the source of truth
-        var currentMode = (typeof window._authIsLogin !== 'undefined') ? window._authIsLogin : isLoginMode;
-        if (currentMode) {
-            const formData = new URLSearchParams();
-            formData.append('username', email); // OAuth2 expects 'username' field
-            formData.append('password', password);
-            res = await fetch(`${API_URL}/auth/token`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData
-            });
-        } else {
-            res = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password })
-            });
-        }
-
-        const data = await res.json();
-        if (res.ok) {
-            if (data.status === "needs_verification") {
-                document.getElementById('auth-form').style.display = 'none';
-                document.querySelector('.auth-footer').style.display = 'none';
-                document.getElementById('verification-box').style.display = 'block';
-                showToast("Verification code sent to your email!", "success");
-                return;
-            }
-            token = data.access_token;
-            localStorage.setItem('token', token);
-            if (data.is_admin) {
-                localStorage.setItem('is_admin', 'true');
-            } else {
-                localStorage.removeItem('is_admin');
-            }
-            checkAuth();
-        } else {
-            authAlert.innerText = data.detail || "Authentication failed";
-            authAlert.className = 'alert error';
-            authAlert.style.display = 'block';
-        }
-    } catch (err) {
-        authAlert.innerText = "Network error";
-        authAlert.className = 'alert error';
-        authAlert.style.display = 'block';
+// Forgot password link
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'forgot-pwd-link') {
+        e.preventDefault();
+        document.getElementById('login-panel').style.display = 'none';
+        document.getElementById('forgot-password-box').style.display = 'block';
+    }
+    if (e.target && e.target.id === 'back-to-login') {
+        e.preventDefault();
+        document.getElementById('forgot-password-box').style.display = 'none';
+        document.getElementById('verification-box').style.display = 'none';
+        document.getElementById('login-panel').style.display = 'block';
     }
 });
 

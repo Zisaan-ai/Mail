@@ -93,105 +93,290 @@
     })();
     </script>
 
-    <!-- Authentication View -->
+    <!-- ============================================
+         NEW AUTH VIEW - Completely rebuilt
+         Two static forms, simple show/hide toggle
+         ============================================ -->
     <div id="auth-view" class="active">
-        <div class="auth-split">
-            <!-- Left Branding Side -->
-            <div class="auth-brand">
-                <div class="auth-brand-content">
-                    <div class="logo light">
+        <div class="new-auth-wrapper">
+
+            <!-- Left: Branding Panel -->
+            <div class="new-auth-left">
+                <div class="new-auth-brand">
+                    <div class="new-auth-logo">
                         <i class="fa-solid fa-paper-plane"></i>
-                        <h2>MailClone</h2>
+                        <span>MailClone</span>
                     </div>
-                    <div class="auth-marketing">
-                        <h1>Grow your audience with AI-powered campaigns</h1>
-                        <p>Join thousands of marketers who are scaling their businesses faster with intelligent outreach and beautiful newsletters.</p>
-                        <div class="auth-stats">
-                            <div class="auth-stat">
-                                <h3>10M+</h3>
-                                <span>Emails Sent</span>
-                            </div>
-                            <div class="auth-stat">
-                                <h3>45%</h3>
-                                <span>Open Rate</span>
-                            </div>
+                    <h1>Grow your audience with<br><span class="brand-accent">AI-powered campaigns</span></h1>
+                    <p>Send smarter. Reach farther. Convert better. The all-in-one email marketing platform built for modern marketers.</p>
+                    <div class="new-auth-stats">
+                        <div class="new-stat-item">
+                            <div class="new-stat-num">10M+</div>
+                            <div class="new-stat-label">Emails Sent</div>
+                        </div>
+                        <div class="new-stat-item">
+                            <div class="new-stat-num">45%</div>
+                            <div class="new-stat-label">Avg Open Rate</div>
+                        </div>
+                        <div class="new-stat-item">
+                            <div class="new-stat-num">98%</div>
+                            <div class="new-stat-label">Deliverability</div>
                         </div>
                     </div>
                 </div>
-                <div class="auth-bg-shapes"></div>
+                <div class="new-auth-bg-blur"></div>
             </div>
 
-            <!-- Right Form Side -->
-            <div class="auth-form-container">
-                <div class="auth-form-inner">
-                    <div class="auth-header">
-                        <h2 id="auth-title">Login to MailClone</h2>
-                        <p id="auth-subtitle">Enter your details to access your account.</p>
-                    </div>
-                    
-                    <button type="button" class="btn social-btn full-width" onclick="alert('Google login coming soon!')" style="display:none;">
-                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" style="width:20px; height:20px;">
-                        Continue with Google
-                    </button>
-                    
-                    <div class="auth-divider">
-                        <span>OR</span>
-                    </div>
+            <!-- Right: Form Panel -->
+            <div class="new-auth-right">
+                <div class="new-auth-card">
 
-                    <div id="auth-alert" class="alert"></div>
+                    <!-- ======= LOGIN FORM ======= -->
+                    <div id="login-panel">
+                        <div class="new-auth-header">
+                            <div class="new-auth-icon"><i class="fa-solid fa-lock-open"></i></div>
+                            <h2>Welcome back</h2>
+                            <p>Sign in to your MailClone account</p>
+                        </div>
 
-                    <form id="auth-form" class="auth-form-redesigned">
-                        <div class="form-group">
+                        <!-- Tab switcher -->
+                        <div class="new-auth-tabs">
+                            <button class="new-tab-btn active" onclick="switchToLogin()">Sign In</button>
+                            <button class="new-tab-btn" onclick="switchToSignup()">Sign Up</button>
+                        </div>
+
+                        <div id="login-alert" class="new-alert" style="display:none;"></div>
+
+                        <div class="new-form-group">
                             <label>Email Address</label>
-                            <input type="email" id="auth-email" placeholder="e.g. hello@zisan.com" required>
+                            <div class="new-input-wrap">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+                            </div>
                         </div>
-                        <div class="form-group">
+                        <div class="new-form-group">
                             <label>Password</label>
-                            <input type="password" id="auth-password" placeholder="••••••••" required>
+                            <div class="new-input-wrap">
+                                <i class="fa-solid fa-key"></i>
+                                <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
+                            </div>
                         </div>
-                        
-                        <div class="form-options" id="auth-options">
-                            <label class="remember-me">
-                                <input type="checkbox"> Remember me
-                            </label>
-                            <a href="#" class="forgot-password" id="forgot-pwd-link">Forgot password?</a>
+                        <div style="text-align:right; margin-bottom:20px;">
+                            <a href="#" id="forgot-pwd-link" style="font-size:13px; color:var(--primary); text-decoration:none;">Forgot password?</a>
+                        </div>
+                        <button class="new-submit-btn" id="login-btn" onclick="doLogin()">
+                            <span>Sign In</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <p class="new-switch-text">Don't have an account? <a href="#" onclick="switchToSignup(); return false;">Sign up</a></p>
+                    </div>
+
+                    <!-- ======= SIGNUP FORM ======= -->
+                    <div id="signup-panel" style="display:none;">
+                        <div class="new-auth-header">
+                            <div class="new-auth-icon" style="background:linear-gradient(135deg,#10b981,#059669);"><i class="fa-solid fa-user-plus"></i></div>
+                            <h2>Create account</h2>
+                            <p>Join MailClone and start scaling</p>
                         </div>
 
-                        <button type="submit" class="btn primary full-width btn-large" id="auth-btn" style="margin-top:15px; font-size:16px;">Sign In</button>
-                    </form>
-                    
+                        <!-- Tab switcher -->
+                        <div class="new-auth-tabs">
+                            <button class="new-tab-btn" onclick="switchToLogin()">Sign In</button>
+                            <button class="new-tab-btn active" onclick="switchToSignup()">Sign Up</button>
+                        </div>
+
+                        <div id="signup-alert" class="new-alert" style="display:none;"></div>
+
+                        <div class="new-form-group">
+                            <label>Email Address</label>
+                            <div class="new-input-wrap">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
+                            </div>
+                        </div>
+                        <div class="new-form-group">
+                            <label>Password</label>
+                            <div class="new-input-wrap">
+                                <i class="fa-solid fa-key"></i>
+                                <input type="password" id="signup-password" placeholder="Choose a strong password" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <div class="new-form-group">
+                            <label>Confirm Password</label>
+                            <div class="new-input-wrap">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <input type="password" id="signup-confirm" placeholder="Repeat your password" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <button class="new-submit-btn" id="signup-btn" onclick="doSignup()" style="background:linear-gradient(135deg,#10b981,#059669);">
+                            <span>Create Account</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <p class="new-switch-text">Already have an account? <a href="#" onclick="switchToLogin(); return false;">Sign in</a></p>
+                    </div>
+
+                    <!-- ======= VERIFICATION BOX ======= -->
                     <div id="verification-box" style="display:none; text-align:center;">
+                        <div class="new-auth-icon" style="margin:0 auto 20px; background:linear-gradient(135deg,#f59e0b,#d97706);"><i class="fa-solid fa-envelope-open-text"></i></div>
                         <h3 style="margin-bottom:10px;">Verify your email</h3>
-                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:15px;">We've sent a 6-digit code to your email.</p>
-                        <input type="text" id="verification-code" placeholder="Enter 6-digit code" class="form-control" style="font-size:20px; text-align:center; letter-spacing:3px; margin-bottom:15px;" maxlength="6">
-                        <button class="btn primary full-width btn-large" id="verify-btn">Verify Account</button>
+                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">We've sent a 6-digit code to your email.</p>
+                        <input type="text" id="verification-code" placeholder="Enter 6-digit code" style="width:100%; padding:15px; font-size:22px; text-align:center; letter-spacing:6px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px;" maxlength="6">
+                        <button class="new-submit-btn" id="verify-btn">Verify Account</button>
                     </div>
 
+                    <!-- ======= FORGOT PASSWORD BOX ======= -->
                     <div id="forgot-password-box" style="display:none; text-align:center;">
-                        <h3 style="margin-bottom:10px;">Reset Password</h3>
-                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:15px;" id="forgot-pwd-text">Enter your email to receive a reset code.</p>
-                        
+                        <div class="new-auth-icon" style="margin:0 auto 20px; background:linear-gradient(135deg,#8b5cf6,#6d28d9);"><i class="fa-solid fa-unlock-keyhole"></i></div>
+                        <h3 style="margin-bottom:5px;">Reset Password</h3>
+                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;" id="forgot-pwd-text">Enter your email to receive a reset code.</p>
                         <div id="forgot-step-1">
-                            <input type="email" id="forgot-email" placeholder="e.g. hello@zisan.com" class="form-control" style="margin-bottom:15px; text-align:left;">
-                            <button class="btn primary full-width btn-large" id="send-reset-btn">Send Code</button>
+                            <input type="email" id="forgot-email" placeholder="your@email.com" style="width:100%; padding:12px 15px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px; font-size:15px;">
+                            <button class="new-submit-btn" id="send-reset-btn">Send Code</button>
                         </div>
-                        
                         <div id="forgot-step-2" style="display:none;">
-                            <input type="text" id="reset-code" placeholder="6-digit code" class="form-control" style="font-size:20px; text-align:center; letter-spacing:3px; margin-bottom:10px;" maxlength="6">
-                            <input type="password" id="new-password" placeholder="New Password" class="form-control" style="margin-bottom:15px; text-align:left;">
-                            <button class="btn primary full-width btn-large" id="reset-pwd-btn">Reset Password</button>
+                            <input type="text" id="reset-code" placeholder="6-digit code" style="width:100%; padding:12px; font-size:20px; text-align:center; letter-spacing:4px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:10px;" maxlength="6">
+                            <input type="password" id="new-password" placeholder="New Password" style="width:100%; padding:12px 15px; border:2px solid var(--border-color); border-radius:10px; outline:none; margin-bottom:15px; font-size:15px;">
+                            <button class="new-submit-btn" id="reset-pwd-btn">Reset Password</button>
                         </div>
-                        
-                        <a href="#" id="back-to-login" style="display:block; margin-top:20px; font-size:14px; color:var(--text-muted);">Back to Login</a>
+                        <a href="#" id="back-to-login" style="display:block; margin-top:20px; font-size:14px; color:var(--text-muted);">← Back to Login</a>
                     </div>
 
-                    <div class="auth-footer">
-                        <p id="auth-toggle-text">Don't have an account? <a href="#" id="toggle-auth">Sign up</a></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                </div><!-- /new-auth-card -->
+            </div><!-- /new-auth-right -->
+        </div><!-- /new-auth-wrapper -->
+    </div><!-- /auth-view -->
+
+    <!-- ============== NEW AUTH CSS ============== -->
+    <style>
+    .new-auth-wrapper {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background: #0f0f23;
+    }
+    .new-auth-left {
+        flex: 1.2;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+        background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%);
+        overflow: hidden;
+    }
+    .new-auth-bg-blur {
+        position: absolute;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+    .new-auth-brand { position: relative; z-index: 2; max-width: 480px; }
+    .new-auth-logo {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 48px;
+        font-size: 24px; font-weight: 700; color: #fff;
+    }
+    .new-auth-logo i { color: #818cf8; font-size: 28px; }
+    .new-auth-brand h1 {
+        font-size: 2.6rem; font-weight: 800;
+        color: #fff; line-height: 1.2;
+        margin-bottom: 20px;
+    }
+    .brand-accent {
+        background: linear-gradient(90deg, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .new-auth-brand p {
+        font-size: 1rem; color: #9ca3af; line-height: 1.7;
+        margin-bottom: 48px;
+    }
+    .new-auth-stats { display: flex; gap: 32px; }
+    .new-stat-item { text-align: center; }
+    .new-stat-num { font-size: 1.8rem; font-weight: 800; color: #818cf8; }
+    .new-stat-label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .new-auth-right {
+        flex: 1;
+        display: flex; align-items: center; justify-content: center;
+        background: #fff;
+        padding: 40px;
+        overflow-y: auto;
+    }
+    .new-auth-card { width: 100%; max-width: 420px; }
+    .new-auth-header { text-align: center; margin-bottom: 28px; }
+    .new-auth-icon {
+        width: 60px; height: 60px; border-radius: 16px;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 24px; color: #fff;
+        box-shadow: 0 8px 20px rgba(99,102,241,0.35);
+    }
+    .new-auth-header h2 { font-size: 1.7rem; font-weight: 700; color: #111827; margin-bottom: 6px; }
+    .new-auth-header p { font-size: 0.9rem; color: #6b7280; }
+    .new-auth-tabs {
+        display: flex; gap: 0;
+        background: #f3f4f6; border-radius: 10px;
+        padding: 4px; margin-bottom: 24px;
+    }
+    .new-tab-btn {
+        flex: 1; padding: 10px;
+        border: none; border-radius: 8px;
+        font-size: 14px; font-weight: 600;
+        cursor: pointer;
+        background: transparent; color: #6b7280;
+        transition: all 0.2s;
+    }
+    .new-tab-btn.active {
+        background: #fff; color: #111827;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .new-form-group { margin-bottom: 16px; }
+    .new-form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+    .new-input-wrap { position: relative; }
+    .new-input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
+    .new-input-wrap input {
+        width: 100%; padding: 13px 14px 13px 40px;
+        border: 2px solid #e5e7eb; border-radius: 10px;
+        font-size: 15px; outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+    }
+    .new-input-wrap input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+    .new-submit-btn {
+        width: 100%; padding: 14px 20px;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        color: #fff; border: none; border-radius: 10px;
+        font-size: 16px; font-weight: 700;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: opacity 0.2s, transform 0.1s;
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+    }
+    .new-submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .new-submit-btn:active { transform: translateY(0); }
+    .new-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .new-switch-text { text-align: center; margin-top: 20px; font-size: 14px; color: #6b7280; }
+    .new-switch-text a { color: #6366f1; font-weight: 600; text-decoration: none; }
+    .new-switch-text a:hover { text-decoration: underline; }
+    .new-alert {
+        padding: 12px 16px; border-radius: 8px;
+        font-size: 14px; margin-bottom: 16px;
+        background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    }
+    .new-alert.success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+    @media (max-width: 768px) {
+        .new-auth-left { display: none; }
+        .new-auth-right { padding: 24px; }
+    }
+    </style>
 
     <!-- Main App View -->
     <div id="app-view">
