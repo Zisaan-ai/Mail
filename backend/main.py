@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, status, Request, BackgroundTasks, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, RedirectResponse
@@ -416,7 +416,10 @@ if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
     
     @app.get("/{full_path:path}")
-    def serve_frontend(full_path: str):
+    def serve_frontend(full_path: str, response: Response):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API route not found")
-        return FileResponse(os.path.join(frontend_path, "index.html"))
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return FileResponse(os.path.join(frontend_path, "index.html"), headers=response.headers)
