@@ -1258,24 +1258,33 @@ if(aiWriteBtn) {
 
 // --- ADMIN LOGIC ---
 async function loadAdminUsers() {
-    const res = await apiCall('/admin/users');
-    if(!res) return;
-    const data = await res.json();
-    const tbody = document.getElementById('admin-users-list');
-    tbody.innerHTML = '';
-    data.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${u.email}</td>
-            <td>${u.is_admin ? '<span style="color:var(--primary); font-weight:bold;">Admin</span>' : 'User'}</td>
-            <td>${u.is_approved ? '<span style="color:green; font-weight:bold;">Approved</span>' : '<span style="color:#f59e0b; font-weight:bold;">Pending</span>'}</td>
-            <td style="display:flex; gap:10px;">
-                ${!u.is_approved ? `<button class="btn primary" onclick="approveUser(${u.id})">Approve</button>` : ''}
-                ${!u.is_admin ? `<button class="btn danger" onclick="deleteUser(${u.id})">Delete</button>` : ''}
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+    try {
+        const res = await apiCall('/admin/users');
+        if(!res) return;
+        if(!res.ok) {
+            const errData = await res.json();
+            showToast("Error: " + (errData.detail || 'Unknown'), "error");
+            return;
+        }
+        const data = await res.json();
+        const tbody = document.getElementById('admin-users-list');
+        tbody.innerHTML = '';
+        data.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${u.email}</td>
+                <td>${u.is_admin ? '<span style="color:var(--primary); font-weight:bold;">Admin</span>' : 'User'}</td>
+                <td>${u.is_approved ? '<span style="color:green; font-weight:bold;">Approved</span>' : '<span style="color:#f59e0b; font-weight:bold;">Pending</span>'}</td>
+                <td style="display:flex; gap:10px;">
+                    ${!u.is_approved ? `<button class="btn primary" onclick="approveUser(${u.id})">Approve</button>` : ''}
+                    ${!u.is_admin ? `<button class="btn danger" onclick="deleteUser(${u.id})">Delete</button>` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(err) {
+        showToast("JS Error: " + err.message, "error");
+    }
 }
 
 window.approveUser = async function(id) {
