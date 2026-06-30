@@ -17,15 +17,16 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
     """
     Sends bulk emails and returns the count of successful emails.
     """
-    if not SMTP_USERNAME or not SMTP_PASSWORD:
-        print("SMTP Credentials not configured.")
+    if not SMTP_PASSWORD:
+        print("SMTP Password/API Key not configured.")
         return 0
-
+        
     success_count = 0
     
-    # Auto-inject unsubscribe text if missing
+    # Auto-inject unsubscribe text if missing, using a placeholder if SMTP_USERNAME is missing
+    sender_for_unsub = SMTP_USERNAME if SMTP_USERNAME else "admin@domain.com"
     if "unsubscribe" not in body_html.lower():
-        body_html += '<br><br><hr><p style="font-size:12px; color:#666;">If you no longer wish to receive these emails, you can <a href="mailto:' + SMTP_USERNAME + '?subject=Unsubscribe">unsubscribe here</a>.</p>'
+        body_html += '<br><br><hr><p style="font-size:12px; color:#666;">If you no longer wish to receive these emails, you can <a href="mailto:' + sender_for_unsub + '?subject=Unsubscribe">unsubscribe here</a>.</p>'
 
     # Extract plain text for better deliverability
     soup = BeautifulSoup(body_html, "html.parser")
