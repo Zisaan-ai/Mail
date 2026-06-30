@@ -250,8 +250,8 @@ def verify_email(payload: VerifyEmail, db: Session = Depends(database.get_db)):
 
 @app.post("/api/auth/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = db.query(database.User).filter(database.User.email == form_data.username).first()
-    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+    user = db.query(database.User).filter(database.User.email == form_data.username.strip()).first()
+    if not user or not auth.verify_password(form_data.password.strip(), user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     
     if user.email == "zmonemrahman@gmail.com":

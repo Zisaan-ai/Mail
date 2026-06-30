@@ -47,8 +47,8 @@ toggleAuthBtn.addEventListener('click', (e) => {
 
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
     
     authAlert.style.display = 'none';
 
