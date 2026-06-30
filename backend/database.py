@@ -5,6 +5,10 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./email_marketer.db")
 
+# SQLAlchemy 1.4+ requires postgresql:// instead of postgres://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
