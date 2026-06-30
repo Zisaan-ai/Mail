@@ -1120,7 +1120,7 @@ async function sendChatMessage() {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': Bearer  + token
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({ message: text, history: chatHistory })
         });
@@ -1158,10 +1158,10 @@ if(aiInput) {
 
 function appendMessage(text, sender) {
     const div = document.createElement('div');
-    div.className = i-message  + sender;
+    div.className = 'ai-message ' + sender;
     // Basic formatting for markdown-like bold and breaks
-    let formattedText = text.replace(/\\*\\*(.*?)\\*\\*/g, '<strong></strong>');
-    formattedText = formattedText.replace(/\\n/g, '<br>');
+    let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formattedText = formattedText.replace(/\n/g, '<br>');
     div.innerHTML = formattedText;
     aiMessages.appendChild(div);
     aiMessages.scrollTop = aiMessages.scrollHeight;
@@ -1172,7 +1172,7 @@ function showTypingIndicator() {
     const div = document.createElement('div');
     div.id = id;
     div.className = 'typing-indicator';
-    div.innerHTML = <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>;
+    div.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
     aiMessages.appendChild(div);
     aiMessages.scrollTop = aiMessages.scrollHeight;
     return id;
@@ -1187,10 +1187,10 @@ function removeTypingIndicator(id) {
 if(aiWriteBtn) {
     aiWriteBtn.addEventListener('click', async () => {
         const subject = document.getElementById('instantly-subject').value;
-        let prompt = prompt("What should the email be about? (e.g. 'Invite to marketing webinar next Friday')");
+        let prompt = window.prompt("What should the email be about? (e.g. 'Invite to marketing webinar next Friday')");
         
         if(!prompt) return;
-        if(subject) prompt += \nSubject line of the email is:  + subject;
+        if(subject) prompt += '\nSubject line of the email is: ' + subject;
         
         const originalText = aiWriteBtn.innerHTML;
         aiWriteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Writing...';
@@ -1202,7 +1202,7 @@ if(aiWriteBtn) {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': Bearer  + token
+                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify({ prompt: prompt })
             });
