@@ -27,6 +27,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/hard-reset-db")
+def hard_reset_db():
+    try:
+        database.Base.metadata.drop_all(bind=database.engine)
+        database.Base.metadata.create_all(bind=database.engine)
+        return {"msg": "Database completely reset and recreated with latest schema"}
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.get("/api/migrate")
 def run_migration(db: Session = Depends(database.get_db)):
     try:
