@@ -129,6 +129,11 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
     
     verification_code = ''.join(random.choices(string.digits, k=6))
     
+    # Try sending email first before saving to DB
+    email_sent = email_service.send_verification_email(user.email, verification_code)
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send verification email. Please check SMTP settings.")
+
     hashed_password = auth.get_password_hash(user.password)
     new_user = database.User(
         email=user.email, 
@@ -141,8 +146,6 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
-    email_service.send_verification_email(new_user.email, verification_code)
     
     return {"status": "needs_verification", "message": "Please verify your email address."}
 
