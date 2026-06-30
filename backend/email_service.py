@@ -33,8 +33,12 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
 
     try:
         # Set up the SMTP server with a timeout
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=5)
-        server.starttls()
+        if int(SMTP_PORT) == 465:
+            server = smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+        else:
+            server = smtplib.SMTP(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+            server.starttls()
+            
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
         for recipient in recipients:
