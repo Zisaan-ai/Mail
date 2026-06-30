@@ -435,8 +435,12 @@ function setupCampaignBuilder() {
         
         if (customContent) {
             content.innerHTML = customContent;
+            if (type === 'text') content.setAttribute('contenteditable', 'true');
         } else {
-            if (type === 'text') content.innerHTML = `<p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#241C15;line-height:1.5;padding:20px;">New Text Block. Click pencil to edit.</p>`;
+            if (type === 'text') {
+                content.innerHTML = `<p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#241C15;line-height:1.5;padding:20px;">New Text Block. Click to edit.</p>`;
+                content.setAttribute('contenteditable', 'true');
+            }
             else if (type === 'image') content.innerHTML = `<img src="https://via.placeholder.com/600x200?text=Your+Image" style="max-width:100%;height:auto;display:block;">`;
             else if (type === 'button') content.innerHTML = `<div style="text-align:center;padding:20px;"><a href="#" style="background:#6366f1;color:#fff;padding:12px 28px;text-decoration:none;display:inline-block;border-radius:8px;font-weight:bold;font-family:Helvetica,Arial,sans-serif;">Click Me</a></div>`;
             else if (type === 'divider') content.innerHTML = `<hr style="border:0;border-top:2px solid #E0E0DF;margin:20px 0;">`;
