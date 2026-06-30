@@ -84,10 +84,12 @@ authForm.addEventListener('submit', async (e) => {
         } else {
             authAlert.innerText = data.detail || "Authentication failed";
             authAlert.className = 'alert error';
+            authAlert.style.display = 'block';
         }
     } catch (err) {
         authAlert.innerText = "Network error";
         authAlert.className = 'alert error';
+        authAlert.style.display = 'block';
     }
 });
 
