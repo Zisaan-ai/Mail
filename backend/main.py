@@ -245,6 +245,11 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer", "is_admin": user.is_admin}
 
 # --- ADMIN ENDPOINTS ---
+@app.get("/api/test-db")
+def test_db(db: Session = Depends(database.get_db)):
+    users = db.query(database.User).count()
+    return {"count": users, "url": database.DATABASE_URL}
+
 @app.get("/api/admin/users")
 def get_all_users(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
     if not current_user.is_admin:
