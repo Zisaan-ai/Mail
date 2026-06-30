@@ -173,11 +173,24 @@ async function fetchDashboard() {
             totalOpens += c.opens;
             totalClicks += c.clicks;
             
+            let sentHtml = `${c.sent_count}`;
+            let opensHtml = `${c.opens} <span style="font-size:0.8em; color:var(--text-muted)">(${c.sent_count > 0 ? Math.round((c.opens/c.sent_count)*100) : 0}%)</span>`;
+            
+            if (c.is_ab_test) {
+                sentHtml = `<div style="font-size:12px;">A: ${c.sent_count_a} | B: ${c.sent_count_b}</div>`;
+                const aPct = c.sent_count_a > 0 ? Math.round((c.opens_a/c.sent_count_a)*100) : 0;
+                const bPct = c.sent_count_b > 0 ? Math.round((c.opens_b/c.sent_count_b)*100) : 0;
+                opensHtml = `<div style="font-size:12px;">A: ${c.opens_a} (${aPct}%) | B: ${c.opens_b} (${bPct}%)</div>`;
+            }
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${c.subject}</td>
-                <td>${c.sent_count}</td>
-                <td>${c.opens} <span style="font-size:0.8em; color:var(--text-muted)">(${c.sent_count > 0 ? Math.round((c.opens/c.sent_count)*100) : 0}%)</span></td>
+                <td>
+                    ${c.subject}
+                    ${c.is_ab_test ? '<span style="background:#f3e8ff; color:#a855f7; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:5px;">A/B</span>' : ''}
+                </td>
+                <td>${sentHtml}</td>
+                <td>${opensHtml}</td>
                 <td>${c.clicks} <span style="font-size:0.8em; color:var(--text-muted)">(${c.opens > 0 ? Math.round((c.clicks/c.opens)*100) : 0}%)</span></td>
                 <td><span class="status-badge ${c.status.toLowerCase()}">${c.status}</span></td>
                 <td>
@@ -1016,8 +1029,22 @@ document.getElementById('instantly-send-btn').addEventListener('click', async ()
         const payload = { 
             subject: mainSubject, 
             body: compiledBody,
-            leads: currentCampaignLeads 
+            leads: currentCampaignLeads,
+            is_ab_test: document.getElementById('inst-ab-test-toggle').checked
         };
+        
+        if (payload.is_ab_test) {
+            payload.subject_b = document.getElementById('instantly-subject-b').value;
+            payload.body_b = document.getElementById('instantly-body-b').innerHTML;
+            if (!payload.subject_b || !document.getElementById('instantly-body-b').innerText.trim()) {
+                statusDiv.className = 'alert error';
+                statusDiv.innerText = `Variant B is missing subject or body.`;
+                statusDiv.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Launch Sequence';
+                btn.disabled = false;
+                return;
+            }
+        }
         
         const res = await apiCall('/campaigns/send', 'POST', payload);
         if (res.ok) {
@@ -1040,6 +1067,11 @@ document.getElementById('instantly-send-btn').addEventListener('click', async ()
 
 // Init Instantly UI
 renderInstSteps();
+
+document.getElementById('inst-ab-test-toggle').addEventListener('change', (e) => {
+    const container = document.getElementById('inst-variant-b-container');
+    container.style.display = e.target.checked ? 'block' : 'none';
+});
 
 // --- Isolated Campaign Leads Logic ---
 let currentCampaignLeads = [];

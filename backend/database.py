@@ -43,6 +43,13 @@ class Campaign(Base):
     sent_count = Column(Integer, default=0)
     opens = Column(Integer, default=0)
     clicks = Column(Integer, default=0)
+    is_ab_test = Column(Boolean, default=False)
+    subject_b = Column(String, nullable=True)
+    body_b = Column(String, nullable=True)
+    sent_count_a = Column(Integer, default=0)
+    sent_count_b = Column(Integer, default=0)
+    opens_a = Column(Integer, default=0)
+    opens_b = Column(Integer, default=0)
     status = Column(String, default="sent") # draft, scheduled, sent
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -53,6 +60,7 @@ class CampaignLead(Base):
     email = Column(String, index=True)
     name = Column(String, nullable=True)
     status = Column(String, default="pending") # pending, sent, bounced
+    variant = Column(String, nullable=True) # 'A' or 'B'
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class TrackingLog(Base):

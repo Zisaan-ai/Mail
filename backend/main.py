@@ -88,6 +88,9 @@ class CampaignCreate(BaseModel):
     subject: str
     body: str
     leads: Optional[List[CampaignLeadBase]] = None
+    is_ab_test: Optional[bool] = False
+    subject_b: Optional[str] = None
+    body_b: Optional[str] = None
 
 class CampaignResponse(BaseModel):
     id: int
@@ -97,6 +100,13 @@ class CampaignResponse(BaseModel):
     opens: int
     clicks: int
     status: str
+    is_ab_test: Optional[bool] = False
+    subject_b: Optional[str] = None
+    body_b: Optional[str] = None
+    sent_count_a: Optional[int] = 0
+    sent_count_b: Optional[int] = 0
+    opens_a: Optional[int] = 0
+    opens_b: Optional[int] = 0
 
     class Config:
         from_attributes = True
@@ -312,7 +322,14 @@ def get_campaigns(db: Session = Depends(database.get_db), current_user: database
 
 @app.post("/api/campaigns/send")
 def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
-    new_campaign = database.Campaign(subject=campaign.subject, body=campaign.body, status="processing")
+    new_campaign = database.Campaign(
+        subject=campaign.subject, 
+        body=campaign.body, 
+        status="processing",
+        is_ab_test=campaign.is_ab_test,
+        subject_b=campaign.subject_b,
+        body_b=campaign.body_b
+    )
     db.add(new_campaign)
     db.commit()
     db.refresh(new_campaign)
@@ -340,10 +357,51 @@ def process_isolated_campaign(campaign_id: int, emails: list):
         db.close()
         return
 
-    success_count = email_service.send_bulk_emails(campaign.subject, campaign.body, emails)
+    import random
+    leads = db.query(database.CampaignLead).filter(database.CampaignLead.campaign_id == campaign_id).all()
     
+    success_count_a = 0
+    success_count_b = 0
+    
+    if campaign.is_ab_test:
+        random.shuffle(leads)
+        midpoint = len(leads) // 2
+        leads_a = leads[:midpoint]
+        leads_b = leads[midpoint:]
+        
+        for lead in leads_a:
+            lead.variant = 'A'
+            pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
+            body_a = campaign.body + pixel
+            if email_service.send_bulk_emails(campaign.subject, body_a, [lead.email]) > 0:
+                success_count_a += 1
+                lead.status = "sent"
+                
+        for lead in leads_b:
+            lead.variant = 'B'
+            pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
+            body_b = (campaign.body_b or campaign.body) + pixel
+            subj_b = campaign.subject_b or campaign.subject
+            if email_service.send_bulk_emails(subj_b, body_b, [lead.email]) > 0:
+                success_count_b += 1
+                lead.status = "sent"
+                
+        campaign.sent_count_a = success_count_a
+        campaign.sent_count_b = success_count_b
+        campaign.sent_count = success_count_a + success_count_b
+    else:
+        for lead in leads:
+            lead.variant = 'A'
+            pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
+            body = campaign.body + pixel
+            if email_service.send_bulk_emails(campaign.subject, body, [lead.email]) > 0:
+                success_count_a += 1
+                lead.status = "sent"
+                
+        campaign.sent_count = success_count_a
+        campaign.sent_count_a = success_count_a
+
     campaign.status = "sent"
-    campaign.sent_count = success_count
     db.commit()
     db.close()
 
@@ -391,6 +449,36 @@ def track_open(campaign_id: int, contact_id: int, db: Session = Depends(database
     db.commit()
     
     # Return 1x1 transparent GIF
+    return FileResponse(os.path.join(os.path.dirname(__file__), "pixel.gif"), media_type="image/gif")
+
+@app.get("/api/track/lead_open/{campaign_id}/{lead_id}")
+def track_lead_open(campaign_id: int, lead_id: int, db: Session = Depends(database.get_db)):
+    # Check if already logged to prevent double counting
+    existing = db.query(database.TrackingLog).filter(
+        database.TrackingLog.campaign_id == campaign_id,
+        database.TrackingLog.contact_id == lead_id,
+        database.TrackingLog.event_type == "lead_open"
+    ).first()
+    
+    if not existing:
+        log = database.TrackingLog(campaign_id=campaign_id, contact_id=lead_id, event_type="lead_open")
+        db.add(log)
+        
+        campaign = db.query(database.Campaign).filter(database.Campaign.id == campaign_id).first()
+        lead = db.query(database.CampaignLead).filter(database.CampaignLead.id == lead_id).first()
+        
+        if campaign and lead:
+            if campaign.is_ab_test:
+                if lead.variant == 'A':
+                    campaign.opens_a += 1
+                elif lead.variant == 'B':
+                    campaign.opens_b += 1
+                campaign.opens = campaign.opens_a + campaign.opens_b
+            else:
+                campaign.opens_a += 1
+                campaign.opens = campaign.opens_a
+        db.commit()
+        
     return FileResponse(os.path.join(os.path.dirname(__file__), "pixel.gif"), media_type="image/gif")
 
 
