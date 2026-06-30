@@ -7,6 +7,35 @@
     <link rel="stylesheet" href="/assets/style.css?v=24">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    // AUTH TOGGLE - defined in <head>, runs FIRST before any external script
+    window._authIsLogin = true;
+    document.addEventListener('click', function(e) {
+        var t = e.target;
+        while (t && t.tagName) {
+            if (t.id === 'toggle-auth') {
+                e.preventDefault();
+                e.stopPropagation();
+                window._authIsLogin = !window._authIsLogin;
+                var L = window._authIsLogin;
+                // Sync with app.js
+                if (typeof window.isLoginMode !== 'undefined') window.isLoginMode = L;
+                var title = document.getElementById('auth-title');
+                var sub   = document.getElementById('auth-subtitle');
+                var btn   = document.getElementById('auth-btn');
+                var opts  = document.getElementById('auth-options');
+                var txt   = document.getElementById('auth-toggle-text');
+                if (title) title.innerText = L ? 'Login to MailClone' : 'Create an Account';
+                if (sub)   sub.innerText   = L ? 'Enter your details to access your account.' : 'Join thousands of marketers scaling their business.';
+                if (btn)   btn.innerText   = L ? 'Sign In' : 'Create Account';
+                if (opts)  opts.style.display = L ? 'flex' : 'none';
+                if (txt)   txt.innerHTML = (L ? "Don't have an account? " : "Already have an account? ") + '<a href="#" id="toggle-auth">' + (L ? 'Sign up' : 'Log in') + '</a>';
+                return false;
+            }
+            t = t.parentElement;
+        }
+    }, true);
+    </script>
 </head>
 <body>
 

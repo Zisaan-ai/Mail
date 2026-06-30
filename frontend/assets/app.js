@@ -50,7 +50,9 @@ authForm.addEventListener('submit', async (e) => {
 
     try {
         let res;
-        if (isLoginMode) {
+        // Use window._authIsLogin (set by head script) as the source of truth
+        var currentMode = (typeof window._authIsLogin !== 'undefined') ? window._authIsLogin : isLoginMode;
+        if (currentMode) {
             const formData = new URLSearchParams();
             formData.append('username', email); // OAuth2 expects 'username' field
             formData.append('password', password);
