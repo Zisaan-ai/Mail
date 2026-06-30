@@ -96,8 +96,11 @@
                 <a href="#" class="nav-item active" data-target="dashboard">
                     <i class="fa-solid fa-chart-pie"></i> Dashboard
                 </a>
-                <a href="#" class="nav-item" data-target="contacts">
-                    <i class="fa-solid fa-users"></i> Audience
+                <a href="#" class="nav-item" data-target="contacts-view">
+                    <i class="fa-solid fa-users"></i> Contacts
+                </a>
+                <a href="#" class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;">
+                    <i class="fa-solid fa-user-shield"></i> Admin Panel
                 </a>
                 <a href="#" class="nav-item" data-target="campaigns">
                     <i class="fa-solid fa-envelope-open-text"></i> Campaigns
@@ -513,6 +516,33 @@
                         </div>
                     </div>
                 </div> <!-- End MailChimp Tab -->
+
+                <!-- Admin View -->
+                <div id="admin-view" class="view" style="display:none;">
+                    <header>
+                        <h1>Admin Panel</h1>
+                        <p>Manage user approvals and accounts.</p>
+                    </header>
+                    
+                    <div class="card">
+                        <h3>Registered Users</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-list">
+                                    <!-- Users injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>

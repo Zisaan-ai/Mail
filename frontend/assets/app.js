@@ -15,12 +15,18 @@ let isLoginMode = true;
 
 function checkAuth() {
     if (token) {
-        authView.classList.remove('active');
-        appView.classList.add('active');
+        document.getElementById('auth-view').classList.remove('active');
+        document.getElementById('app-view').classList.add('active');
         fetchDashboard();
+        
+        if(localStorage.getItem('is_admin') === 'true') {
+            document.getElementById('nav-admin').style.display = 'flex';
+        } else {
+            document.getElementById('nav-admin').style.display = 'none';
+        }
     } else {
-        authView.classList.add('active');
-        appView.classList.remove('active');
+        document.getElementById('app-view').classList.remove('active');
+        document.getElementById('auth-view').classList.add('active');
     }
 }
 
@@ -69,6 +75,11 @@ authForm.addEventListener('submit', async (e) => {
         if (res.ok) {
             token = data.access_token;
             localStorage.setItem('token', token);
+            if (data.is_admin) {
+                localStorage.setItem('is_admin', 'true');
+            } else {
+                localStorage.removeItem('is_admin');
+            }
             checkAuth();
         } else {
             authAlert.innerText = data.detail || "Authentication failed";
@@ -83,6 +94,7 @@ authForm.addEventListener('submit', async (e) => {
 document.getElementById('logout-btn').addEventListener('click', () => {
     token = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('is_admin');
     checkAuth();
 });
 
@@ -108,16 +120,20 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 }
 
 // Navigation
-navItems.forEach(item => {
+document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
-        navItems.forEach(n => n.classList.remove('active'));
-        views.forEach(v => v.classList.remove('active'));
+        const targetId = item.getAttribute('data-target');
+        
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
         
-        const targetId = item.getAttribute('data-target');
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.getElementById(targetId).classList.add('active');
-
+        
+        if (targetId === 'admin-view') {
+            loadAdminUsers();
+        }
         if(targetId === 'dashboard') fetchDashboard();
         if(targetId === 'contacts') fetchContacts();
     });
@@ -1229,4 +1245,53 @@ if(aiWriteBtn) {
         aiWriteBtn.innerHTML = originalText;
         aiWriteBtn.disabled = false;
     });
+}
+
+// --- ADMIN LOGIC ---
+async function loadAdminUsers() {
+    const data = await apiCall('/admin/users');
+    if(!data) return;
+    const tbody = document.getElementById('admin-users-list');
+    tbody.innerHTML = '';
+    data.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${u.username}</td>
+            <td>${u.is_admin ? '<span style="color:var(--primary); font-weight:bold;">Admin</span>' : 'User'}</td>
+            <td>${u.is_approved ? '<span style="color:green; font-weight:bold;">Approved</span>' : '<span style="color:#f59e0b; font-weight:bold;">Pending</span>'}</td>
+            <td style="display:flex; gap:10px;">
+                ${!u.is_approved ? `<button class="btn primary" onclick="approveUser(${u.id})">Approve</button>` : ''}
+                ${!u.is_admin ? `<button class="btn danger" onclick="deleteUser(${u.id})">Delete</button>` : ''}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+window.approveUser = async function(id) {
+    if(!confirm("Approve this user to use the application?")) return;
+    const res = await fetch(`${API_URL}/admin/users/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if(res.ok) {
+        showToast("User approved successfully!");
+        loadAdminUsers();
+    } else {
+        showToast("Failed to approve user", "error");
+    }
+}
+
+window.deleteUser = async function(id) {
+    if(!confirm("Delete this user permanently?")) return;
+    const res = await fetch(`${API_URL}/admin/users/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if(res.ok) {
+        showToast("User deleted");
+        loadAdminUsers();
+    } else {
+        showToast("Failed to delete user", "error");
+    }
 }
