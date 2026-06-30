@@ -466,9 +466,6 @@
             <a class="nav-item" data-target="cold-mail">
                 <i class="fa-solid fa-snowflake"></i><span>Cold Mail</span>
             </a>
-            <a class="nav-item" data-target="contacts">
-                <i class="fa-solid fa-users"></i><span>Contacts</span>
-            </a>
             <a class="nav-item" data-target="settings">
                 <i class="fa-solid fa-gear"></i><span>Settings</span>
             </a>
@@ -492,13 +489,6 @@
                 <p class="page-subtitle">Welcome back. Here's what's happening today.</p>
             </div>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#e0e7ff;color:#4f46e5;"><i class="fa-solid fa-users"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-label">Total Contacts</div>
-                        <div class="stat-value" id="stat-contacts">0</div>
-                    </div>
-                </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#dcfce7;color:#059669;"><i class="fa-solid fa-paper-plane"></i></div>
                     <div class="stat-content">
@@ -780,43 +770,6 @@
                     </div>
                     <div id="inst-status" class="alert" style="margin-top:20px;"></div>
                 </div>
-            </div>
-        </div>
-
-        <!-- CONTACTS -->
-        <div id="contacts" class="view">
-            <div class="page-header">
-                <h1 class="page-title">Audience</h1>
-                <p class="page-subtitle">Manage your subscribers and segments</p>
-            </div>
-            <div class="glass" style="margin-bottom:32px;">
-                <h3 style="margin-bottom:20px;font-size:16px;font-weight:700;">Add Subscriber</h3>
-                <form id="contact-form" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:end;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Full Name</label>
-                        <input type="text" id="contact-name" placeholder="John Doe" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Email</label>
-                        <input type="email" id="contact-email" placeholder="john@example.com" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Tags</label>
-                        <input type="text" id="contact-tags" placeholder="vip, customer">
-                    </div>
-                    <button type="submit" class="btn primary" style="padding:12px 24px;">Add</button>
-                </form>
-            </div>
-            <div class="glass" style="padding:0;overflow:hidden;">
-                <div style="padding:24px 32px;border-bottom:1px solid var(--border);">
-                    <h3 style="font-size:16px;font-weight:700;">All Contacts</h3>
-                </div>
-                <table id="contacts-table">
-                    <thead>
-                        <tr><th>Name</th><th>Email</th><th>Tags</th><th style="width:80px;"></th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
             </div>
         </div>
 
@@ -1120,20 +1073,14 @@ var AUTH = (function() {
 // Auto-login if token exists
 (function() {
     if (_token) {
-        fetch(API + '/contacts', { headers: { 'Authorization': 'Bearer ' + _token } })
-            .then(function(r) {
-                if (r.ok) {
-                    document.getElementById('auth-page').classList.add('hidden');
-                    document.getElementById('app-page').classList.add('on');
-                    var isAdmin = false;
-                    try { isAdmin = localStorage.getItem('is_admin') === 'true'; } catch(e) {}
-                    if (isAdmin) { var n = document.getElementById('nav-admin'); if (n) n.style.display = 'flex'; }
-                    if (typeof window.APP_INIT === 'function') window.APP_INIT();
-                } else {
-                    try { localStorage.removeItem('token'); } catch(e) {}
-                    _token = null;
-                }
-            }).catch(function() {});
+        // Since we removed /contacts, we just let APP_INIT handle auth or check a /me endpoint if it existed.
+        // For now, assume token is valid. If API fails later, it will log out.
+        document.getElementById('auth-page').classList.add('hidden');
+        document.getElementById('app-page').classList.add('on');
+        var isAdmin = false;
+        try { isAdmin = localStorage.getItem('is_admin') === 'true'; } catch(e) {}
+        if (isAdmin) { var n = document.getElementById('nav-admin'); if (n) n.style.display = 'flex'; }
+        if (typeof window.APP_INIT === 'function') window.APP_INIT();
     }
 })();
 </script>

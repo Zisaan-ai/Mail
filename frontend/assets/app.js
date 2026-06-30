@@ -46,7 +46,7 @@ window.APP_INIT = function() {
     fetchDashboard();
     setupNavigation();
     setupLogout();
-    setupContacts();
+    // setupContacts(); removed
     setupSettings();
     setupCampaignBuilder();
     setupCampaignTabs();
@@ -137,18 +137,17 @@ function setupLogout() {
 // ============================================================
 async function fetchDashboard() {
     try {
-        const [cRes, campRes] = await Promise.all([
-            apiCall('/contacts'),
-            apiCall('/campaigns')
+        const [cRes, aRes] = await Promise.all([
+            apiCall('/campaigns'),
+            apiCall('/admin/stats')
         ]);
-        const contacts = await cRes.json();
-        const campaigns = await campRes.json();
 
         let totalSent = 0, totalOpens = 0, totalClicks = 0;
 
         const tbody = document.querySelector('#dashboard-campaigns tbody');
         if (tbody) {
             tbody.innerHTML = '';
+            const campaigns = await cRes.json();
             window.lastFetchedCampaigns = campaigns;
             campaigns.forEach(c => {
                 totalSent += c.sent_count;
@@ -171,7 +170,7 @@ async function fetchDashboard() {
         }
 
         const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-        setEl('stat-contacts', contacts.length);
+        // setEl('stat-contacts', contacts.length); removed
         setEl('stat-sent', totalSent);
         setEl('stat-opens', totalOpens);
         setEl('stat-clicks', totalClicks);
@@ -205,48 +204,7 @@ window.editCampaign = function(id) {
 };
 
 // ============================================================
-// CONTACTS
-// ============================================================
-function setupContacts() {
-    const form = document.getElementById('contact-form');
-    if (form) {
-        form.addEventListener('submit', async e => {
-            e.preventDefault();
-            const name = document.getElementById('contact-name').value;
-            const email = document.getElementById('contact-email').value;
-            const tags = document.getElementById('contact-tags').value;
-            const res = await apiCall('/contacts', 'POST', { name, email, tags });
-            if (res.ok) { form.reset(); fetchContacts(); showToast('Contact added!'); }
-        });
-    }
-}
-
-async function fetchContacts() {
-    try {
-        const res = await apiCall('/contacts');
-        const contacts = await res.json();
-        const tbody = document.querySelector('#contacts-table tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        contacts.forEach(c => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${c.name}</td>
-                <td>${c.email}</td>
-                <td>${(c.tags || '').split(',').map(t => `<span style="background:rgba(99,102,241,0.1);color:#6366f1;padding:2px 8px;border-radius:20px;font-size:12px;margin-right:4px;">${t.trim()}</span>`).join('')}</td>
-                <td><button class="btn danger" onclick="deleteContact(${c.id})" style="padding:5px 10px;"><i class="fa-solid fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } catch(e) { console.error(e); }
-}
-
-window.deleteContact = async function(id) {
-    if (!confirm('Delete this contact?')) return;
-    await apiCall(`/contacts/${id}`, 'DELETE');
-    fetchContacts();
-    showToast('Contact deleted');
-};
+//     // Contacts code removed as it is redundant with Leads};
 
 // ============================================================
 // SETTINGS

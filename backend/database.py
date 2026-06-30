@@ -26,15 +26,7 @@ class User(Base):
     verification_code = Column(String, nullable=True)
     is_email_verified = Column(Boolean, default=False)
 
-class Contact(Base):
-    __tablename__ = "contacts"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    tags = Column(String, default="")  # comma separated tags
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
+# Contact class removed
 class Campaign(Base):
     __tablename__ = "campaigns"
     id = Column(Integer, primary_key=True, index=True)

@@ -89,21 +89,6 @@ class ResetPasswordRequest(BaseModel):
     code: str
     new_password: str
 
-class ContactCreate(BaseModel):
-    name: Optional[str] = ""
-    email: str
-    tags: Optional[str] = ""
-
-class ContactResponse(BaseModel):
-    id: int
-    name: Optional[str] = ""
-    email: str
-    tags: str
-    is_active: bool
-
-    class Config:
-        from_attributes = True
-
 class CampaignLeadBase(BaseModel):
     name: Optional[str] = ""
     email: str
@@ -326,30 +311,7 @@ def delete_user(user_id: int, db: Session = Depends(database.get_db), current_us
 
 
 # --- SECURE ENDPOINTS ---
-@app.get("/api/contacts", response_model=List[ContactResponse])
-def get_contacts(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
-    return db.query(database.Contact).all()
-
-@app.post("/api/contacts", response_model=ContactResponse)
-def create_contact(contact: ContactCreate, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
-    db_contact = db.query(database.Contact).filter(database.Contact.email == contact.email).first()
-    if db_contact:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    new_contact = database.Contact(name=contact.name, email=contact.email, tags=contact.tags)
-    db.add(new_contact)
-    db.commit()
-    db.refresh(new_contact)
-    return new_contact
-
-@app.delete("/api/contacts/{contact_id}")
-def delete_contact(contact_id: int, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
-    contact = db.query(database.Contact).filter(database.Contact.id == contact_id).first()
-    if not contact:
-        raise HTTPException(status_code=404, detail="Contact not found")
-    db.delete(contact)
-    db.commit()
-    return {"message": "Contact deleted"}
+# Contacts endpoints removed
 
 @app.get("/api/campaigns", response_model=List[CampaignResponse])
 def get_campaigns(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
@@ -370,20 +332,16 @@ def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, d
     db.commit()
     db.refresh(new_campaign)
 
-    if campaign.leads and len(campaign.leads) > 0:
-        for lead_in in campaign.leads:
-            db_lead = database.CampaignLead(campaign_id=new_campaign.id, name=lead_in.name, email=lead_in.email, company=lead_in.company)
-            db.add(db_lead)
-        db.commit()
-        # In a real app, this goes to Celery/Redis
-        background_tasks.add_task(process_isolated_campaign, new_campaign.id, [lead.email for lead in campaign.leads])
-    else:
-        # Fallback to global audience for older calls
-        contacts = db.query(database.Contact).filter(database.Contact.is_active == True).all()
-        if not contacts:
-            raise HTTPException(status_code=400, detail="No active contacts found")
-        background_tasks.add_task(process_campaign_sending, new_campaign.id, contacts)
+    if not campaign.leads or len(campaign.leads) == 0:
+        raise HTTPException(status_code=400, detail="No leads provided for campaign")
+
+    for lead_in in campaign.leads:
+        db_lead = database.CampaignLead(campaign_id=new_campaign.id, name=lead_in.name, email=lead_in.email, company=lead_in.company)
+        db.add(db_lead)
+    db.commit()
     
+    # In a real app, this goes to Celery/Redis
+    background_tasks.add_task(process_isolated_campaign, new_campaign.id, [lead.email for lead in campaign.leads])
     return {"message": "Campaign queued for sending", "campaign_id": new_campaign.id}
 
 def process_isolated_campaign(campaign_id: int, emails: list):
