@@ -147,12 +147,13 @@ def ai_generate_email(req: EmailGenerateRequest, current_user: database.User = D
 # --- AUTH ENDPOINTS ---
 @app.post("/api/auth/register")
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(database.User).filter(database.User.email == user.email).first()
+    email_lower = user.email.strip().lower()
+    db_user = db.query(database.User).filter(database.User.email.ilike(email_lower)).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user_count = db.query(database.User).count()
-    is_admin = (user_count == 0) or (user.email == "zmonemrahman@gmail.com")
+    is_admin = (user_count == 0) or (email_lower == "zmonemrahman@gmail.com")
     is_approved = is_admin
     
     verification_code = ''.join(random.choices(string.digits, k=6))
@@ -168,7 +169,7 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
 
     hashed_password = auth.get_password_hash(user.password)
     new_user = database.User(
-        email=user.email, 
+        email=email_lower, 
         hashed_password=hashed_password, 
         is_admin=is_admin, 
         is_approved=is_approved,
@@ -250,7 +251,8 @@ def verify_email(payload: VerifyEmail, db: Session = Depends(database.get_db)):
 
 @app.post("/api/auth/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = db.query(database.User).filter(database.User.email == form_data.username.strip()).first()
+    email_lower = form_data.username.strip().lower()
+    user = db.query(database.User).filter(database.User.email.ilike(email_lower)).first()
     if not user or not auth.verify_password(form_data.password.strip(), user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
     
