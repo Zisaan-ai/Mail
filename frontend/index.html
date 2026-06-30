@@ -458,7 +458,10 @@
         </div>
         <nav>
             <a class="nav-item active" data-target="dashboard">
-                <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+                <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+            </a>
+            <a class="nav-item" data-target="view-campaign-details">
+                <i class="fa-solid fa-chart-line"></i><span>Analytics</span>
             </a>
             <a class="nav-item" data-target="campaigns">
                 <i class="fa-solid fa-paper-plane"></i><span>Campaigns</span>
@@ -531,6 +534,67 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- CAMPAIGN ANALYTICS (Instantly Clone) -->
+        <div id="view-campaign-details" class="view">
+            <div class="page-header" style="margin-bottom:24px;">
+                <h1 class="page-title" style="font-size:24px;">Campaign Name</h1>
+            </div>
+            
+            <div class="clean-tabs-bar">
+                <div class="clean-tab active">Analytics</div>
+                <div class="clean-tab">Leads</div>
+                <div class="clean-tab">Sequences</div>
+                <div class="clean-tab">Schedule</div>
+                <div class="clean-tab">Options</div>
+                <div class="clean-tab">Subsequences</div>
+                <div style="flex:1;"></div>
+                <button class="btn primary" style="background:#059669;border-color:#059669;"><i class="fa-solid fa-play"></i> Resume campaign</button>
+                <button class="btn" style="padding:10px 14px;"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+            
+            <div style="display:flex;align-items:center;margin-bottom:32px;">
+                <span style="font-size:14px;color:var(--text-muted);font-weight:600;margin-right:12px;">Status:</span>
+                <span class="status-pill">Paused</span>
+                <span style="font-size:14px;font-weight:700;margin-left:16px;margin-right:8px;">0%</span>
+                <div class="progress-bar-container"><div class="progress-bar-fill"></div></div>
+                
+                <div style="flex:1;"></div>
+                
+                <div style="display:flex;gap:12px;">
+                    <button class="btn" style="padding:8px 16px;font-size:13px;"><i class="fa-solid fa-stethoscope"></i> Diagnose</button>
+                    <button class="btn" style="padding:8px 16px;font-size:13px;"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                    <select class="form-group" style="margin:0;padding:8px 32px 8px 16px;width:auto;font-size:13px;font-weight:600;border-radius:8px;">
+                        <option>Last 4 weeks</option>
+                        <option>All time</option>
+                    </select>
+                    <button class="btn" style="padding:8px 14px;"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                <div class="metric-card">
+                    <div class="metric-card-title">Sequence started <i class="fa-solid fa-circle-info"></i></div>
+                    <div class="metric-card-value">91</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-card-title">Open rate <i class="fa-solid fa-circle-info"></i></div>
+                    <div class="metric-card-value">2.2% <span class="metric-card-sub">2</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-card-title">Click rate <i class="fa-solid fa-circle-info"></i></div>
+                    <div class="metric-card-value">0% <span class="metric-card-sub">0</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-card-title">Opportunities <i class="fa-solid fa-circle-info"></i></div>
+                    <div class="metric-card-value">0 <span class="metric-card-sub">$0</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-card-title">Conversions <i class="fa-solid fa-circle-info"></i></div>
+                    <div class="metric-card-value">0 <span class="metric-card-sub">$0</span></div>
+                </div>
             </div>
         </div>
 
