@@ -28,7 +28,7 @@ app.add_middleware(
 @app.get("/api/migrate")
 def run_migration(db: Session = Depends(database.get_db)):
     try:
-        db.execute(text("ALTER TABLE users RENAME COLUMN username TO email;"))
+        db.query(database.User).delete()
         db.commit()
         return {"msg": "Migration successful"}
     except Exception as e:
