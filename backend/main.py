@@ -23,6 +23,16 @@ import pytz
 scheduler = BackgroundScheduler()
 scheduler.start()
 
+def render_keep_alive():
+    try:
+        requests.get("https://email-marketer-ijk5.onrender.com/api/ping", timeout=10)
+        print("Keep-alive ping sent.")
+    except Exception as e:
+        print("Keep-alive ping failed:", e)
+
+scheduler.add_job(render_keep_alive, 'interval', minutes=10)
+
+
 app = FastAPI(title="MailChimp Clone API")
 
 # Allow CORS for local React app
