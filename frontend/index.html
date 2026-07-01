@@ -522,6 +522,9 @@
             <a class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;">
                 <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
             </a>
+            <a class="nav-item" data-target="guide-view">
+                <i class="fa-solid fa-circle-question"></i><span>How to Use</span>
+            </a>
             <div style="border-top:1px solid var(--border); margin:12px 0;"></div>
             <a class="nav-item" id="theme-toggle" onclick="window.toggleTheme()" style="cursor:pointer; justify-content:space-between;">
                 <div style="display:flex;align-items:center;gap:12px;"><i class="fa-solid fa-moon" id="theme-icon"></i><span>Dark Mode</span></div>
@@ -1355,6 +1358,33 @@
                     <thead><tr><th>ID</th><th>User Email</th><th>Role</th><th style="width:100px;">Actions</th></tr></thead>
                     <tbody id="admin-users-body"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- GUIDE -->
+        <div id="guide-view" class="view">
+            <div class="page-header">
+                <h1 class="page-title">How to Use (কীভাবে ব্যবহার করবেন)</h1>
+                <p class="page-subtitle">Simple step-by-step guide for MailClone / মেইলক্লোন ব্যবহারের সহজ গাইড</p>
+            </div>
+            <div class="glass" style="display:flex; flex-direction:column; gap:24px; padding:32px; border-radius:16px;">
+                <div style="background:var(--surface); padding:24px; border-radius:12px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,0,0,0.02);">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px; font-size:18px;"><i class="fa-solid fa-1" style="color:var(--p);"></i> Add Sending Account (অ্যাকাউন্ট অ্যাড করুন)</h3>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:12px; line-height:1.6;"><strong>English:</strong> First, go to "Sending Accounts" from the left menu and add your Gmail/SMTP email. This email will be used to send all your messages.</p>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:0; line-height:1.6;"><strong>Bangla:</strong> প্রথমে বামপাশের মেনু থেকে "Sending Accounts" এ যান এবং আপনার ইমেইল (Gmail/SMTP) যুক্ত করুন। এই ইমেইলটি ব্যবহার করেই ক্লায়েন্টদের কাছে মেইল পাঠানো হবে।</p>
+                </div>
+
+                <div style="background:var(--surface); padding:24px; border-radius:12px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,0,0,0.02);">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px; font-size:18px;"><i class="fa-solid fa-2" style="color:var(--p);"></i> Create Email Content (ইমেইল লিখুন)</h3>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:12px; line-height:1.6;"><strong>English:</strong> Go to "Cold Mail" to write text-based emails, or "Visual Builder" to design beautiful HTML newsletters. You can use the AI button (✨) to write emails automatically!</p>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:0; line-height:1.6;"><strong>Bangla:</strong> টেক্সট মেইল লেখার জন্য "Cold Mail" অপশনে যান, অথবা সুন্দর ডিজাইনের নিউজলেটার বানাতে "Visual Builder" ব্যবহার করুন। আপনি চাইলে জাদুর মতো এআই (AI ✨) বাটন ব্যবহার করে অটোমেটিকভাবে ইমেইল লিখিয়ে নিতে পারেন!</p>
+                </div>
+
+                <div style="background:var(--surface); padding:24px; border-radius:12px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,0,0,0.02);">
+                    <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px; font-size:18px;"><i class="fa-solid fa-3" style="color:var(--p);"></i> Upload Leads & Send (লিড আপলোড করে সেন্ড করুন)</h3>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:12px; line-height:1.6;"><strong>English:</strong> Upload your CSV file containing the list of client emails. Click "Send Campaign" and the system will send emails to everyone automatically!</p>
+                    <p style="color:var(--text-muted); font-size:15px; margin-bottom:0; line-height:1.6;"><strong>Bangla:</strong> আপনার ক্লায়েন্টদের ইমেইল লিস্টের CSV ফাইল আপলোড করুন। এরপর "Send Campaign" বাটনে ক্লিক করলেই সিস্টেম অটোমেটিকভাবে সবার কাছে ইমেইল পাঠানো শুরু করবে!</p>
+                </div>
             </div>
         </div>
 
