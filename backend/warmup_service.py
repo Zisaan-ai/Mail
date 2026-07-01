@@ -7,7 +7,7 @@ import email_service
 import imaplib
 import email
 from email.header import decode_header
-from backend.database import Reply
+from database import Reply
 
 SPINTAX_SUBJECTS = [
     "Quick question {about|regarding} {your|the} {project|website}",
