@@ -113,6 +113,13 @@ class UnsubscribeList(Base):
     email = Column(String, unique=True, index=True)
     unsubscribed_at = Column(DateTime, default=datetime.utcnow)
 
+class Webhook(Base):
+    __tablename__ = "webhooks"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    url = Column(String)
+    events = Column(String, default="all")
+
 Base.metadata.create_all(bind=engine)
 
 # Dependency

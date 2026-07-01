@@ -1364,6 +1364,30 @@
                     </button>
                     <div id="gemini-status" class="alert" style="margin-top:16px;"></div>
                 </div>
+                </div>
+                
+                <!-- WEBHOOK CONFIGURATION CARD -->
+                <div class="glass" style="padding:28px; border-radius:16px;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+                        <div style="width:42px;height:42px;border-radius:10px;background:#fce7f3;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-link" style="color:#db2777; font-size:18px;"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size:17px;font-weight:700;margin:0;">Webhook Configuration</h3>
+                            <p style="font-size:13px; color:var(--text-muted); margin:0;">Send events to your own server or Make/Zapier</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Webhook URL</label>
+                        <input type="url" id="webhook-url" placeholder="https://your-server.com/webhook" style="font-family:monospace;">
+                    </div>
+                    
+                    <button id="save-webhook-btn" class="btn primary" style="width:100%; justify-content:center; padding:14px;">
+                        <i class="fa-solid fa-floppy-disk" style="margin-right:8px;"></i>Save Webhook
+                    </button>
+                    <div id="webhook-status" class="alert" style="margin-top:16px;"></div>
+                </div>
 
             </div>
         </div>

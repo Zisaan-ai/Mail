@@ -475,6 +475,7 @@ def process_isolated_campaign(campaign_id: int, emails: list):
         campaign.sent_count += success_count_a
         
     campaign.status = "completed"
+    trigger_webhook(campaign.user_id, 'campaign_completed', {'campaign_id': campaign.id, 'status': 'completed'}, db)
     db.commit()
     db.close()
 
@@ -518,6 +519,7 @@ def process_campaign_sending(campaign_id: int, contacts: list):
     
     campaign.sent_count = success_count
     campaign.status = "sent"
+    trigger_webhook(campaign.user_id, 'campaign_completed', {'campaign_id': campaign.id, 'status': 'completed'}, db)
     db.commit()
     db.close()
 
@@ -812,3 +814,38 @@ def get_bounces(db: Session = Depends(database.get_db), current_user: database.U
 @app.get('/api/replies')
 def get_replies(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
     return db.query(database.Reply).order_by(database.Reply.received_at.desc()).all()
+
+
+# --- WEBHOOK ENDPOINTS ---
+import requests
+import threading
+
+def trigger_webhook(user_id: int, event_type: str, payload: dict, db_session):
+    webhook = db_session.query(database.Webhook).filter(database.Webhook.user_id == user_id).first()
+    if not webhook or not webhook.url:
+        return
+    def _send():
+        try:
+            requests.post(webhook.url, json={"event": event_type, "data": payload}, timeout=5)
+        except Exception as e:
+            print(f"Webhook error: {e}")
+    threading.Thread(target=_send).start()
+
+class WebhookRequest(BaseModel):
+    url: str
+
+@app.get('/api/webhook')
+def get_webhook(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    webhook = db.query(database.Webhook).filter(database.Webhook.user_id == current_user.id).first()
+    return {"url": webhook.url if webhook else ""}
+
+@app.post('/api/webhook')
+def save_webhook(req: WebhookRequest, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    webhook = db.query(database.Webhook).filter(database.Webhook.user_id == current_user.id).first()
+    if not webhook:
+        webhook = database.Webhook(user_id=current_user.id, url=req.url)
+        db.add(webhook)
+    else:
+        webhook.url = req.url
+    db.commit()
+    return {"ok": True}

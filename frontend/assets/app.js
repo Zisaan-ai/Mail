@@ -1471,3 +1471,41 @@ window.previewInbox = function(subjectId, bodyId) {
     document.getElementById('inbox-preview-modal').style.display = 'flex';
 };
 
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load Webhook
+    const webhookUrlInput = document.getElementById('webhook-url');
+    if (webhookUrlInput) {
+        try {
+            const res = await apiCall('/api/webhook');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.url) webhookUrlInput.value = data.url;
+            }
+        } catch(e) {}
+    }
+
+    // Save Webhook
+    const saveWebhookBtn = document.getElementById('save-webhook-btn');
+    if (saveWebhookBtn) {
+        saveWebhookBtn.addEventListener('click', async () => {
+            const url = document.getElementById('webhook-url').value;
+            saveWebhookBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            try {
+                const res = await apiCall('/api/webhook', 'POST', { url });
+                const statusEl = document.getElementById('webhook-status');
+                if (res.ok) {
+                    statusEl.textContent = 'Webhook URL saved successfully!';
+                    statusEl.className = 'alert success';
+                } else {
+                    statusEl.textContent = 'Failed to save webhook URL.';
+                    statusEl.className = 'alert error';
+                }
+                statusEl.style.display = 'block';
+                setTimeout(() => statusEl.style.display = 'none', 3000);
+            } catch(e) { console.error(e); }
+            saveWebhookBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Webhook';
+        });
+    }
+});
