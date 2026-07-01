@@ -3,7 +3,7 @@
 // Auth is handled in index.html (inline) - NOT here
 // ============================================================
 
-const API_URL = 'https://email-marketer-ijk5.onrender.com/api';
+const API_URL = 'http://localhost:8000/api';
 
 // Get token from localStorage
 function getToken() {
@@ -79,6 +79,7 @@ function setupNavigation() {
             if (targetId === 'dashboard') fetchDashboard();
             if (targetId === 'cold-mail-list') renderColdMailList();
             if (targetId === 'campaigns-list') renderNewsletterList();
+            if (targetId === 'sending-accounts-view' && typeof ACCOUNTS !== 'undefined') ACCOUNTS.init();
             if (targetId === 'view-campaign-details') {
                 if (window.lastFetchedCampaigns && window.lastFetchedCampaigns.length > 0) {
                     populateAnalytics(window.lastFetchedCampaigns[0].id);
@@ -1207,3 +1208,156 @@ window.openNewsletterBuilder = function(id) {
         window.switchVbTab('audience');
     }
 }
+
+window.checkSpamScore = async function() {
+    const text = document.getElementById('inst-body').value;
+    if (!text.trim()) {
+        showToast("Please write an email first to check spam score.");
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/spam-check', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content: text})
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.score === 10) {
+                showToast("✅ Spam Score: 10/10 (Excellent! No spam words found)");
+            } else {
+                showToast(`⚠️ Spam Score: ${data.score}/10 (Found spam words: ${data.found_words.join(', ')})`);
+            }
+        }
+    } catch(e) {
+        console.error(e);
+        showToast("Error checking spam score.");
+    }
+};
+
+const TEMPLATES = {
+    saas_outreach: {
+        subject: "{Quick question|Thoughts on} your {workflow|current process} at {{company}}?",
+        body: "Hey {{firstName}},\n\nI noticed that {{company}} is growing {fast|rapidly}, and I was wondering how you're handling your current workflow.\n\n{Many|Several} companies like yours use our platform to {save time|automate tasks} and {reduce costs|increase efficiency}. \n\nWould you be open to a quick {5-minute|short} chat next week to see if there's a fit?\n\n{Best|Cheers},\nYour Name"
+    },
+    sales_followup: {
+        subject: "{Following up|Checking in} - {{company}} / Our last {chat|email}",
+        body: "Hi {{firstName}},\n\nI just wanted to {follow up|check in} on my previous email. {I know you're busy|Things get busy}, so I wanted to bump this to the top of your inbox.\n\nHave you had a chance to {review|look at} the info I sent over? Let me know if you have any questions or if now isn't the right time.\n\n{Thanks|Best regards},\nYour Name"
+    },
+    link_building: {
+        subject: "{Quick question|Collab idea} about your article on {{company}} blog",
+        body: "Hey {{firstName}},\n\nI was doing some research on {topic} and came across your excellent article on the {{company}} blog.\n\nI {really enjoyed|loved} your point about [insert point here]. I actually just published a comprehensive guide that {complements|expands on} your piece perfectly.\n\nWould you consider {linking to it|adding it as a resource}? I'd be happy to share your article with my {audience|newsletter} as well.\n\n{Cheers|Best},\nYour Name"
+    }
+};
+
+window.loadTemplate = function() {
+    const selector = document.getElementById('template-selector');
+    const val = selector.value;
+    
+    if (val && TEMPLATES[val]) {
+        document.getElementById('inst-subject').value = TEMPLATES[val].subject;
+        document.getElementById('inst-body').value = TEMPLATES[val].body;
+        showToast("Template loaded successfully!");
+    } else {
+        document.getElementById('inst-subject').value = "";
+        document.getElementById('inst-body').value = "";
+    }
+};
+
+function setupDragDrop(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        el.style.borderColor = "var(--p)";
+        el.style.background = "#eef2ff";
+    });
+    
+    el.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        el.style.borderColor = "var(--border)";
+        el.style.background = "#fff";
+    });
+    
+    el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.style.borderColor = "var(--border)";
+        el.style.background = "#fff";
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const text = evt.target.result;
+                    const lines = text.split('\n').filter(l => l.trim().length > 0);
+                    // Append or Replace? Replace is safer.
+                    el.value = text;
+                    showToast(`✅ Successfully loaded ${lines.length} leads from ${file.name}`);
+                };
+                reader.readAsText(file);
+            } else {
+                showToast("⚠️ Please drop a valid .csv or .txt file.");
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupDragDrop('seq-leads');
+    setupDragDrop('newsletter-leads');
+});
+
+window.toggleTheme = function() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    
+    if (isDark) {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+        document.getElementById('theme-switch').style.left = '2px';
+        document.getElementById('theme-switch').style.background = '#fff';
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+        document.getElementById('theme-switch').style.left = '16px';
+        document.getElementById('theme-switch').style.background = 'var(--p)';
+    }
+};
+
+// Initialize theme on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        setTimeout(() => {
+            const icon = document.getElementById('theme-icon');
+            const sw = document.getElementById('theme-switch');
+            if (icon && sw) {
+                icon.className = 'fa-solid fa-sun';
+                sw.style.left = '16px';
+                sw.style.background = 'var(--p)';
+            }
+        }, 100);
+    }
+});
+
+// Inbox Preview Feature
+window.previewInbox = function(subjectId, bodyId) {
+    const subjectEl = document.getElementById(subjectId);
+    const bodyEl = document.getElementById(bodyId);
+    
+    if (!subjectEl || !bodyEl) return;
+    
+    const subjectText = subjectEl.value || "(No Subject)";
+    const bodyText = bodyEl.value || "(Empty Body)";
+    
+    document.getElementById('preview-subject').textContent = subjectText;
+    document.getElementById('preview-body').textContent = bodyText;
+    
+    document.getElementById('inbox-preview-modal').style.display = 'flex';
+};
+

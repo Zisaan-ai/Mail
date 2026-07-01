@@ -66,7 +66,45 @@ class TrackingLog(Base):
     url = Column(String, nullable=True) # if click, what url
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+class SendingAccount(Base):
+    __tablename__ = "sending_accounts"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    name = Column(String, nullable=True) # e.g. "John Sales"
+    email = Column(String, unique=True, index=True)
+    smtp_server = Column(String)
+    smtp_port = Column(Integer, default=587)
+    smtp_username = Column(String)
+    smtp_password = Column(String)
+    daily_limit = Column(Integer, default=500)
+    sent_today = Column(Integer, default=0)
+    
+    # IMAP Settings for Auto-reply (Warmup)
+    imap_server = Column(String, nullable=True)
+    imap_port = Column(Integer, default=993)
+    imap_password = Column(String, nullable=True)
+    
+    # Warmup Settings
+    warmup_enabled = Column(Boolean, default=False)
+    warmup_daily_limit = Column(Integer, default=5)
+    warmup_increment_per_day = Column(Integer, default=2)
+    warmup_sent_today = Column(Integer, default=0)
+    
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 # Create tables
+
+class Reply(Base):
+    __tablename__ = "replies"
+    id = Column(Integer, primary_key=True, index=True)
+    account_id = Column(Integer, index=True)
+    sender_email = Column(String)
+    subject = Column(String)
+    body = Column(String)
+    sentiment = Column(String, default="Unknown")
+    received_at = Column(DateTime, default=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # Dependency

@@ -8,10 +8,10 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timedelta
 import os
+import re
 import database
 import email_service
 import auth
-import ai_service
 from sqlalchemy import text
 import random
 import string
@@ -27,6 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import warmup_service
+import asyncio
+
 @app.on_event("startup")
 def startup_event():
     db = database.SessionLocal()
@@ -37,6 +40,10 @@ def startup_event():
         db.rollback()
     finally:
         db.close()
+        
+    # Start background warmup tasks
+    asyncio.create_task(warmup_service.warmup_loop())
+    asyncio.create_task(warmup_service.reset_daily_limits())
 
 @app.get("/api/ping")
 def ping():
@@ -137,8 +144,9 @@ class EmailGenerateRequest(BaseModel):
 
 @app.post("/api/ai/chat")
 def ai_chat(req: ChatRequest, current_user: database.User = Depends(auth.get_current_user)):
-    history_dict = [msg.model_dump() for msg in req.history] if req.history else None
-    response = ai_service.chat_with_assistant(req.message, history_dict)
+    history_dict = [msg.dict() for msg in req.history] if req.history else []
+    import ai_core
+    response = ai_core.chat_with_assistant(req.message, history_dict)
     return {"reply": response}
 
 @app.post("/api/ai/generate")
@@ -171,12 +179,12 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
 
     hashed_password = auth.get_password_hash(user.password)
     new_user = database.User(
-        email=email_lower, 
-        hashed_password=hashed_password, 
-        is_admin=is_admin, 
-        is_approved=is_approved,
+        email=email_lower,
+        hashed_password=hashed_password,
+        is_admin=is_admin,
+        is_approved=is_admin,  # Require admin approval for non-admins
         verification_code=verification_code,
-        is_email_verified=is_admin  # Automatically verify admin
+        is_email_verified=True  # Automatically verify email
     )
     db.add(new_user)
     db.commit()
@@ -187,7 +195,7 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
         access_token = auth.create_access_token(data={"sub": new_user.email}, expires_delta=access_token_expires)
         return {"access_token": access_token, "token_type": "bearer", "is_admin": True}
     
-    return {"status": "needs_verification", "message": "Please verify your email address."}
+    return {"status": "needs_approval", "message": "Account created! Please wait for admin approval to log in."}
 
 @app.post("/api/auth/forgot-password")
 def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(database.get_db)):
@@ -264,8 +272,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         user.is_email_verified = True
         db.commit()
         
-    if not user.is_email_verified:
-        raise HTTPException(status_code=403, detail="Please verify your email address first.")
+
         
     if not user.is_approved:
         raise HTTPException(status_code=403, detail="Wait for admin approve")
@@ -354,6 +361,17 @@ def process_isolated_campaign(campaign_id: int, emails: list):
     import random
     leads = db.query(database.CampaignLead).filter(database.CampaignLead.campaign_id == campaign_id).all()
     
+    # Fetch active sending accounts
+    accounts = db.query(database.SendingAccount).filter(database.SendingAccount.is_active == True).all()
+    account_count = len(accounts)
+    
+    if account_count == 0:
+        campaign.status = "failed"
+        db.commit()
+        db.close()
+        print(f"Campaign {campaign_id} failed: No active sending accounts found.")
+        return
+    
     success_count_a = 0
     success_count_b = 0
     
@@ -363,41 +381,53 @@ def process_isolated_campaign(campaign_id: int, emails: list):
         leads_a = leads[:midpoint]
         leads_b = leads[midpoint:]
         
-        for lead in leads_a:
+        for i, lead in enumerate(leads_a):
             lead.variant = 'A'
             pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
             body_a = campaign.body + pixel
-            if email_service.send_bulk_emails(campaign.subject, body_a, [lead.email]) > 0:
+            acc = accounts[i % account_count] if account_count > 0 else None
+            
+            if email_service.send_bulk_emails(campaign.subject, body_a, [lead.email], account=acc) > 0:
                 success_count_a += 1
                 lead.status = "sent"
+                if acc:
+                    acc.sent_today += 1
                 
-        for lead in leads_b:
+        for i, lead in enumerate(leads_b):
             lead.variant = 'B'
             pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
             body_b = (campaign.body_b or campaign.body) + pixel
             subj_b = campaign.subject_b or campaign.subject
-            if email_service.send_bulk_emails(subj_b, body_b, [lead.email]) > 0:
+            acc = accounts[i % account_count] if account_count > 0 else None
+            
+            if email_service.send_bulk_emails(subj_b, body_b, [lead.email], account=acc) > 0:
                 success_count_b += 1
                 lead.status = "sent"
+                if acc:
+                    acc.sent_today += 1
                 
-        campaign.sent_count_a = success_count_a
-        campaign.sent_count_b = success_count_b
-        campaign.sent_count = success_count_a + success_count_b
+        campaign.sent_count_a += success_count_a
+        campaign.sent_count_b += success_count_b
+        campaign.sent_count = campaign.sent_count_a + campaign.sent_count_b
+        
     else:
-        for lead in leads:
-            lead.variant = 'A'
+        for i, lead in enumerate(leads):
             pixel = f'<img src="https://email-marketer-ijk5.onrender.com/api/track/lead_open/{campaign_id}/{lead.id}" width="1" height="1" />'
-            body = campaign.body + pixel
-            if email_service.send_bulk_emails(campaign.subject, body, [lead.email]) > 0:
+            body_html = campaign.body + pixel
+            acc = accounts[i % account_count] if account_count > 0 else None
+            
+            if email_service.send_bulk_emails(campaign.subject, body_html, [lead.email], account=acc) > 0:
                 success_count_a += 1
                 lead.status = "sent"
+                if acc:
+                    acc.sent_today += 1
                 
-        campaign.sent_count = success_count_a
-        campaign.sent_count_a = success_count_a
-
-    campaign.status = "sent"
+        campaign.sent_count += success_count_a
+        
+    campaign.status = "completed"
     db.commit()
     db.close()
+
 
 def process_campaign_sending(campaign_id: int, contacts: list):
     db = database.SessionLocal()
@@ -406,21 +436,29 @@ def process_campaign_sending(campaign_id: int, contacts: list):
         db.close()
         return
 
+    # Fetch active sending accounts
+    accounts = db.query(database.SendingAccount).filter(database.SendingAccount.is_active == True).all()
+    account_count = len(accounts)
+    
+    if account_count == 0:
+        campaign.status = "failed"
+        db.commit()
+        db.close()
+        print(f"Campaign {campaign_id} failed: No active sending accounts found.")
+        return
+        
     success_count = 0
     # Add tracking pixels and links to each email body
-    for contact in contacts:
+    for i, contact in enumerate(contacts):
         # 1x1 invisible pixel for open tracking
         tracking_pixel = f'<img src="http://127.0.0.1:8000/api/track/open/{campaign_id}/{contact.id}" width="1" height="1" />'
         personalized_body = campaign.body + tracking_pixel
         
-        # We would normally wrap links here for click tracking, but keeping it simple for the clone
-        # success = email_service.send_single_email(...) # refactored for single send
-        # success_count += 1
-        pass # mock for now
-    
-    # Mocking bulk send since email_service is bulk only currently
-    recipients = [c.email for c in contacts]
-    success_count = email_service.send_bulk_emails(campaign.subject, campaign.body, recipients)
+        acc = accounts[i % account_count]
+        
+        if email_service.send_bulk_emails(campaign.subject, personalized_body, [contact.email], account=acc) > 0:
+            success_count += 1
+            acc.sent_today += 1
     
     campaign.sent_count = success_count
     campaign.status = "sent"
@@ -515,3 +553,139 @@ if os.path.exists(frontend_path):
                 "Surrogate-Control": "no-store",
             }
         )
+
+# --- Sending Accounts Schema ---
+class SendingAccountCreate(BaseModel):
+    name: Optional[str] = None
+    email: str
+    smtp_server: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
+    daily_limit: int = 500
+    imap_server: Optional[str] = None
+    imap_port: int = 993
+    imap_password: Optional[str] = None
+    warmup_enabled: bool = False
+    warmup_daily_limit: int = 5
+    warmup_increment_per_day: int = 2
+
+class SendingAccountUpdate(BaseModel):
+    is_active: bool
+
+# --- Sending Accounts API Endpoints ---
+@app.get("/api/sending-accounts")
+def get_sending_accounts(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    accounts = db.query(database.SendingAccount).filter(database.SendingAccount.user_id == current_user.id).all()
+    # Mask passwords for safety
+    result = []
+    for acc in accounts:
+        result.append({
+            "id": acc.id,
+            "name": acc.name,
+            "email": acc.email,
+            "smtp_server": acc.smtp_server,
+            "smtp_port": acc.smtp_port,
+            "smtp_username": acc.smtp_username,
+            "daily_limit": acc.daily_limit,
+            "sent_today": acc.sent_today,
+            "is_active": acc.is_active,
+            "imap_server": acc.imap_server,
+            "imap_port": acc.imap_port,
+            "warmup_enabled": acc.warmup_enabled,
+            "warmup_daily_limit": acc.warmup_daily_limit,
+            "warmup_increment_per_day": acc.warmup_increment_per_day,
+            "warmup_sent_today": acc.warmup_sent_today,
+            "created_at": acc.created_at
+        })
+    return result
+
+@app.post("/api/sending-accounts")
+def create_sending_account(acc: SendingAccountCreate, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    new_acc = database.SendingAccount(
+        user_id=current_user.id,
+        name=acc.name,
+        email=acc.email,
+        smtp_server=acc.smtp_server,
+        smtp_port=acc.smtp_port,
+        smtp_username=acc.smtp_username,
+        smtp_password=acc.smtp_password,
+        daily_limit=acc.daily_limit,
+        is_active=True,
+        imap_server=acc.imap_server,
+        imap_port=acc.imap_port,
+        imap_password=acc.imap_password,
+        warmup_enabled=acc.warmup_enabled,
+        warmup_daily_limit=acc.warmup_daily_limit,
+        warmup_increment_per_day=acc.warmup_increment_per_day
+    )
+    db.add(new_acc)
+    db.commit()
+    db.refresh(new_acc)
+    return {"status": "success", "id": new_acc.id}
+
+@app.delete("/api/sending-accounts/{acc_id}")
+def delete_sending_account(acc_id: int, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    acc = db.query(database.SendingAccount).filter(database.SendingAccount.id == acc_id, database.SendingAccount.user_id == current_user.id).first()
+    if not acc:
+        raise HTTPException(status_code=404, detail="Account not found")
+    db.delete(acc)
+    db.commit()
+    return {"status": "success"}
+
+@app.patch("/api/sending-accounts/{acc_id}")
+def update_sending_account_status(acc_id: int, update_data: SendingAccountUpdate, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    acc = db.query(database.SendingAccount).filter(database.SendingAccount.id == acc_id, database.SendingAccount.user_id == current_user.id).first()
+    if not acc:
+        raise HTTPException(status_code=404, detail="Account not found")
+    acc.is_active = update_data.is_active
+    db.commit()
+    return {"status": "success"}
+
+class SpamCheckRequest(BaseModel):
+    content: str
+
+@app.post("/api/spam-check")
+def check_spam_score(req: SpamCheckRequest):
+    spam_words = ["free", "buy now", "guarantee", "risk-free", "winner", "prize", "cash", "bonus", "click here", "urgent", "make money", "$$$", "investment", "no catch", "hidden", "exclusive deal", "act now", "100%", "cheap"]
+    text = req.content.lower()
+    
+    score = 10
+    found_words = []
+    
+    for word in spam_words:
+        if re.search(r'\b' + re.escape(word) + r'\b', text):
+            score -= 1
+            found_words.append(word)
+            
+    if score < 0:
+        score = 0
+        
+    return {"score": score, "found_words": found_words}
+
+import ai_core
+
+class AIGenerateRequest(BaseModel):
+    prompt: str
+
+class AISubjectRequest(BaseModel):
+    subject: str
+
+class AIIcebreakerRequest(BaseModel):
+    leads_csv: str
+
+@app.post("/api/ai/generate-email")
+def api_generate_email(req: AIGenerateRequest):
+    return ai_core.generate_email_content(req.prompt)
+
+@app.post("/api/ai/optimize-subject")
+def api_optimize_subject(req: AISubjectRequest):
+    return ai_core.optimize_subject(req.subject)
+
+@app.post("/api/ai/generate-icebreakers")
+def api_generate_icebreakers(req: AIIcebreakerRequest):
+    return ai_core.generate_icebreakers(req.leads_csv)
+
+@app.post("/api/ai/autopilot")
+def api_autopilot(req: AIGenerateRequest):
+    return ai_core.generate_autopilot_campaign(req.prompt)

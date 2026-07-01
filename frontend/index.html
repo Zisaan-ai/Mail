@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MailClone — Elegant Email Marketing</title>
     <meta name="description" content="AI-powered email marketing platform. Clean, elegant, powerful.">
-    <link rel="stylesheet" href="/assets/style.css?v=37">
+    <link rel="stylesheet" href="/assets/style.css?v=999?v=37">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -53,67 +53,91 @@
     }
     #auth-page.hidden { display: none; }
 
-    /* LEFT: Elegant soft gradient panel */
+    /* LEFT: Premium Dark Glassmorphism */
     .auth-left {
-        flex: 1.1;
+        flex: 1.2;
         position: relative;
         display: flex; align-items: center; justify-content: center;
         padding: 64px;
         overflow: hidden;
-        background: #f1f5f9;
+        background: #0f172a;
     }
     .auth-left-bg {
         position: absolute; inset: 0;
         background-image: 
-            radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%), 
-            radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, hsla(339,49%,30%,0.03) 0, transparent 50%);
+            radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
         background-size: 100% 100%;
         z-index: 0;
+        animation: pulseBg 12s ease-in-out infinite alternate;
+    }
+    @keyframes pulseBg {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.1); }
     }
     
     .auth-brand {
         position: relative; z-index: 2;
-        max-width: 480px;
+        max-width: 520px;
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 48px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transform: translateY(0);
+        transition: transform 0.3s ease;
     }
+    .auth-brand:hover { transform: translateY(-4px); }
     .auth-brand-logo {
         display: flex; align-items: center; gap: 12px;
-        margin-bottom: 48px;
+        margin-bottom: 32px;
     }
     .auth-brand-logo .logo-icon {
-        width: 40px; height: 40px;
-        border-radius: 10px;
-        background: var(--text);
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
         display: flex; align-items: center; justify-content: center;
-        font-size: 16px; color: #fff;
+        font-size: 20px; color: #fff;
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
     }
     .auth-brand-logo .logo-name {
-        font-size: 22px; font-weight: 800;
-        letter-spacing: -0.03em; color: var(--text);
+        font-size: 24px; font-weight: 800;
+        letter-spacing: -0.03em; color: #f8fafc;
     }
     .auth-brand h1 {
-        font-size: clamp(2.5rem, 4vw, 3.5rem);
+        font-size: clamp(2.2rem, 3.5vw, 3.2rem);
         font-weight: 800; line-height: 1.1;
-        letter-spacing: -0.04em; color: var(--text);
+        letter-spacing: -0.04em; color: #f8fafc;
         margin-bottom: 24px;
     }
-    .auth-brand h1 span { color: var(--p); }
+    .auth-brand h1 span { 
+        background: linear-gradient(to right, #818cf8, #e879f9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
     .auth-brand p {
-        color: var(--text-muted);
+        color: #cbd5e1;
         font-size: 17px; line-height: 1.6;
-        margin-bottom: 48px; font-weight: 500;
+        margin-bottom: 40px; font-weight: 500;
     }
 
     /* Minimalist Features */
-    .auth-features { display: flex; flex-direction: column; gap: 20px; }
-    .auth-feature { display: flex; align-items: flex-start; gap: 16px; }
+    .auth-features { display: flex; flex-direction: column; gap: 24px; }
+    .auth-feature { display: flex; align-items: flex-start; gap: 16px; transition: transform 0.2s ease; }
+    .auth-feature:hover { transform: translateX(8px); }
     .auth-feature-icon {
-        width: 24px; height: 24px;
+        width: 40px; height: 40px; flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 14px; color: var(--p); margin-top: 2px;
+        font-size: 16px; color: #c084fc; margin-top: 2px;
     }
-    .auth-feature-text h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .auth-feature-text p { font-size: 14px; color: var(--text-muted); font-weight: 500; margin:0; line-height: 1.5; }
+    .auth-feature-text h4 { font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+    .auth-feature-text p { font-size: 14px; color: #94a3b8; font-weight: 500; margin:0; line-height: 1.5; }
 
     /* RIGHT: Pure White Form Panel */
     .auth-right {
@@ -275,6 +299,28 @@
         .auth-right { padding: 32px 24px; box-shadow: none; }
     }
     </style>
+<style>
+    [data-theme="dark"] {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+    [data-theme="dark"] .glass {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea {
+        background: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+    [data-theme="dark"] .stat-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+</style>
 </head>
 <body>
 
@@ -303,7 +349,7 @@
         <div class="auth-brand">
 
             <div class="auth-brand-logo">
-                <div class="logo-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                <img src="/assets/logo.jpg" style="width:56px; height:56px; border-radius:16px; object-fit:cover; margin-bottom:12px; box-shadow:0 10px 15px -3px rgba(99,102,241,0.3);">
                 <span class="logo-name">MailClone</span>
             </div>
 
@@ -453,8 +499,8 @@
      ============================================================ -->
 <div id="app-page">
     <aside class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-paper-plane"></i>
+        <div class="logo" style="gap:12px;">
+            <img src="/assets/logo.jpg" style="width:32px; height:32px; border-radius:8px; object-fit:cover; box-shadow:0 4px 6px -1px rgba(99,102,241,0.3);">
             <h2>MailClone</h2>
         </div>
         <nav>
@@ -467,11 +513,19 @@
             <a class="nav-item" data-target="cold-mail-list">
                 <i class="fa-solid fa-snowflake"></i><span>Cold Mail</span>
             </a>
+            <a class="nav-item" data-target="sending-accounts-view">
+                <i class="fa-solid fa-at"></i><span>Sending Accounts</span>
+            </a>
             <a class="nav-item" data-target="settings">
                 <i class="fa-solid fa-gear"></i><span>Settings</span>
             </a>
             <a class="nav-item" data-target="admin-view" id="nav-admin" style="display:none;">
                 <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
+            </a>
+            <div style="border-top:1px solid var(--border); margin:12px 0;"></div>
+            <a class="nav-item" id="theme-toggle" onclick="window.toggleTheme()" style="cursor:pointer; justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:12px;"><i class="fa-solid fa-moon" id="theme-icon"></i><span>Dark Mode</span></div>
+                <div style="width:32px;height:18px;background:var(--border);border-radius:10px;position:relative;"><div id="theme-switch" style="width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;"></div></div>
             </a>
         </nav>
         <div style="margin-top:auto;">
@@ -581,6 +635,7 @@
         <!-- CAMPAIGN ANALYTICS (Instantly Clone) -->
         <div id="view-campaign-details" class="view">
             <div class="page-header" style="margin-bottom:24px;">
+                <button class="btn" style="margin-bottom:12px; font-size:13px; padding:6px 12px;" onclick="document.querySelector('.nav-item.active').click() || document.querySelector('.nav-item[data-target=\'dashboard\']').click()"><i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i> Back to list</button>
                 <h1 class="page-title" style="font-size:24px;" id="analytics-title">Loading Campaign...</h1>
             </div>
             
@@ -848,7 +903,6 @@
                     <p class="page-subtitle">Build and launch automated cold email sequences</p>
                 </div>
             </div>
-            </div>
             
             <div class="clean-tabs-bar" style="margin-bottom:32px;border-bottom:2px solid var(--border);padding-bottom:0;display:flex;gap:32px;">
                 <div class="clean-tab" data-coldtab="analytics" style="padding-bottom:12px;font-weight:600;color:var(--text-muted);cursor:pointer;position:relative;">Analytics</div>
@@ -900,7 +954,11 @@
                     <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;">Campaign Audience</h4>
                     <p style="color:var(--text-muted);margin-bottom:16px;font-size:14px;">Add your leads here. Include Email, Name, and Company separated by commas.</p>
                     <div style="display:flex;flex-direction:column;gap:16px;">
+                        
                         <div class="form-group" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                                <button onclick="window.generateIcebreakers('seq-leads')" style="padding:6px 16px; background:linear-gradient(to right, #0ea5e9, #3b82f6); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 5px rgba(14,165,233,0.3);">🧊 Generate Icebreakers</button>
+                            </div>
                             <textarea id="seq-leads" rows="10" placeholder="john@example.com, John Doe, ACME Corp&#10;(One lead per line)" style="font-size:14px;padding:16px;"></textarea>
                         </div>
                     </div>
@@ -934,13 +992,47 @@
                         </div>
                         
                         <div style="padding:32px;flex:1;display:flex;flex-direction:column;overflow-y:auto;">
-                            <div class="form-group" style="position:relative;margin-bottom:24px;">
-                                <input type="text" id="inst-subject" placeholder="Subject" style="font-size:16px;font-weight:600;padding:16px;padding-right:48px;">
+                            
+                        <!-- AUTO-PILOT SECTION -->
+                        <div style="background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%); border: 1px solid rgba(139,92,246,0.3); padding:20px; border-radius:12px; margin-bottom:24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                            <h3 style="margin-top:0; color:#4f46e5; display:flex; align-items:center; gap:8px;">
+                                🚀 One-Click Auto-Pilot Campaign Builder
+                            </h3>
+                            <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">
+                                Paste any Fiverr Gig Link, Website URL, or Product Description. AI will scrape it and write a highly optimized A/B Campaign for you!
+                            </p>
+                            <div style="display:flex; gap:12px;">
+                                <input type="text" id="autopilot-input" placeholder="e.g. https://fiverr.com/... or 'I sell web design services'" style="flex:1; padding:12px 16px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; outline:none; transition:0.2s;">
+                                <button onclick="window.runAutopilot()" style="background: linear-gradient(to right, #4f46e5, #8b5cf6); color:white; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; transition:0.2s; box-shadow:0 4px 10px rgba(79,70,229,0.3);">
+                                    ✨ Auto-Build Campaign
+                                </button>
+                            </div>
+                        </div>
+                        
+<div style="margin-bottom:24px; display:flex; align-items:center; gap:16px;">
+                                <label style="font-size:14px; font-weight:600; color:var(--text-muted);"><i class="fa-solid fa-wand-magic-sparkles"></i> Use Template:</label>
+                                <select id="template-selector" onchange="window.loadTemplate()" style="flex:1; padding:10px 16px; border-radius:8px; border:1px solid var(--border); background:#fff; font-size:14px; outline:none; cursor:pointer;">
+                                    <option value="">-- Blank Email --</option>
+                                    <option value="saas_outreach">SaaS Outreach (Intro)</option>
+                                    <option value="sales_followup">Sales Follow-up</option>
+                                    <option value="link_building">Link Building / PR</option>
+                                </select>
+                                
+                            </div>
+                            <div class="form-group" style="position:relative;margin-bottom:24px;display:flex;gap:12px;">
+                                <button onclick="window.optimizeSubject('inst-subject')" style="margin-left:8px; padding:4px 12px; background:linear-gradient(to right, #8b5cf6, #d946ef); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(217,70,239,0.3);">✨ Optimize</button>
+                                <input type="text" id="inst-subject" placeholder="Subject" style="font-size:16px;font-weight:600;padding:16px;flex:1;">
+                                
                                 <button onclick="window.toggleInstAB()" id="ab-toggle-btn" style="position:absolute;right:12px;top:12px;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;width:32px;height:32px;color:var(--text-muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" title="Add A/B Test Variant"><i class="fa-solid fa-flask"></i></button>
                             </div>
                             
-                            <div class="form-group" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
+                            <div class="form-group" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;position:relative;">
+                                <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                                    <button onclick="window.previewInbox('inst-subject', 'inst-body')" style="margin-right:8px; padding:6px 16px; background:linear-gradient(to right, #f59e0b, #d97706); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 5px rgba(245,158,11,0.3);">👁️ Inbox Preview</button>
+                                    <button onclick="window.generateEmail('inst-body')" style="padding:6px 16px; background:linear-gradient(to right, #3b82f6, #8b5cf6); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 5px rgba(59,130,246,0.3);">🪄 Write with AI</button>
+                                </div>
                                 <textarea id="inst-body" style="flex:1;min-height:200px;font-family:sans-serif;font-size:14px;resize:none;padding:16px;border:1px solid var(--border);border-radius:12px;outline:none;" placeholder="Hey {{firstName}}, ..."></textarea>
+                                <button onclick="window.checkSpamScore()" style="position:absolute;bottom:16px;right:16px;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,0.3);display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-shield-halved"></i> Check Spam Score</button>
                             </div>
 
                             <div id="inst-ab-section" style="display:none;margin-top:32px;padding-top:32px;border-top:1px dashed var(--border);">
@@ -951,8 +1043,13 @@
                                 <div class="form-group" style="margin-bottom:24px;">
                                     <input type="text" id="inst-subject-b" placeholder="Variant B Subject" style="font-size:16px;font-weight:600;padding:16px;">
                                 </div>
-                                <div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;">
+                                <div class="form-group" style="margin-bottom:0;display:flex;flex-direction:column;position:relative;">
+                                    <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                                        <button onclick="window.previewInbox('inst-subject-b', 'inst-body-b')" style="margin-right:8px; padding:6px 16px; background:linear-gradient(to right, #f59e0b, #d97706); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 5px rgba(245,158,11,0.3);">👁️ Inbox Preview</button>
+                                        <button onclick="window.generateEmail('inst-body-b')" style="padding:6px 16px; background:linear-gradient(to right, #3b82f6, #8b5cf6); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; box-shadow:0 2px 5px rgba(59,130,246,0.3);">🪄 Generate Follow-up</button>
+                                    </div>
                                     <textarea id="inst-body-b" style="min-height:200px;font-family:sans-serif;font-size:14px;resize:none;padding:16px;border:1px solid var(--border);border-radius:12px;outline:none;background:#f8fafc;" placeholder="Variant B Body..."></textarea>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -1132,6 +1229,121 @@
             </div>
         </div>
 
+        
+        <!-- SENDING ACCOUNTS -->
+        <div id="sending-accounts-view" class="view">
+            <div class="page-header" style="margin-bottom: 32px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div>
+                    <h1 class="page-title" style="font-size: 28px; margin-bottom: 8px;">Sending Accounts</h1>
+                    <p class="page-subtitle" style="font-size: 15px;">Connect SMTP accounts to send emails (Round-Robin sending supported).</p>
+                </div>
+                <div>
+                    <button class="btn primary" onclick="ACCOUNTS.showAddModal()"><i class="fa-solid fa-plus" style="margin-right:8px;"></i> Add New Account</button>
+                </div>
+            </div>
+            
+            <div class="glass" style="padding:0; overflow:hidden; border-radius:16px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left;">
+                    <thead>
+                        <tr style="background:#f8fafc; border-bottom:1px solid var(--border);">
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase;">Name</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase;">Email Address</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase;">Daily Limit</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase;">Sent Today</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase;">Status</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Add Account Modal -->
+            <div id="add-account-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+                <div style="background:var(--bg); padding:32px; border-radius:16px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.2);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                        <h2 style="font-size:20px; font-weight:700;">Add Sending Account</h2>
+                        <button onclick="document.getElementById('add-account-modal').style.display='none'" style="background:transparent; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Display Name (Sender Name)</label>
+                        <input type="text" id="acc-name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="acc-email" placeholder="john@example.com">
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>SMTP Server</label>
+                            <input type="text" id="acc-smtp-server" placeholder="smtp.gmail.com" value="smtp.gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label>SMTP Port</label>
+                            <input type="number" id="acc-smtp-port" placeholder="587" value="587">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>SMTP Username (Usually Email)</label>
+                        <input type="text" id="acc-smtp-username" placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>SMTP Password (App Password)</label>
+                        <input type="password" id="acc-smtp-password" placeholder="••••••••">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Daily Sending Limit</label>
+                        <input type="number" id="acc-daily-limit" value="500">
+                    </div>
+                    
+                    <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:24px 0;">
+                    <h3 style="font-size:16px; margin-bottom:16px;">Warmup & IMAP Settings (Optional)</h3>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>IMAP Server (for Warmup)</label>
+                            <input type="text" id="acc-imap-server" placeholder="imap.gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label>IMAP Port</label>
+                            <input type="number" id="acc-imap-port" placeholder="993" value="993">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>IMAP Password (if different)</label>
+                        <input type="password" id="acc-imap-password" placeholder="••••••••">
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <input type="checkbox" id="acc-warmup-enabled" style="width:16px; height:16px;">
+                        <label for="acc-warmup-enabled" style="margin:0; cursor:pointer;">Enable Automatic Warmup</label>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
+                        <div class="form-group">
+                            <label>Warmup Starting Limit</label>
+                            <input type="number" id="acc-warmup-limit" value="5">
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Increment</label>
+                            <input type="number" id="acc-warmup-increment" value="2">
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:flex-end; gap:12px;">
+                        <button class="btn" onclick="document.getElementById('add-account-modal').style.display='none'">Cancel</button>
+                        <button class="btn primary" onclick="ACCOUNTS.saveAccount()">Connect Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ADMIN -->
         <div id="admin-view" class="view">
             <div class="page-header">
@@ -1146,6 +1358,48 @@
             </div>
         </div>
 
+        <!-- INBOX PREVIEW MODAL -->
+        <div id="inbox-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.8); z-index:10000; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+            <div style="background:var(--surface); width:100%; max-width:700px; border-radius:12px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border:1px solid var(--border); overflow:hidden; display:flex; flex-direction:column;">
+                <!-- Browser-like header -->
+                <div style="background:#f1f5f9; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border);">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:12px; height:12px; border-radius:50%; background:#ef4444;"></div>
+                        <div style="width:12px; height:12px; border-radius:50%; background:#eab308;"></div>
+                        <div style="width:12px; height:12px; border-radius:50%; background:#22c55e;"></div>
+                        <span style="font-size:13px; font-weight:600; color:var(--text-muted); margin-left:12px;">Inbox Preview</span>
+                    </div>
+                    <button onclick="document.getElementById('inbox-preview-modal').style.display='none'" style="background:transparent; border:none; color:var(--text-muted); font-size:16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <!-- Gmail-like layout -->
+                <div style="display:flex; flex:1; min-height:400px;">
+                    <!-- Left menu mockup -->
+                    <div style="width:200px; padding:16px; border-right:1px solid var(--border); background:#f8fafc; display:flex; flex-direction:column; gap:12px;">
+                        <div style="padding:10px 16px; background:#e0e7ff; color:#4f46e5; border-radius:0 20px 20px 0; margin-left:-16px; font-size:13px; font-weight:700;"><i class="fa-solid fa-inbox" style="margin-right:12px;"></i> Inbox</div>
+                        <div style="padding:10px 16px; color:var(--text-muted); font-size:13px; font-weight:600;"><i class="fa-regular fa-star" style="margin-right:12px;"></i> Starred</div>
+                        <div style="padding:10px 16px; color:var(--text-muted); font-size:13px; font-weight:600;"><i class="fa-regular fa-paper-plane" style="margin-right:12px;"></i> Sent</div>
+                    </div>
+                    <!-- Email Content -->
+                    <div style="flex:1; padding:24px; background:#fff; overflow-y:auto;">
+                        <h2 id="preview-subject" style="font-size:22px; font-weight:400; margin-bottom:20px; color:#202124;">Subject Here</h2>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:40px; height:40px; border-radius:50%; background:#4f46e5; color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700;">Y</div>
+                                <div>
+                                    <div style="font-size:14px; font-weight:700; color:#202124;">You (MailClone User) <span style="font-weight:400; color:#5f6368; font-size:12px;">&lt;you@yourdomain.com&gt;</span></div>
+                                    <div style="font-size:12px; color:#5f6368;">to Client</div>
+                                </div>
+                            </div>
+                            <div style="font-size:12px; color:#5f6368;">Just now</div>
+                        </div>
+                        <div id="preview-body" style="font-size:14px; color:#202124; line-height:1.6; font-family:Arial, sans-serif; white-space:pre-wrap;">
+                            Body here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 
@@ -1153,23 +1407,23 @@
 <div id="toast"><span id="toast-msg"></span></div>
 
 <!-- AI Chat -->
-<button id="ai-chat-btn" style="display:none;position:fixed;bottom:32px;right:32px;width:56px;height:56px;border-radius:16px;background:var(--text);border:none;color:#fff;font-size:20px;cursor:pointer;box-shadow:var(--shadow-float);z-index:1000;align-items:center;justify-content:center;transition:all 0.2s ease;">
-    <i class="fa-solid fa-sparkles"></i>
+<button id="ai-chat-btn" style="display:none;position:fixed;bottom:32px;right:32px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg, #6366f1 0%, #a855f7 100%);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 10px 25px -5px rgba(99,102,241,0.5);z-index:1000;align-items:center;justify-content:center;transition:transform 0.2s ease, box-shadow 0.2s ease;">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
 </button>
-<div id="ai-chat-panel" style="display:none;position:fixed;bottom:100px;right:32px;width:380px;height:560px;background:#fff;border:1px solid var(--border);border-radius:24px;box-shadow:0 20px 40px -10px rgba(0,0,0,0.1);z-index:1001;flex-direction:column;overflow:hidden;">
-    <div style="background:var(--bg);padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+<div id="ai-chat-panel" style="display:none;position:fixed;bottom:110px;right:32px;width:400px;height:600px;background:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);z-index:1001;flex-direction:column;overflow:hidden;">
+    <div style="background:linear-gradient(135deg, #6366f1 0%, #a855f7 100%);padding:24px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center;">
         <div>
-            <div style="font-weight:700;font-size:15px;color:var(--text);">AI Copilot</div>
-            <div style="font-size:12px;color:var(--text-muted);font-weight:500;">Powered by Gemini</div>
+            <div style="font-weight:700;font-size:18px;color:#fff;display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Copilot</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:500;margin-top:4px;">Powered by Gemini Advanced</div>
         </div>
-        <button id="ai-chat-close" style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;transition:color 0.2s;"><i class="fa-solid fa-times"></i></button>
+        <button id="ai-chat-close" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-times"></i></button>
     </div>
     <div id="ai-chat-messages" style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;background:#fff;"></div>
-    <div style="padding:16px;border-top:1px solid var(--border);background:var(--bg);display:flex;gap:12px;">
-        <input type="text" id="ai-chat-input" placeholder="Ask AI to write an email..."
-               style="flex:1;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:12px;font-size:14px;color:var(--text);outline:none;box-shadow:0 1px 2px rgba(0,0,0,0.02);">
-        <button id="ai-chat-send" style="background:var(--text);border:none;color:#fff;width:44px;height:44px;border-radius:12px;cursor:pointer;font-size:16px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,0.05);transition:background 0.2s;">
-            <i class="fa-solid fa-arrow-up"></i>
+    <div style="padding:16px;border-top:1px solid var(--border);background:#f8fafc;display:flex;gap:12px;">
+        <input type="text" id="ai-chat-input" placeholder="Ask AI to write a high-converting email..."
+               style="flex:1;padding:14px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;color:var(--text);outline:none;box-shadow:0 2px 6px rgba(0,0,0,0.02);transition:border-color 0.2s;">
+        <button id="ai-chat-send" style="background:linear-gradient(135deg, #6366f1 0%, #a855f7 100%);border:none;color:#fff;width:48px;height:48px;border-radius:12px;cursor:pointer;font-size:16px;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:transform 0.2s ease;">
+            <i class="fa-solid fa-paper-plane"></i>
         </button>
     </div>
 </div>
@@ -1178,7 +1432,7 @@
      AUTH LOGIC (Inline)
      ============================================================ -->
 <script>
-const API = 'https://email-marketer-ijk5.onrender.com/api';
+const API = 'http://localhost:8000/api';
 let _token = null;
 try { _token = localStorage.getItem('token'); } catch(e) {}
 
@@ -1289,6 +1543,9 @@ var AUTH = (function() {
                     hideDisplay('auth-title'); hideDisplay('auth-subtitle'); hideDisplay('tab-login'); hideDisplay('tab-signup');
                     document.querySelector('.auth-tabs').style.display='none';
                     showEl('verify-box');
+                } else if (data.status === 'needs_approval') {
+                    setAlert('signup-alert', data.message, 'success');
+                    setTimeout(function(){ setLoginMode(); }, 2500);
                 } else { onLoginSuccess(data); }
             } else { setAlert('signup-alert', data.detail || 'Registration failed.', 'err'); }
         } catch(e) { setAlert('signup-alert', 'Connection error. Please try again.', 'err'); }
@@ -1355,8 +1612,10 @@ var AUTH = (function() {
                 body: JSON.stringify({ email: window._resetEmail, code: code, new_password: newPass })
             });
             var data = await res.json();
-            if (res.ok) { setAlert('forgot-alert', 'Password reset! Please sign in.', 'ok'); setTimeout(function() { location.reload(); }, 1500); }
-            else { setAlert('forgot-alert', data.detail || 'Reset failed.', 'err'); }
+            if (res.ok) { 
+            setAlert('signup-alert', 'Account created! Please wait for admin approval to log in.', 'success');
+            setTimeout(function(){ setLoginMode(); }, 2500);
+        }    else { setAlert('forgot-alert', data.detail || 'Reset failed.', 'err'); }
         } catch(e) { setAlert('forgot-alert', 'Connection error.', 'err'); }
         btn.disabled = false; btn.textContent = 'Reset Password';
     }
@@ -1377,7 +1636,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-    <script src="assets/templates.js?v=4"></script>
-    <script src="assets/app.js?v=46"></script>
+    <script src="assets/templates.js?v=999?v=4"></script>
+    <script src="assets/sending_accounts.js?v=999"></script>
+    <script src="assets/ai_features.js?v=2"></script>
+    <script src="assets/app.js?v=999?v=46"></script>
+
+
 </body>
 </html>

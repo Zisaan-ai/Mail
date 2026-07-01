@@ -13,20 +13,45 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int:
+import re
+import random
+
+def process_spintax(text: str) -> str:
+    """
+    Parses spintax like {Hello|Hi|Hey} and returns a randomly chosen string.
+    Works recursively for nested spintax.
+    """
+    pattern = re.compile(r'\{([^{}]*)\}')
+    while pattern.search(text):
+        match = pattern.search(text)
+        options = match.group(1).split('|')
+        text = text[:match.start()] + random.choice(options) + text[match.end():]
+    return text
+
+def send_bulk_emails(subject: str, body_html: str, recipients: list[str], account=None) -> int:
     """
     Sends bulk emails and returns the count of successful emails.
+    Requires a valid SendingAccount.
     """
-    if not SMTP_PASSWORD:
-        print("SMTP Password/API Key not configured.")
+    if not account:
+        print("No sending account provided for campaign.")
+        return 0
+        
+    active_server = account.smtp_server
+    active_port = account.smtp_port
+    active_user = account.smtp_username
+    active_pass = account.smtp_password
+
+    if not active_pass:
+        print("SMTP Password not configured for account.")
         return 0
         
     success_count = 0
     
-    # Auto-inject unsubscribe text if missing, using a placeholder if SMTP_USERNAME is missing
-    sender_for_unsub = SMTP_USERNAME if SMTP_USERNAME else "admin@domain.com"
+    # Auto-inject unsubscribe text if missing, using a placeholder if active_user is missing
+    sender_for_unsub = active_user if active_user else "admin@domain.com"
     if "unsubscribe" not in body_html.lower():
-        body_html += '<br><br><hr><p style="font-size:12px; color:#666;">If you no longer wish to receive these emails, you can <a href="mailto:' + sender_for_unsub + '?subject=Unsubscribe">unsubscribe here</a>.</p>'
+        body_html += f'<br><br><hr><p style="font-size:12px; color:#666;">If you no longer wish to receive these emails, you can <a href="mailto:{sender_for_unsub}?subject=Unsubscribe">unsubscribe here</a>.</p>'
 
     # Extract plain text for better deliverability
     soup = BeautifulSoup(body_html, "html.parser")
@@ -34,20 +59,23 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
 
     try:
         # Check if using Brevo API Key
-        if SMTP_PASSWORD.startswith("xkeysib-"):
+        if active_pass.startswith("xkeysib-"):
             import requests
             headers = {
                 "accept": "application/json",
-                "api-key": SMTP_PASSWORD,
+                "api-key": active_pass,
                 "content-type": "application/json"
             }
             for recipient in recipients:
+                spun_subject = process_spintax(subject)
+                spun_html = process_spintax(body_html)
+                spun_text = process_spintax(body_text)
                 payload = {
-                    "sender": {"email": SMTP_USERNAME, "name": "Admin"},
+                    "sender": {"email": active_user, "name": getattr(account, 'name', 'Admin') if account else 'Admin'},
                     "to": [{"email": recipient}],
-                    "subject": subject,
-                    "htmlContent": body_html,
-                    "textContent": body_text
+                    "subject": spun_subject,
+                    "htmlContent": spun_html,
+                    "textContent": spun_text
                 }
                 try:
                     res = requests.post("https://api.brevo.com/v3/smtp/email", json=payload, headers=headers, timeout=10)
@@ -58,55 +86,60 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
                         print(f"Failed to send to {recipient} via Brevo: {res.text}")
                         raise Exception(f"Brevo Error: {res.text}")
                 except Exception as e:
-                    print(f"Brevo Connection failed: {e}")
+                    print(f"Exception for {recipient}: {e}")
                     raise e
             return success_count
-
-        # Check if using Google Apps Script URL
-        if SMTP_PASSWORD.startswith("https://script.google.com/"):
+            
+        # Check if using Google App Script
+        if active_pass.startswith("https://script.google.com/"):
             import requests
             for recipient in recipients:
+                spun_subject = process_spintax(subject)
+                spun_html = process_spintax(body_html)
+                spun_text = process_spintax(body_text)
                 payload = {
-                    "to": recipient,
-                    "subject": subject,
-                    "htmlBody": body_html
+                    "recipient": recipient,
+                    "subject": spun_subject,
+                    "body_html": spun_html,
+                    "body_text": spun_text
                 }
                 try:
-                    res = requests.post(SMTP_PASSWORD, json=payload, timeout=15)
-                    # Handle redirect (Google Scripts often return 302 or 200)
-                    if res.status_code in [200, 201, 302]:
+                    res = requests.post(active_pass, json=payload, timeout=15)
+                    if res.status_code in [200, 201, 202]:
                         success_count += 1
-                        print(f"Sent successfully to {recipient} via Apps Script")
+                        print(f"Sent successfully to {recipient} via AppScript")
                     else:
-                        raise Exception(f"Apps Script Error: {res.text}")
+                        print(f"Failed to send to {recipient} via AppScript: {res.text}")
+                        raise Exception(f"AppScript Error: {res.text}")
                 except Exception as e:
-                    print(f"Apps Script Connection failed: {e}")
+                    print(f"Exception for {recipient}: {e}")
                     raise e
             return success_count
 
         # Otherwise, fall back to standard SMTP
-        if int(SMTP_PORT) == 465:
-            server = smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+        if int(active_port) == 465:
+            server = smtplib.SMTP_SSL(active_server, int(active_port), timeout=5)
         else:
-            server = smtplib.SMTP(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+            server = smtplib.SMTP(active_server, int(active_port), timeout=5)
             server.starttls()
             
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
-
+        server.login(active_user, active_pass)
+        
         for recipient in recipients:
             try:
-                # Create multipart alternative to reduce spam score
+                spun_subject = process_spintax(subject)
+                spun_html = process_spintax(body_html)
+                spun_text = process_spintax(body_text)
                 msg = MIMEMultipart("alternative")
-                msg['From'] = SMTP_USERNAME
+                msg['Subject'] = spun_subject
+                msg['From'] = f"{getattr(account, 'name', '')} <{active_user}>" if account and getattr(account, 'name', None) else active_user
                 msg['To'] = recipient
-                msg['Subject'] = subject
                 msg['Date'] = formatdate(localtime=True)
-                msg['List-Unsubscribe'] = f'<mailto:{SMTP_USERNAME}?subject=Unsubscribe>'
-
-                # Attach text and html parts (Text first, HTML second as per MIME spec)
-                part1 = MIMEText(body_text, 'plain')
-                part2 = MIMEText(body_html, 'html')
                 
+                msg['List-Unsubscribe'] = f'<mailto:{active_user}?subject=Unsubscribe>'
+
+                part1 = MIMEText(spun_text, "plain")
+                part2 = MIMEText(spun_html, "html")
                 msg.attach(part1)
                 msg.attach(part2)
                 
@@ -123,6 +156,34 @@ def send_bulk_emails(subject: str, body_html: str, recipients: list[str]) -> int
         raise e
 
     return success_count
+
+
+def _send_system_email(subject: str, body_html: str, recipient: str) -> bool:
+    """Sends a system email (like auth/verification) using .env credentials."""
+    if not SMTP_PASSWORD:
+        return False
+        
+    try:
+        if int(SMTP_PORT) == 465:
+            server = smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+        else:
+            server = smtplib.SMTP(SMTP_SERVER, int(SMTP_PORT), timeout=5)
+            server.starttls()
+            
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"Admin <{SMTP_USERNAME}>"
+        msg["To"] = recipient
+        msg.attach(MIMEText(body_html, "html"))
+        
+        server.sendmail(SMTP_USERNAME, [recipient], msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"System Email failed: {e}")
+        return False
 
 def send_verification_email(email: str, code: str):
     """
@@ -145,7 +206,7 @@ def send_verification_email(email: str, code: str):
     </div>
     """
     # Since it's a single email, we can reuse our bulk send logic or write a simpler one
-    return send_bulk_emails(subject, body_html, [email]) > 0
+    return _send_system_email(subject, body_html, email)
 
 def send_password_reset_email(email: str, code: str):
     """
@@ -166,4 +227,4 @@ def send_password_reset_email(email: str, code: str):
         <p>If you did not request this, please ignore this email.</p>
     </div>
     """
-    return send_bulk_emails(subject, body_html, [email]) > 0
+    return _send_system_email(subject, body_html, email)
