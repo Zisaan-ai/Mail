@@ -595,11 +595,33 @@
                 <p class="page-subtitle">Design, build, and launch your visually appealing newsletters</p>
             </div>
 
-            <!-- Visual Builder -->
+            <!-- VISUAL BUILDER TABS -->
+            <div class="clean-tabs-bar" style="margin-bottom:32px;border-bottom:2px solid var(--border);padding-bottom:0;display:flex;gap:32px;">
+                <div class="vb-tab active" data-vbtab="audience" style="padding-bottom:12px;font-weight:700;color:var(--p);cursor:pointer;border-bottom:3px solid var(--p);">1. Select Audience</div>
+                <div class="vb-tab" data-vbtab="design" style="padding-bottom:12px;font-weight:600;color:var(--text-muted);cursor:pointer;">2. Design Editor</div>
+                <div class="vb-tab" data-vbtab="send" style="padding-bottom:12px;font-weight:600;color:var(--text-muted);cursor:pointer;">3. Send / Schedule</div>
+            </div>
+
             <div id="tab-builder">
-                <div class="builder-top-bar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);">
-                    <div class="builder-top-left" style="flex:1;">
-                        <input type="text" id="campaign-subject" placeholder="Campaign Subject Line..." style="border:1px solid transparent;background:transparent;font-size:18px;font-weight:700;padding:8px;width:100%;max-width:500px;outline:none;border-radius:8px;transition:all 0.2s;" onfocus="this.style.background='#f1f5f9';this.style.borderColor='var(--border)'" onblur="this.style.background='transparent';this.style.borderColor='transparent'">
+                <!-- AUDIENCE TAB -->
+                <div id="vb-tab-audience" class="vb-tab-content" style="display:block;">
+                    <div class="glass" style="max-width:800px;">
+                        <h3 style="font-size:18px;font-weight:700;margin-bottom:24px;">Who are you sending this to?</h3>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Campaign Audience (Leads)</label>
+                            <textarea id="newsletter-leads" rows="6" placeholder="john@example.com, John Doe, ACME Corp&#10;(One lead per line)" style="font-size:14px;padding:16px;"></textarea>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-top:24px;">
+                            <button class="btn primary" onclick="window.switchVbTab('design')">Next: Design Editor <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DESIGN TAB -->
+                <div id="vb-tab-design" class="vb-tab-content" style="display:none;">
+                    <div class="builder-top-bar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);">
+                        <div class="builder-top-left" style="flex:1;">
+                            <input type="text" id="campaign-subject" placeholder="Campaign Subject Line..." style="border:1px solid transparent;background:transparent;font-size:18px;font-weight:700;padding:8px;width:100%;max-width:500px;outline:none;border-radius:8px;transition:all 0.2s;" onfocus="this.style.background='#f1f5f9';this.style.borderColor='var(--border)'" onblur="this.style.background='transparent';this.style.borderColor='transparent'">
                     </div>
                     <div class="builder-top-right" style="display:flex;gap:12px;">
                         <button class="btn" style="background:#fff;"><i class="fa-solid fa-paper-plane"></i> Send Test</button>
@@ -689,14 +711,17 @@
                         <div id="campaign-status" class="alert" style="margin:20px;display:none;"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="glass" style="margin-top:32px;">
-                    <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;">Campaign Audience</h4>
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;">
-                        <div class="form-group" style="flex:1;margin-bottom:0;">
-                            <textarea id="newsletter-leads" rows="3" placeholder="john@example.com, John Doe, ACME Corp&#10;(One lead per line)" style="font-size:14px;"></textarea>
+                <!-- SEND TAB -->
+                <div id="vb-tab-send" class="vb-tab-content" style="display:none;">
+                    <div class="glass" style="max-width:800px;">
+                        <h3 style="font-size:18px;font-weight:700;margin-bottom:24px;">Review & Launch</h3>
+                        <p style="color:var(--text-muted);margin-bottom:32px;">Make sure your subject line is set and you have selected an audience.</p>
+                        <div style="display:flex;gap:24px;">
+                            <button id="send-btn" class="btn primary" style="padding:16px 32px;font-size:15px;flex:1;"><i class="fa-solid fa-rocket"></i> Send Now</button>
+                            <button class="btn" style="padding:16px 32px;font-size:15px;flex:1;background:var(--surface-1);border:1px solid var(--border);"><i class="fa-solid fa-calendar-days"></i> Schedule for Later</button>
                         </div>
-                        <button id="send-btn" class="btn" style="padding:16px 32px;background:var(--text);color:#fff;border:none;height:100%;font-size:15px;"><i class="fa-solid fa-rocket"></i> Launch Campaign</button>
                     </div>
                 </div>
 

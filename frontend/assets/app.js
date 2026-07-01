@@ -49,6 +49,7 @@ window.APP_INIT = function() {
     // setupContacts(); removed
     setupSettings();
     setupColdMailTabs();
+    setupVisualBuilderTabs();
     setupCampaignBuilder();
     setupCampaignTabs();
     setupSequenceBuilder();
@@ -233,6 +234,51 @@ function setupColdMailTabs() {
             const targetId = 'cold-tab-' + tab.getAttribute('data-coldtab');
             const targetEl = document.getElementById(targetId);
             if (targetEl) targetEl.style.display = 'block';
+        });
+    });
+}
+
+// ============================================================
+// VISUAL BUILDER TABS
+// ============================================================
+window.switchVbTab = function(tabName) {
+    const tabs = document.querySelectorAll('.vb-tab[data-vbtab]');
+    const contents = document.querySelectorAll('.vb-tab-content');
+
+    // Remove active styling from all tabs
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.fontWeight = '600';
+        t.style.color = 'var(--text-muted)';
+        t.style.borderBottom = 'none';
+    });
+
+    // Hide all contents
+    contents.forEach(c => c.style.display = 'none');
+
+    // Find the clicked tab and corresponding content
+    const targetTab = document.querySelector(`.vb-tab[data-vbtab="${tabName}"]`);
+    const targetContent = document.getElementById('vb-tab-' + tabName);
+
+    // Apply active styling
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.fontWeight = '700';
+        targetTab.style.color = 'var(--p)';
+        targetTab.style.borderBottom = '3px solid var(--p)';
+    }
+
+    // Show content
+    if (targetContent) {
+        targetContent.style.display = 'block';
+    }
+};
+
+function setupVisualBuilderTabs() {
+    const tabs = document.querySelectorAll('.vb-tab[data-vbtab]');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            window.switchVbTab(tab.getAttribute('data-vbtab'));
         });
     });
 }
@@ -534,10 +580,9 @@ function setupCampaignBuilder() {
     const sendBtn = document.getElementById('send-btn');
     if (sendBtn) sendBtn.addEventListener('click', async () => {
         const subject = document.getElementById('campaign-subject').value;
-        const statusDiv = document.getElementById('campaign-status');
-        if (!subject) { if (statusDiv) { statusDiv.textContent = 'Please enter a subject line.'; statusDiv.className = 'alert error'; statusDiv.style.display = 'block'; } return; }
+        if (!subject) { showToast('Please enter a subject line in the Design tab.', 'error'); return; }
         const blocks = Array.from(canvas.querySelectorAll('.block-content'));
-        if (blocks.length === 0) { if (statusDiv) { statusDiv.textContent = 'Your email is empty! Add blocks first.'; statusDiv.className = 'alert error'; statusDiv.style.display = 'block'; } return; }
+        if (blocks.length === 0) { showToast('Your email is empty! Add blocks first.', 'error'); return; }
         let rawHTML = '';
         blocks.forEach(b => rawHTML += `<tr><td style="padding:0;">${b.innerHTML}</td></tr>\n`);
         const canvasBg = canvas.style.backgroundColor || '#FFFFFF';
@@ -577,14 +622,15 @@ function setupCampaignBuilder() {
             if (leads.length > 0) payload.leads = leads;
             const res = await apiCall('/campaigns/send', 'POST', payload);
             if (res.ok) {
-                if (statusDiv) { statusDiv.textContent = 'Campaign sent successfully!'; statusDiv.className = 'alert success'; statusDiv.style.display = 'block'; }
+                showToast('Campaign sent successfully!', 'success');
                 canvas.innerHTML = '<div class="canvas-placeholder">Drag blocks here to build your email</div>';
+                window.switchVbTab('audience');
             } else {
                 const data = await res.json();
-                if (statusDiv) { statusDiv.textContent = data.detail || 'Failed to send'; statusDiv.className = 'alert error'; statusDiv.style.display = 'block'; }
+                showToast(data.detail || 'Failed to send', 'error');
             }
         } catch(e) { showToast('Error sending campaign', 'error'); }
-        sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Blast Campaign';
+        sendBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Send Now';
         sendBtn.disabled = false;
     });
 
