@@ -144,38 +144,49 @@ async function fetchDashboard() {
             apiCall('/admin/stats')
         ]);
 
-        let totalSent = 0, totalOpens = 0, totalClicks = 0;
+        let totalSent = 0, totalOpens = 0, totalClicks = 0, totalReplies = 0;
 
-        const tbody = document.querySelector('#dashboard-campaigns tbody');
-        if (tbody) {
-            tbody.innerHTML = '';
-            const campaigns = await cRes.json();
-            window.lastFetchedCampaigns = campaigns;
-            campaigns.forEach(c => {
-                totalSent += c.sent_count;
-                totalOpens += c.opens;
-                totalClicks += c.clicks;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${c.subject} ${c.is_ab_test ? '<span style="background:#f3e8ff;color:#a855f7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">A/B</span>' : ''} ${c.type === 'cold_mail' ? '<span style="background:#e0f2fe;color:#0284c7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">Sequence</span>' : ''}</td>
-                    <td>${c.sent_count}</td>
-                    <td>${c.opens} <span style="font-size:0.8em;color:var(--text-muted)">(${c.sent_count > 0 ? Math.round((c.opens/c.sent_count)*100) : 0}%)</span></td>
-                    <td>${c.clicks}</td>
-                    <td><span class="status-badge ${c.status.toLowerCase()}">${c.status}</span></td>
-                    <td style="display:flex;gap:4px;">
-                        ${c.type === 'cold_mail' ? `<button class="btn" style="padding:5px 10px;font-size:13px;" onclick="viewAnalytics(${c.id})" title="View Analytics"><i class="fa-solid fa-chart-line"></i></button>` : ''}
-                        <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="editCampaign(${c.id})" title="Edit Campaign"><i class="fa-solid fa-pen-to-square"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        const seqTbody = document.querySelector('#dashboard-sequences tbody');
+        const nlTbody = document.querySelector('#dashboard-newsletters tbody');
+        
+        if (seqTbody) seqTbody.innerHTML = '';
+        if (nlTbody) nlTbody.innerHTML = '';
+
+        const campaigns = await cRes.json();
+        window.lastFetchedCampaigns = campaigns;
+        
+        campaigns.forEach(c => {
+            totalSent += c.sent_count;
+            totalOpens += c.opens;
+            totalClicks += c.clicks;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${c.subject || 'Untitled'} ${c.is_ab_test ? '<span style="background:#f3e8ff;color:#a855f7;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;">A/B</span>' : ''}</td>
+                <td>${c.sent_count}</td>
+                <td><span class="status-badge ${c.status ? c.status.toLowerCase() : 'draft'}">${c.status || 'Draft'}</span></td>
+                <td style="display:flex;gap:4px;">
+                    ${c.type === 'cold_mail' ? `<button class="btn" style="padding:5px 10px;font-size:13px;" onclick="viewAnalytics(${c.id})" title="View Analytics"><i class="fa-solid fa-chart-line"></i></button>` : ''}
+                    <button class="btn" style="padding:5px 10px;font-size:13px;" onclick="editCampaign(${c.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                </td>
+            `;
+            
+            if (c.type === 'cold_mail' && seqTbody) {
+                seqTbody.appendChild(tr);
+            } else if (nlTbody) {
+                nlTbody.appendChild(tr);
+            }
+        });
 
         const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-        // setEl('stat-contacts', contacts.length); removed
+        
+        const openRate = totalSent > 0 ? Math.round((totalOpens / totalSent) * 100) : 0;
+        const clickRate = totalSent > 0 ? Math.round((totalClicks / totalSent) * 100) : 0;
+        
         setEl('stat-sent', totalSent);
-        setEl('stat-opens', totalOpens);
-        setEl('stat-clicks', totalClicks);
+        setEl('stat-opens', `${openRate}%`);
+        setEl('stat-clicks', `${clickRate}%`);
+        setEl('stat-replies', totalReplies);
     } catch(e) { console.error('Dashboard error:', e); }
 }
 
