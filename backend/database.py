@@ -107,6 +107,12 @@ class Reply(Base):
     sentiment = Column(String, default="Unknown")
     received_at = Column(DateTime, default=datetime.utcnow)
 
+class UnsubscribeList(Base):
+    __tablename__ = "unsubscribes"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    unsubscribed_at = Column(DateTime, default=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # Dependency

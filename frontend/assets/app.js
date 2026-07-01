@@ -80,6 +80,7 @@ function setupNavigation() {
             if (targetId === 'cold-mail-list') renderColdMailList();
             if (targetId === 'campaigns-list') renderNewsletterList();
             if (targetId === 'sending-accounts-view' && typeof ACCOUNTS !== 'undefined') ACCOUNTS.init();
+            if (targetId === 'unsubscribes-view') loadUnsubscribes();
             if (targetId === 'view-campaign-details') {
                 if (window.lastFetchedCampaigns && window.lastFetchedCampaigns.length > 0) {
                     populateAnalytics(window.lastFetchedCampaigns[0].id);
@@ -1067,6 +1068,29 @@ function setupABTest() {
 // ============================================================
 function setupAdmin() {
     // loadAdminUsers is called when admin tab is selected
+}
+
+async function loadUnsubscribes() {
+    try {
+        const res = await apiCall('/unsubscribes');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('unsubscribes-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:var(--text-muted);">No unsubscribes yet</td></tr>`;
+            return;
+        }
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding:16px 24px; font-weight:600; color:var(--text);">${item.email}</td>
+                <td style="padding:16px 24px; color:var(--text-muted); font-size:13px;">${new Date(item.unsubscribed_at).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(e) { console.error(e); }
 }
 
 async function loadAdminUsers() {

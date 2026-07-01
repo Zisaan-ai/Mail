@@ -1,3 +1,4 @@
+import base64
 from fastapi import FastAPI, Depends, HTTPException, status, Request, BackgroundTasks, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -757,3 +758,24 @@ def save_groq_key(req: GroqKeyRequest, current_user: database.User = Depends(aut
     _user_keys[current_user.id]["groq_api_key"] = req.groq_api_key
     os.environ["GROQ_API_KEY"] = req.groq_api_key
     return {"ok": True, "message": "Groq API key saved"}
+
+
+# --- UNSUBSCRIBE ENDPOINTS ---
+@app.get('/unsubscribe/{token}')
+def unsubscribe(token: str, db: Session = Depends(database.get_db)):
+    try:
+        email = base64.b64decode(token).decode('utf-8')
+        existing = db.query(database.UnsubscribeList).filter(database.UnsubscribeList.email == email).first()
+        if not existing:
+            new_unsub = database.UnsubscribeList(email=email)
+            db.add(new_unsub)
+            db.commit()
+        return Response(content="<html><body style='font-family:sans-serif;text-align:center;padding:50px;'><h2>Unsubscribed Successfully</h2><p>You will no longer receive emails from us.</p></body></html>", media_type='text/html')
+    except:
+        raise HTTPException(status_code=400, detail='Invalid token')
+
+@app.get('/api/unsubscribes')
+def get_unsubscribes(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin required")
+    return db.query(database.UnsubscribeList).all()
