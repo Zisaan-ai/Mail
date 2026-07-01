@@ -806,3 +806,9 @@ def get_unsubscribes(db: Session = Depends(database.get_db), current_user: datab
 @app.get('/api/bounces')
 def get_bounces(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
     return db.query(database.CampaignLead).filter(database.CampaignLead.status == 'bounced').all()
+
+
+# --- REPLIES ENDPOINT ---
+@app.get('/api/replies')
+def get_replies(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    return db.query(database.Reply).order_by(database.Reply.received_at.desc()).all()

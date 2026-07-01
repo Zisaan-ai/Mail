@@ -81,6 +81,7 @@ function setupNavigation() {
             if (targetId === 'campaigns-list') renderNewsletterList();
             if (targetId === 'sending-accounts-view' && typeof ACCOUNTS !== 'undefined') ACCOUNTS.init();
             if (targetId === 'unsubscribes-view') loadUnsubscribes();
+        if (targetId === 'replies-view') loadReplies();
             if (targetId === 'view-campaign-details') {
                 if (window.lastFetchedCampaigns && window.lastFetchedCampaigns.length > 0) {
                     populateAnalytics(window.lastFetchedCampaigns[0].id);
@@ -1094,6 +1095,36 @@ async function loadUnsubscribes() {
             tr.innerHTML = `
                 <td style="padding:16px 24px; font-weight:600; color:var(--text);">${item.email}</td>
                 <td style="padding:16px 24px; color:var(--text-muted); font-size:13px;">${new Date(item.unsubscribed_at).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(e) { console.error(e); }
+}
+
+async function loadReplies() {
+    try {
+        const res = await apiCall('/api/replies');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('replies-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="padding:20px; text-align:center; color:var(--text-muted);">No replies yet</td></tr>`;
+            return;
+        }
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            let color = '#64748b';
+            if (item.sentiment === 'Interested') color = '#059669';
+            else if (item.sentiment === 'Not Interested') color = '#dc2626';
+            else if (item.sentiment === 'Meeting Booked') color = '#2563eb';
+            
+            tr.innerHTML = `
+                <td style="padding:16px 24px; font-weight:600; color:var(--text);">${item.sender_email}</td>
+                <td style="padding:16px 24px; color:var(--text-muted);">${item.subject}</td>
+                <td style="padding:16px 24px;"><span style="background:${color}20; color:${color}; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:600;">${item.sentiment}</span></td>
+                <td style="padding:16px 24px; color:var(--text-muted); font-size:13px;">${new Date(item.received_at).toLocaleString()}</td>
             `;
             tbody.appendChild(tr);
         });
