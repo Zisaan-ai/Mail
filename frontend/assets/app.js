@@ -116,11 +116,48 @@ function populateAnalytics(campaignId) {
 }
 
 window.viewAnalytics = function(id) {
+    if (!window.lastFetchedCampaigns) return;
+    const c = window.lastFetchedCampaigns.find(x => x.id === id);
+    if (!c) return;
+
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
-    const target = document.getElementById('view-campaign-details');
-    if (target) target.classList.add('active');
-    populateAnalytics(id);
+    
+    if (c.type === 'cold_mail') {
+        const navCamp = document.querySelector('.nav-item[data-target="cold-mail"]');
+        if (navCamp) navCamp.classList.add('active');
+        const target = document.getElementById('cold-mail');
+        if (target) target.classList.add('active');
+        
+        switchColdTab('analytics');
+        
+        // Populate Cold Analytics
+        const statusEl = document.getElementById('cold-analytics-status');
+        const cStatus = c.status || 'Draft';
+        if (statusEl) {
+            statusEl.textContent = cStatus;
+            statusEl.style.background = cStatus.toLowerCase() === 'completed' ? '#ecfdf5' : (cStatus.toLowerCase() === 'failed' ? '#fef2f2' : '#e0e7ff');
+            statusEl.style.color = cStatus.toLowerCase() === 'completed' ? '#059669' : (cStatus.toLowerCase() === 'failed' ? '#dc2626' : '#4f46e5');
+        }
+
+        const started = c.sent_count;
+        const opens = c.opens;
+        const clicks = c.clicks;
+        const openRate = started > 0 ? Math.round((opens / started) * 100) : 0;
+        const clickRate = started > 0 ? Math.round((clicks / started) * 100) : 0;
+
+        const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+        setEl('cold-analytics-seq-started', started.toLocaleString());
+        setEl('cold-analytics-open-rate', `${openRate}%`);
+        setEl('cold-analytics-open-count', `(${opens.toLocaleString()} opens)`);
+        setEl('cold-analytics-click-rate', `${clickRate}%`);
+        setEl('cold-analytics-click-count', `(${clicks.toLocaleString()} clicks)`);
+        
+    } else {
+        const target = document.getElementById('view-campaign-details');
+        if (target) target.classList.add('active');
+        populateAnalytics(id);
+    }
 };
 
 // ============================================================

@@ -797,10 +797,36 @@
 
             <!-- ANALYTICS TAB -->
             <div id="cold-tab-analytics" class="cold-tab-content" style="display:none;">
-                <div class="glass" style="text-align:center;padding:64px;">
-                    <i class="fa-solid fa-chart-line" style="font-size:48px;color:var(--border);margin-bottom:16px;"></i>
-                    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">Analytics</h3>
-                    <p style="color:var(--text-muted);">Campaign statistics and insights will appear here soon.</p>
+                <div style="display:flex;align-items:center;margin-bottom:32px;background:#f8fafc;padding:16px 24px;border-radius:12px;border:1px solid var(--border);">
+                    <span style="font-size:14px;color:var(--text-muted);font-weight:600;margin-right:12px;">Campaign Status:</span>
+                    <span class="status-pill" id="cold-analytics-status" style="font-size:13px;padding:4px 12px;">Loading</span>
+                    
+                    <div style="flex:1;"></div>
+                    
+                    <div style="display:flex;gap:12px;">
+                        <button class="btn" style="padding:8px 16px;font-size:13px;background:#fff;"><i class="fa-solid fa-share-nodes"></i> Share Report</button>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:24px;margin-bottom:32px;">
+                    <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                        <div style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Leads Contacted</div>
+                        <div style="font-size:32px;font-weight:800;color:var(--text);" id="cold-analytics-seq-started">0</div>
+                    </div>
+                    <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                        <div style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Open Rate</div>
+                        <div style="display:flex;align-items:baseline;gap:12px;">
+                            <div style="font-size:32px;font-weight:800;color:var(--text);" id="cold-analytics-open-rate">0%</div>
+                            <div style="font-size:14px;color:var(--text-muted);font-weight:600;" id="cold-analytics-open-count">(0 opens)</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                        <div style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Click Rate</div>
+                        <div style="display:flex;align-items:baseline;gap:12px;">
+                            <div style="font-size:32px;font-weight:800;color:var(--text);" id="cold-analytics-click-rate">0%</div>
+                            <div style="font-size:14px;color:var(--text-muted);font-weight:600;" id="cold-analytics-click-count">(0 clicks)</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1288,6 +1314,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     <script src="assets/templates.js?v=4"></script>
-    <script src="assets/app.js?v=44"></script>
+    <script src="assets/app.js?v=45"></script>
 </body>
 </html>
