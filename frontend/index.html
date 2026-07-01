@@ -1222,11 +1222,25 @@
 
                 <div class="glass">
                     <h3 style="margin-bottom:24px;font-size:18px;font-weight:700;">Artificial Intelligence</h3>
+                    
                     <div class="form-group">
-                        <label>Google Gemini API Key</label>
+                        <label style="display:flex; align-items:center; gap:8px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" style="width:16px; height:16px;" onerror="this.style.display='none'">
+                            Google Gemini API Key
+                        </label>
                         <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
                     </div>
-                    <button id="save-gemini-btn" class="btn primary">Save API Key</button>
+
+                    <div class="form-group" style="margin-top:20px;">
+                        <label style="display:flex; align-items:center; gap:8px;">
+                            <span style="background:#ff6c37; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">GROQ</span>
+                            Groq API Key <span style="font-size:12px; color:#059669; font-weight:600; background:#ecfdf5; padding:2px 8px; border-radius:20px; margin-left:4px;">⚡ Faster & Free</span>
+                        </label>
+                        <input type="password" id="groq-api-key" placeholder="gsk_...">
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:6px;">Groq is ultra-fast and free. Get your key at <a href="https://console.groq.com" target="_blank" style="color:var(--p);">console.groq.com</a></p>
+                    </div>
+
+                    <button id="save-gemini-btn" class="btn primary">Save AI Keys</button>
                     <div id="gemini-status" class="alert" style="margin-top:20px;"></div>
                 </div>
             </div>

@@ -549,16 +549,26 @@ function setupSettings() {
     const saveGeminiBtn = document.getElementById('save-gemini-btn');
     if (saveGeminiBtn) {
         saveGeminiBtn.addEventListener('click', async () => {
-            const apiKey = document.getElementById('gemini-api-key').value;
+            const geminiKey = document.getElementById('gemini-api-key').value;
+            const groqKeyEl = document.getElementById('groq-api-key');
+            const groqKey = groqKeyEl ? groqKeyEl.value : '';
             try {
-                const res = await apiCall('/settings/gemini', 'POST', { gemini_api_key: apiKey });
+                // Save Gemini key
+                if (geminiKey) {
+                    await apiCall('/settings/gemini', 'POST', { gemini_api_key: geminiKey });
+                }
+                // Save Groq key
+                if (groqKey) {
+                    await apiCall('/settings/groq', 'POST', { groq_api_key: groqKey });
+                }
                 const geminiStatus = document.getElementById('gemini-status');
                 if (geminiStatus) {
-                    geminiStatus.textContent = res.ok ? 'Gemini API key saved!' : 'Error saving key';
-                    geminiStatus.className = res.ok ? 'alert success' : 'alert error';
+                    geminiStatus.textContent = '✅ AI Keys saved successfully!';
+                    geminiStatus.className = 'alert success';
                     geminiStatus.style.display = 'block';
+                    setTimeout(() => { geminiStatus.style.display = 'none'; }, 3000);
                 }
-            } catch(e) { showToast('Error', 'error'); }
+            } catch(e) { showToast('Error saving keys', 'error'); }
         });
     }
 
@@ -573,6 +583,7 @@ function setupSettings() {
         setVal('smtp-from-name', s.from_name);
         setVal('instantly-api-key', s.instantly_api_key);
         setVal('gemini-api-key', s.gemini_api_key);
+        setVal('groq-api-key', s.groq_api_key);
         if (s.provider && document.getElementById('smtp-provider')) {
             document.getElementById('smtp-provider').value = s.provider;
             if (s.provider === 'instantly') {

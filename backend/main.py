@@ -689,3 +689,37 @@ def api_generate_icebreakers(req: AIIcebreakerRequest):
 @app.post("/api/ai/autopilot")
 def api_autopilot(req: AIGenerateRequest):
     return ai_core.generate_autopilot_campaign(req.prompt)
+
+# --- SETTINGS ENDPOINTS ---
+class GeminiKeyRequest(BaseModel):
+    gemini_api_key: str
+
+class GroqKeyRequest(BaseModel):
+    groq_api_key: str
+
+# In-memory store for user API keys (per user session)
+_user_keys = {}
+
+@app.get("/api/settings")
+def get_settings(current_user: database.User = Depends(auth.get_current_user)):
+    user_keys = _user_keys.get(current_user.id, {})
+    return {
+        "gemini_api_key": user_keys.get("gemini_api_key", ""),
+        "groq_api_key": user_keys.get("groq_api_key", ""),
+    }
+
+@app.post("/api/settings/gemini")
+def save_gemini_key(req: GeminiKeyRequest, current_user: database.User = Depends(auth.get_current_user)):
+    if current_user.id not in _user_keys:
+        _user_keys[current_user.id] = {}
+    _user_keys[current_user.id]["gemini_api_key"] = req.gemini_api_key
+    os.environ["GEMINI_API_KEY"] = req.gemini_api_key
+    return {"ok": True, "message": "Gemini API key saved"}
+
+@app.post("/api/settings/groq")
+def save_groq_key(req: GroqKeyRequest, current_user: database.User = Depends(auth.get_current_user)):
+    if current_user.id not in _user_keys:
+        _user_keys[current_user.id] = {}
+    _user_keys[current_user.id]["groq_api_key"] = req.groq_api_key
+    os.environ["GROQ_API_KEY"] = req.groq_api_key
+    return {"ok": True, "message": "Groq API key saved"}
