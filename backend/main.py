@@ -151,7 +151,7 @@ def ai_chat(req: ChatRequest, current_user: database.User = Depends(auth.get_cur
 
 @app.post("/api/ai/generate")
 def ai_generate_email(req: EmailGenerateRequest, current_user: database.User = Depends(auth.get_current_user)):
-    generated_html = ai_service.generate_email_content(req.prompt)
+    generated_html = ai_core.generate_email_content(req.prompt)
     return {"html": generated_html}
 
 # --- AUTH ENDPOINTS ---
