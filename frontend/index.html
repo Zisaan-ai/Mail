@@ -1126,10 +1126,8 @@ var AUTH = (function() {
 })();
 
 // Auto-login if token exists
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     if (_token) {
-        // Since we removed /contacts, we just let APP_INIT handle auth or check a /me endpoint if it existed.
-        // For now, assume token is valid. If API fails later, it will log out.
         document.getElementById('auth-page').classList.add('hidden');
         document.getElementById('app-page').classList.add('on');
         var isAdmin = false;
@@ -1137,10 +1135,10 @@ var AUTH = (function() {
         if (isAdmin) { var n = document.getElementById('nav-admin'); if (n) n.style.display = 'flex'; }
         if (typeof window.APP_INIT === 'function') window.APP_INIT();
     }
-})();
+});
 </script>
 
-    <script src="assets/templates.js?v=2"></script>
-    <script src="assets/app.js?v=38"></script>
+    <script src="assets/templates.js?v=4"></script>
+    <script src="assets/app.js?v=40"></script>
 </body>
 </html>
