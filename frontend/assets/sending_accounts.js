@@ -7,7 +7,7 @@ const ACCOUNTS = {
     
     fetchAccounts: async function() {
         try {
-            const res = await fetch('/api/sending-accounts', {
+            const res = await fetch(API_URL + '/sending-accounts', {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
             });
             if(res.ok) {
@@ -75,15 +75,19 @@ const ACCOUNTS = {
         };
         
         if(!payload.email || !payload.smtp_server || !payload.smtp_password) {
-            alert("Email, Server, and Password are required");
+            alert("Email, SMTP Server, and Password are required!");
             return;
         }
+
+        const btn = document.getElementById('save-account-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
         
         try {
-            const res = await fetch('/api/sending-accounts', {
+            const token = localStorage.getItem('token');
+            const res = await fetch(API_URL + '/sending-accounts', {
                 method: 'POST',
                 headers: { 
-                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Authorization': 'Bearer ' + token,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
@@ -91,18 +95,28 @@ const ACCOUNTS = {
             
             if(res.ok) {
                 document.getElementById('add-account-modal').style.display = 'none';
+                // Reset form
+                ['acc-name','acc-email','acc-smtp-username','acc-smtp-password','acc-imap-server','acc-imap-password'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
                 this.fetchAccounts();
             } else {
-                alert("Failed to add account");
+                const errData = await res.json().catch(() => ({ detail: 'Unknown error' }));
+                const msg = errData.detail || JSON.stringify(errData);
+                alert('Error: ' + msg);
             }
         } catch(e) {
             console.error("Add account error", e);
+            alert('Network error: ' + e.message);
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Save Account'; }
         }
     },
     
     toggleStatus: async function(id, isActive) {
         try {
-            const res = await fetch('/api/sending-accounts/' + id, {
+            const res = await fetch(API_URL + '/sending-accounts/' + id, {
                 method: 'PATCH',
                 headers: { 
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -121,7 +135,7 @@ const ACCOUNTS = {
     deleteAccount: async function(id) {
         if(!confirm("Are you sure you want to delete this account?")) return;
         try {
-            const res = await fetch('/api/sending-accounts/' + id, {
+            const res = await fetch(API_URL + '/sending-accounts/' + id, {
                 method: 'DELETE',
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
             });

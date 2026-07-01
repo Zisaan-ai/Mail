@@ -69,11 +69,39 @@ def hard_reset_db():
 def run_migration(db: Session = Depends(database.get_db)):
     try:
         db.execute(text("ALTER TABLE users ADD COLUMN verification_code VARCHAR"))
+    except: pass
+    try:
         db.execute(text("ALTER TABLE users ADD COLUMN is_email_verified BOOLEAN DEFAULT FALSE"))
-        db.commit()
-        return {"msg": "Migration successful"}
-    except Exception as e:
-        return {"error": str(e)}
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN imap_server VARCHAR"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN imap_port INTEGER DEFAULT 993"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN imap_password VARCHAR"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN warmup_enabled BOOLEAN DEFAULT 0"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN warmup_daily_limit INTEGER DEFAULT 5"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN warmup_increment_per_day INTEGER DEFAULT 2"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE sending_accounts ADD COLUMN warmup_sent_today INTEGER DEFAULT 0"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE campaigns ADD COLUMN schedule_time VARCHAR"))
+    except: pass
+    try:
+        db.execute(text("ALTER TABLE campaigns ADD COLUMN timezone VARCHAR"))
+    except: pass
+    db.commit()
+    return {"msg": "Migration successful"}
 
 @app.get("/api/reset-users")
 def reset_users(db: Session = Depends(database.get_db)):
@@ -642,27 +670,35 @@ def get_sending_accounts(db: Session = Depends(database.get_db), current_user: d
 
 @app.post("/api/sending-accounts")
 def create_sending_account(acc: SendingAccountCreate, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
-    new_acc = database.SendingAccount(
-        user_id=current_user.id,
-        name=acc.name,
-        email=acc.email,
-        smtp_server=acc.smtp_server,
-        smtp_port=acc.smtp_port,
-        smtp_username=acc.smtp_username,
-        smtp_password=acc.smtp_password,
-        daily_limit=acc.daily_limit,
-        is_active=True,
-        imap_server=acc.imap_server,
-        imap_port=acc.imap_port,
-        imap_password=acc.imap_password,
-        warmup_enabled=acc.warmup_enabled,
-        warmup_daily_limit=acc.warmup_daily_limit,
-        warmup_increment_per_day=acc.warmup_increment_per_day
-    )
-    db.add(new_acc)
-    db.commit()
-    db.refresh(new_acc)
-    return {"status": "success", "id": new_acc.id}
+    # Check if email already exists for this user
+    existing = db.query(database.SendingAccount).filter(database.SendingAccount.email == acc.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"A sending account with email '{acc.email}' already exists.")
+    try:
+        new_acc = database.SendingAccount(
+            user_id=current_user.id,
+            name=acc.name,
+            email=acc.email,
+            smtp_server=acc.smtp_server,
+            smtp_port=acc.smtp_port,
+            smtp_username=acc.smtp_username,
+            smtp_password=acc.smtp_password,
+            daily_limit=acc.daily_limit,
+            is_active=True,
+            imap_server=acc.imap_server,
+            imap_port=acc.imap_port,
+            imap_password=acc.imap_password,
+            warmup_enabled=acc.warmup_enabled,
+            warmup_daily_limit=acc.warmup_daily_limit,
+            warmup_increment_per_day=acc.warmup_increment_per_day
+        )
+        db.add(new_acc)
+        db.commit()
+        db.refresh(new_acc)
+        return {"status": "success", "id": new_acc.id}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Could not save account: {str(e)}")
 
 @app.delete("/api/sending-accounts/{acc_id}")
 def delete_sending_account(acc_id: int, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
