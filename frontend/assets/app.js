@@ -93,8 +93,9 @@ function populateAnalytics(campaignId) {
 
     document.getElementById('analytics-title').textContent = c.subject || 'Untitled Campaign';
     const statusEl = document.getElementById('analytics-status');
-    statusEl.textContent = c.status;
-    statusEl.style.background = c.status.toLowerCase() === 'completed' ? '#059669' : (c.status.toLowerCase() === 'failed' ? '#dc2626' : '#333');
+    const cStatus = c.status || 'Draft';
+    statusEl.textContent = cStatus;
+    statusEl.style.background = cStatus.toLowerCase() === 'completed' ? '#059669' : (cStatus.toLowerCase() === 'failed' ? '#dc2626' : '#333');
 
     // Stats calculations
     const started = c.sent_count; // sequence started = leads sent to
