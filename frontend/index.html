@@ -461,10 +461,10 @@
             <a class="nav-item active" data-target="dashboard">
                 <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
             </a>
-            <a class="nav-item" data-target="campaigns">
+            <a class="nav-item" data-target="campaigns-list">
                 <i class="fa-solid fa-wand-magic-sparkles"></i><span>Visual Builder</span>
             </a>
-            <a class="nav-item" data-target="cold-mail">
+            <a class="nav-item" data-target="cold-mail-list">
                 <i class="fa-solid fa-snowflake"></i><span>Cold Mail</span>
             </a>
             <a class="nav-item" data-target="settings">
@@ -639,9 +639,39 @@
             </div>
         </div>
 
+        <!-- CAMPAIGNS LIST (Newsletters) -->
+        <div id="campaigns-list" class="view">
+            <div class="page-header" style="margin-bottom: 32px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div>
+                    <h1 class="page-title" style="font-size:28px;">Newsletters</h1>
+                    <p class="page-subtitle">Manage and track your beautiful visual email campaigns</p>
+                </div>
+                <div>
+                    <button class="btn primary" style="box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);" onclick="openNewsletterBuilder(null)"><i class="fa-solid fa-plus" style="margin-right:8px;"></i> Create Newsletter</button>
+                </div>
+            </div>
+            
+            <div class="glass" style="padding: 0; overflow: hidden; border-radius: 12px;">
+                <table class="table" style="margin:0;">
+                    <thead>
+                        <tr>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Campaign Name</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Status</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Sent</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em; text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newsletters-list-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- CAMPAIGNS (Visual Builder) -->
-        <div id="campaigns" class="view">
+        <div id="campaigns-builder" class="view">
             <div class="page-header" style="padding-bottom: 24px;">
+                <button class="btn" style="margin-bottom:12px; font-size:13px; padding:6px 12px;" onclick="document.querySelector('.nav-item[data-target=\'campaigns-list\']').click()"><i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i> Back to Newsletters</button>
                 <h1 class="page-title">Visual Builder</h1>
                 <p class="page-subtitle">Design, build, and launch your visually appealing newsletters</p>
             </div>
@@ -779,11 +809,45 @@
             </div>
         </div>
 
+        <!-- COLD MAIL LIST -->
+        <div id="cold-mail-list" class="view">
+            <div class="page-header" style="margin-bottom: 32px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div>
+                    <h1 class="page-title" style="font-size:28px;">Cold Mail Campaigns</h1>
+                    <p class="page-subtitle">Manage and track your automated cold email sequences</p>
+                </div>
+                <div>
+                    <button class="btn primary" style="box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);" onclick="openColdMailBuilder(null)"><i class="fa-solid fa-plus" style="margin-right:8px;"></i> Create Sequence</button>
+                </div>
+            </div>
+            
+            <div class="glass" style="padding: 0; overflow: hidden; border-radius: 12px;">
+                <table class="table" style="margin:0;">
+                    <thead>
+                        <tr>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Campaign Name</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Status</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Open Rate</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">Click Rate</th>
+                            <th style="padding:16px 24px; font-weight:600; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.05em; text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cold-mail-list-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- COLD MAIL (Sequence Builder) -->
-        <div id="cold-mail" class="view">
-            <div class="page-header" style="padding-bottom: 24px;">
-                <h1 class="page-title" style="font-size:28px;">Cold Mail</h1>
-                <p class="page-subtitle">Build and launch automated cold email sequences</p>
+        <div id="cold-mail-builder" class="view">
+            <div class="page-header" style="padding-bottom: 24px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <button class="btn" style="margin-bottom:12px; font-size:13px; padding:6px 12px;" onclick="document.querySelector('.nav-item[data-target=\'cold-mail-list\']').click()"><i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i> Back to Campaigns</button>
+                    <h1 class="page-title" style="font-size:28px;">Cold Mail Builder</h1>
+                    <p class="page-subtitle">Build and launch automated cold email sequences</p>
+                </div>
+            </div>
             </div>
             
             <div class="clean-tabs-bar" style="margin-bottom:32px;border-bottom:2px solid var(--border);padding-bottom:0;display:flex;gap:32px;">
@@ -1314,6 +1378,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     <script src="assets/templates.js?v=4"></script>
-    <script src="assets/app.js?v=45"></script>
+    <script src="assets/app.js?v=46"></script>
 </body>
 </html>

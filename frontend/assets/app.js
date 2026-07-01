@@ -77,6 +77,8 @@ function setupNavigation() {
             if (target) target.classList.add('active');
             if (targetId === 'admin-view') loadAdminUsers();
             if (targetId === 'dashboard') fetchDashboard();
+            if (targetId === 'cold-mail-list') renderColdMailList();
+            if (targetId === 'campaigns-list') renderNewsletterList();
             if (targetId === 'view-campaign-details') {
                 if (window.lastFetchedCampaigns && window.lastFetchedCampaigns.length > 0) {
                     populateAnalytics(window.lastFetchedCampaigns[0].id);
@@ -357,9 +359,15 @@ window.editCampaign = function(id) {
     const c = window.lastFetchedCampaigns.find(x => x.id === id);
     if (!c) return;
     
+    window.currentCampaignId = id;
+
     if (c.type === 'cold_mail') {
-        const navCamp = document.querySelector('.nav-item[data-target="cold-mail"]');
-        if (navCamp) navCamp.click();
+        const target = document.getElementById('cold-mail-builder');
+        if (target) {
+            document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
+            target.classList.add('active');
+        }
+        
         const subjectEl = document.getElementById('inst-subject');
         if (subjectEl) subjectEl.value = c.subject;
         const bodyEl = document.getElementById('inst-body');
@@ -368,13 +376,20 @@ window.editCampaign = function(id) {
             const textContent = firstStepHtml.replace(/<[^>]+>/g, '');
             bodyEl.value = textContent;
         }
+        window.switchColdTab('sequences');
         showToast('Cold Mail sequence loaded for editing');
     } else {
-        const navCamp = document.querySelector('.nav-item[data-target="campaigns"]');
-        if (navCamp) navCamp.click();
+        const target = document.getElementById('campaigns-builder');
+        if (target) {
+            document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
+            target.classList.add('active');
+        }
         const subjectEl = document.getElementById('campaign-subject');
         if (subjectEl) subjectEl.value = c.subject;
-        showToast('Campaign loaded for editing');
+        const canvas = document.getElementById('builder-canvas');
+        if (canvas) canvas.innerHTML = c.body || '';
+        window.switchVbTab('design');
+        showToast('Newsletter loaded for editing');
     }
 };
 
@@ -1095,4 +1110,100 @@ function setupAIChat() {
 
     if (sendBtn) sendBtn.addEventListener('click', sendMsg);
     if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+}
+
+async function renderColdMailList() {
+    await fetchDashboard(true);
+    const tbody = document.getElementById('cold-mail-list-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const campaigns = (window.lastFetchedCampaigns || []).filter(c => c.type === 'cold_mail');
+    
+    if (campaigns.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">No Cold Mail campaigns found.</td></tr>';
+        return;
+    }
+    
+    campaigns.forEach(c => {
+        const tr = document.createElement('tr');
+        const openRate = c.sent_count > 0 ? Math.round((c.opens / c.sent_count) * 100) : 0;
+        const clickRate = c.sent_count > 0 ? Math.round((c.clicks / c.sent_count) * 100) : 0;
+        const cStatus = c.status || 'Draft';
+        const statusColor = cStatus.toLowerCase() === 'completed' ? '#059669' : (cStatus.toLowerCase() === 'failed' ? '#dc2626' : '#64748b');
+        
+        tr.innerHTML = `
+            <td><div style="font-weight:600;color:var(--text);">${c.subject || 'Untitled'}</div></td>
+            <td><span style="font-size:13px; font-weight:600; color:${statusColor}; text-transform:capitalize;">${cStatus}</span></td>
+            <td>${openRate}%</td>
+            <td>${clickRate}%</td>
+            <td>
+                <div style="display:flex; gap:6px; justify-content:flex-end;">
+                    <button class="btn" style="padding:6px 12px;font-size:13px;background:#f8fafc;border:1px solid var(--border);" onclick="openColdMailBuilder(${c.id})" title="Edit"><i class="fa-solid fa-pen-to-square" style="color:#64748b;"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function renderNewsletterList() {
+    await fetchDashboard(true);
+    const tbody = document.getElementById('newsletters-list-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const campaigns = (window.lastFetchedCampaigns || []).filter(c => c.type !== 'cold_mail');
+    
+    if (campaigns.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted);">No Newsletters found.</td></tr>';
+        return;
+    }
+    
+    campaigns.forEach(c => {
+        const tr = document.createElement('tr');
+        const cStatus = c.status || 'Draft';
+        const statusColor = cStatus.toLowerCase() === 'completed' ? '#059669' : (cStatus.toLowerCase() === 'failed' ? '#dc2626' : '#64748b');
+        
+        tr.innerHTML = `
+            <td><div style="font-weight:600;color:var(--text);">${c.subject || 'Untitled'}</div></td>
+            <td><span style="font-size:13px; font-weight:600; color:${statusColor}; text-transform:capitalize;">${cStatus}</span></td>
+            <td>${c.sent_count}</td>
+            <td>
+                <div style="display:flex; gap:6px; justify-content:flex-end;">
+                    <button class="btn" style="padding:6px 12px;font-size:13px;background:#f8fafc;border:1px solid var(--border);" onclick="openNewsletterBuilder(${c.id})" title="Edit"><i class="fa-solid fa-pen-to-square" style="color:#64748b;"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+window.openColdMailBuilder = function(id) {
+    document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('cold-mail-builder');
+    if (target) target.classList.add('active');
+    
+    if (id) {
+        window.editCampaign(id);
+    } else {
+        window.currentCampaignId = null;
+        document.getElementById('inst-subject').value = '';
+        document.getElementById('inst-body').value = '';
+        document.getElementById('seq-leads').value = '';
+        window.switchColdTab('sequences');
+    }
+}
+
+window.openNewsletterBuilder = function(id) {
+    document.querySelectorAll('#app-page .view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('campaigns-builder');
+    if (target) target.classList.add('active');
+    
+    if (id) {
+        window.editCampaign(id);
+    } else {
+        window.currentCampaignId = null;
+        document.getElementById('campaign-subject').value = '';
+        document.getElementById('newsletter-leads').value = '';
+        window.switchVbTab('audience');
+    }
 }
