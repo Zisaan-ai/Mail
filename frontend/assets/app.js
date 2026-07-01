@@ -271,10 +271,29 @@ function initOrUpdateChart(campaigns) {
     const ctx = document.getElementById('activityChart');
     if (!ctx) return;
     
-    // Generate dummy trend data for visual appeal, biased by actual total sends
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const data = [120, 190, 150, 220, 180, 250, 310]; 
-    // If we had actual time-series data from backend, we'd map it here.
+    const labels = [];
+    const data = [];
+    
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+        
+        let dailyTotal = 0;
+        if (campaigns && campaigns.length > 0) {
+            campaigns.forEach(c => {
+                if (c.created_at) {
+                    const cDate = new Date(c.created_at);
+                    if (cDate.getDate() === d.getDate() && 
+                        cDate.getMonth() === d.getMonth() && 
+                        cDate.getFullYear() === d.getFullYear()) {
+                        dailyTotal += (c.total_sent || 0);
+                    }
+                }
+            });
+        }
+        data.push(dailyTotal);
+    }
     
     if (activityChartInstance) {
         activityChartInstance.destroy();
