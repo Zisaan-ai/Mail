@@ -593,24 +593,6 @@ frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
     
-    @app.get("/{full_path:path}")
-    def serve_frontend(full_path: str):
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="API route not found")
-        # Read file fresh every time - bypasses any server-side caching
-        index_path = os.path.join(frontend_path, "index.html")
-        with open(index_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        return Response(
-            content=content,
-            media_type="text/html",
-            headers={
-                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
-                "Pragma": "no-cache",
-                "Expires": "0",
-                "Surrogate-Control": "no-store",
-            }
-        )
 
 # --- Sending Accounts Schema ---
 class SendingAccountCreate(BaseModel):
@@ -849,3 +831,22 @@ def save_webhook(req: WebhookRequest, db: Session = Depends(database.get_db), cu
         webhook.url = req.url
     db.commit()
     return {"ok": True}
+
+@app.get("/{full_path:path}")
+def serve_frontend(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API route not found")
+    # Read file fresh every time - bypasses any server-side caching
+    index_path = os.path.join(frontend_path, "index.html")
+    with open(index_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    return Response(
+        content=content,
+        media_type="text/html",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+            "Surrogate-Control": "no-store",
+        }
+    )
