@@ -970,7 +970,14 @@
 
             <!-- SEQUENCES TAB (The builder) -->
             <div id="cold-tab-sequences" class="cold-tab-content" style="display:block;">
-                <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:16px;">
+                    <input type="datetime-local" id="campaign-schedule-time" style="padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none;">
+                    <select id="campaign-schedule-tz" style="padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none;">
+                        <option value="UTC">UTC</option>
+                        <option value="Asia/Dhaka">Asia/Dhaka (BST)</option>
+                        <option value="America/New_York">America/New_York (EST)</option>
+                        <option value="Europe/London">Europe/London (GMT)</option>
+                    </select>
                     <button id="inst-send-seq-btn" class="btn" style="padding:12px 24px;background:var(--p);color:#fff;border:none;font-size:15px;border-radius:8px;font-weight:600;box-shadow:0 4px 12px rgba(99,102,241,0.2);"><i class="fa-solid fa-rocket"></i> Launch Campaign</button>
                 </div>
                 <div id="inst-status" class="alert" style="margin-bottom:20px;display:none;"></div>

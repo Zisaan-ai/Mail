@@ -15,6 +15,12 @@ import auth
 from sqlalchemy import text
 import random
 import string
+from apscheduler.schedulers.background import BackgroundScheduler
+import pytz
+
+# Setup APScheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 app = FastAPI(title="MailChimp Clone API")
 
@@ -109,6 +115,8 @@ class CampaignCreate(BaseModel):
     is_ab_test: Optional[bool] = False
     subject_b: Optional[str] = None
     body_b: Optional[str] = None
+    scheduled_at: Optional[datetime] = None
+    timezone: Optional[str] = None
 
 class CampaignResponse(BaseModel):
     id: int
@@ -122,6 +130,9 @@ class CampaignResponse(BaseModel):
     is_ab_test: Optional[bool] = False
     subject_b: Optional[str] = None
     body_b: Optional[str] = None
+    scheduled_at: Optional[datetime] = None
+    timezone: Optional[str] = None
+    created_at: datetime
     sent_count_a: Optional[int] = 0
     sent_count_b: Optional[int] = 0
     opens_a: Optional[int] = 0
@@ -326,14 +337,18 @@ def get_campaigns(db: Session = Depends(database.get_db), current_user: database
 
 @app.post("/api/campaigns/send")
 def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    status = "scheduled" if campaign.scheduled_at else "processing"
+    
     new_campaign = database.Campaign(
-        subject=campaign.subject, 
-        body=campaign.body, 
+        subject=campaign.subject,
+        body=campaign.body,
         type=campaign.type,
-        status="processing",
+        status=status,
         is_ab_test=campaign.is_ab_test,
         subject_b=campaign.subject_b,
-        body_b=campaign.body_b
+        body_b=campaign.body_b,
+        scheduled_at=campaign.scheduled_at,
+        timezone=campaign.timezone
     )
     db.add(new_campaign)
     db.commit()
@@ -347,9 +362,28 @@ def send_campaign(campaign: CampaignCreate, background_tasks: BackgroundTasks, d
         db.add(db_lead)
     db.commit()
     
-    # In a real app, this goes to Celery/Redis
-    background_tasks.add_task(process_isolated_campaign, new_campaign.id, [lead.email for lead in campaign.leads])
-    return {"message": "Campaign queued for sending", "campaign_id": new_campaign.id}
+    # If scheduled_at is provided, schedule it, else run in background tasks
+    if campaign.scheduled_at:
+        try:
+            tz = pytz.timezone(campaign.timezone or "UTC")
+            # Convert naive datetime to timezone-aware if needed
+            run_date = campaign.scheduled_at
+            if run_date.tzinfo is None:
+                run_date = tz.localize(run_date)
+            
+            scheduler.add_job(
+                process_isolated_campaign, 
+                'date', 
+                run_date=run_date, 
+                args=[new_campaign.id, [lead.email for lead in campaign.leads]]
+            )
+            return {"message": "Campaign scheduled successfully", "campaign_id": new_campaign.id}
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Scheduling failed: {str(e)}")
+    else:
+        # Run immediately (in background)
+        background_tasks.add_task(process_isolated_campaign, new_campaign.id, [lead.email for lead in campaign.leads])
+        return {"message": "Campaign queued for sending", "campaign_id": new_campaign.id}
 
 def process_isolated_campaign(campaign_id: int, emails: list):
     db = database.SessionLocal()

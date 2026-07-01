@@ -1007,6 +1007,14 @@ function setupSequenceBuilder() {
             subject_b: s1.subject_b || '',
             body_b: steps.map(s => `<div>${s.is_ab ? (s.body_b || s.body) : s.body}</div>`).join('<hr>')
         };
+        
+        const scheduleTime = document.getElementById('campaign-schedule-time')?.value;
+        const scheduleTz = document.getElementById('campaign-schedule-tz')?.value;
+        if (scheduleTime) {
+            payload.scheduled_at = scheduleTime + ":00"; // Assuming format YYYY-MM-DDTHH:MM
+            payload.timezone = scheduleTz || 'UTC';
+        }
+
 
         sendSeqBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Launching...';
         sendSeqBtn.disabled = true;

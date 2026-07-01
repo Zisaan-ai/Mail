@@ -44,6 +44,8 @@ class Campaign(Base):
     opens_a = Column(Integer, default=0)
     opens_b = Column(Integer, default=0)
     status = Column(String, default="sent") # draft, scheduled, sent
+    scheduled_at = Column(DateTime, nullable=True)
+    timezone = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class CampaignLead(Base):
