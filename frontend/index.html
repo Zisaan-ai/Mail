@@ -801,28 +801,101 @@
 
             <!-- SCHEDULE TAB -->
             <div id="cold-tab-schedule" class="cold-tab-content" style="display:none;">
-                <div class="glass" style="text-align:center;padding:64px;">
-                    <i class="fa-solid fa-calendar-days" style="font-size:48px;color:var(--border);margin-bottom:16px;"></i>
-                    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">Schedule</h3>
-                    <p style="color:var(--text-muted);">Set your sending hours and timezone. Coming soon.</p>
+                <div class="glass" style="max-width:800px;">
+                    <h3 style="font-size:18px;font-weight:700;margin-bottom:24px;">Sending Schedule</h3>
+                    <div class="form-group">
+                        <label>Timezone</label>
+                        <select id="sch-timezone">
+                            <option value="US/Eastern">America/New York (EST)</option>
+                            <option value="Europe/London">Europe/London (GMT)</option>
+                            <option value="Asia/Dhaka">Asia/Dhaka (BST)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sending Days</label>
+                        <div style="display:flex;gap:16px;flex-wrap:wrap;background:var(--surface-1);padding:16px;border-radius:8px;border:1px solid var(--border);">
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" checked> Mon</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" checked> Tue</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" checked> Wed</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" checked> Thu</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" checked> Fri</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox"> Sat</label>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox"> Sun</label>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="time" value="09:00">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="time" value="17:00">
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+                        <button class="btn primary" style="padding:10px 24px;">Save Schedule</button>
+                    </div>
                 </div>
             </div>
 
             <!-- OPTIONS TAB -->
             <div id="cold-tab-options" class="cold-tab-content" style="display:none;">
-                <div class="glass" style="text-align:center;padding:64px;">
-                    <i class="fa-solid fa-sliders" style="font-size:48px;color:var(--border);margin-bottom:16px;"></i>
-                    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">Options</h3>
-                    <p style="color:var(--text-muted);">Advanced campaign settings, open tracking, etc. Coming soon.</p>
+                <div class="glass" style="max-width:800px;">
+                    <h3 style="font-size:18px;font-weight:700;margin-bottom:24px;">Campaign Options</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                        <div class="form-group">
+                            <label>Open Tracking</label>
+                            <select>
+                                <option value="1">Enabled (Invisible Pixel)</option>
+                                <option value="0">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Link Tracking</label>
+                            <select>
+                                <option value="1">Enabled</option>
+                                <option value="0">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Emails Per Day</label>
+                            <input type="number" value="50" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Ramp Up</label>
+                            <input type="number" value="5" min="0" title="Increase limit by this amount every day">
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+                        <button class="btn primary" style="padding:10px 24px;">Save Options</button>
+                    </div>
                 </div>
             </div>
 
             <!-- SUBSEQUENCES TAB -->
             <div id="cold-tab-subsequences" class="cold-tab-content" style="display:none;">
-                <div class="glass" style="text-align:center;padding:64px;">
-                    <i class="fa-solid fa-code-branch" style="font-size:48px;color:var(--border);margin-bottom:16px;"></i>
-                    <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">Subsequences</h3>
-                    <p style="color:var(--text-muted);">Condition-based routing (e.g. if link clicked). Coming soon.</p>
+                <div class="glass" style="max-width:800px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                        <h3 style="font-size:18px;font-weight:700;margin:0;">Condition-based Subsequences</h3>
+                        <span style="background:var(--p-light);color:var(--p);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;">Beta</span>
+                    </div>
+                    <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">Create alternative email sequences based on recipient behavior.</p>
+                    <div class="form-group">
+                        <label>Trigger Condition</label>
+                        <select>
+                            <option>If link clicked in previous step</option>
+                            <option>If email opened multiple times (>3)</option>
+                            <option>If NO reply after sequence finishes</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:24px;">
+                        <label>Message Body (Subsequence Step 1)</label>
+                        <textarea rows="6" style="padding:16px;font-family:sans-serif;" placeholder="Hey {{firstName}}, noticed you clicked the link. Let me know if you have questions!"></textarea>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;">
+                        <button class="btn primary" style="padding:10px 24px;"><i class="fa-solid fa-plus"></i> Add Subsequence</button>
+                    </div>
                 </div>
             </div>
             
