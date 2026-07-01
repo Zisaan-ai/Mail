@@ -3,7 +3,7 @@
 // Auth is handled in index.html (inline) - NOT here
 // ============================================================
 
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : '/api';
+const API_URL = '/api';
 
 // Get token from localStorage
 function getToken() {

@@ -1432,7 +1432,7 @@
      AUTH LOGIC (Inline)
      ============================================================ -->
 <script>
-    const API = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : '/api';
+    const API = '/api';
 let _token = null;
 try { _token = localStorage.getItem('token'); } catch(e) {}
 
