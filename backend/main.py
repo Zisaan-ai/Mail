@@ -422,11 +422,16 @@ def process_isolated_campaign(campaign_id: int, emails: list):
             body_a = campaign.body + pixel
             acc = accounts[i % account_count] if account_count > 0 else None
             
-            if email_service.send_bulk_emails(campaign.subject, body_a, [lead.email], account=acc) > 0:
-                success_count_a += 1
-                lead.status = "sent"
-                if acc:
-                    acc.sent_today += 1
+            try:
+                if email_service.send_bulk_emails(campaign.subject, body_a, [lead.email], account=acc) > 0:
+                    success_count_a += 1
+                    lead.status = "sent"
+                    if acc:
+                        acc.sent_today += 1
+                else:
+                    lead.status = "bounced"
+            except Exception:
+                lead.status = "bounced"
                 
         for i, lead in enumerate(leads_b):
             lead.variant = 'B'
@@ -435,11 +440,16 @@ def process_isolated_campaign(campaign_id: int, emails: list):
             subj_b = campaign.subject_b or campaign.subject
             acc = accounts[i % account_count] if account_count > 0 else None
             
-            if email_service.send_bulk_emails(subj_b, body_b, [lead.email], account=acc) > 0:
-                success_count_b += 1
-                lead.status = "sent"
-                if acc:
-                    acc.sent_today += 1
+            try:
+                if email_service.send_bulk_emails(subj_b, body_b, [lead.email], account=acc) > 0:
+                    success_count_b += 1
+                    lead.status = "sent"
+                    if acc:
+                        acc.sent_today += 1
+                else:
+                    lead.status = "bounced"
+            except Exception:
+                lead.status = "bounced"
                 
         campaign.sent_count_a += success_count_a
         campaign.sent_count_b += success_count_b
@@ -451,11 +461,16 @@ def process_isolated_campaign(campaign_id: int, emails: list):
             body_html = campaign.body + pixel
             acc = accounts[i % account_count] if account_count > 0 else None
             
-            if email_service.send_bulk_emails(campaign.subject, body_html, [lead.email], account=acc) > 0:
-                success_count_a += 1
-                lead.status = "sent"
-                if acc:
-                    acc.sent_today += 1
+            try:
+                if email_service.send_bulk_emails(campaign.subject, body_html, [lead.email], account=acc) > 0:
+                    success_count_a += 1
+                    lead.status = "sent"
+                    if acc:
+                        acc.sent_today += 1
+                else:
+                    lead.status = "bounced"
+            except Exception:
+                lead.status = "bounced"
                 
         campaign.sent_count += success_count_a
         
@@ -491,9 +506,15 @@ def process_campaign_sending(campaign_id: int, contacts: list):
         
         acc = accounts[i % account_count]
         
-        if email_service.send_bulk_emails(campaign.subject, personalized_body, [contact.email], account=acc) > 0:
-            success_count += 1
-            acc.sent_today += 1
+        try:
+            if email_service.send_bulk_emails(campaign.subject, personalized_body, [contact.email], account=acc) > 0:
+                success_count += 1
+                acc.sent_today += 1
+                contact.status = "sent"
+            else:
+                contact.status = "bounced"
+        except Exception:
+            contact.status = "bounced"
     
     campaign.sent_count = success_count
     campaign.status = "sent"
@@ -779,3 +800,9 @@ def get_unsubscribes(db: Session = Depends(database.get_db), current_user: datab
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin required")
     return db.query(database.UnsubscribeList).all()
+
+
+# --- BOUNCES ENDPOINT ---
+@app.get('/api/bounces')
+def get_bounces(db: Session = Depends(database.get_db), current_user: database.User = Depends(auth.get_current_user)):
+    return db.query(database.CampaignLead).filter(database.CampaignLead.status == 'bounced').all()

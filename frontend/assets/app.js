@@ -183,12 +183,18 @@ let activityChartInstance = null;
 
 async function fetchDashboard() {
     try {
-        const [cRes, aRes] = await Promise.all([
+        const [cRes, aRes, bRes] = await Promise.all([
             apiCall('/campaigns'),
-            apiCall('/admin/stats')
+            apiCall('/admin/stats'),
+            apiCall('/api/bounces')
         ]);
 
         let totalSent = 0, totalOpens = 0, totalClicks = 0, totalReplies = 0;
+        let totalBounces = 0;
+        if (bRes && bRes.ok) {
+            const bounces = await bRes.json();
+            totalBounces = bounces.length;
+        }
 
         const unifiedTbody = document.querySelector('#dashboard-unified-table tbody');
         if (unifiedTbody) unifiedTbody.innerHTML = '';
@@ -262,6 +268,7 @@ async function fetchDashboard() {
         setEl('stat-opens', `${openRate}%`);
         setEl('stat-clicks', `${clickRate}%`);
         setEl('stat-replies', totalReplies.toLocaleString());
+        setEl('stat-bounces', totalBounces.toLocaleString());
         
         initOrUpdateChart(campaigns);
         
