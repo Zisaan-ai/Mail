@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/assets/style.css?v=37">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
     /* ============================================================
@@ -484,84 +485,94 @@
 
         <!-- DASHBOARD -->
         <div id="dashboard" class="view active">
-            <div class="page-header" style="margin-bottom: 24px;">
-                <h1 class="page-title">Dashboard</h1>
-                <p class="page-subtitle">Welcome back. Here's what's happening today.</p>
+            <div class="page-header" style="margin-bottom: 32px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div>
+                    <h1 class="page-title" style="font-size: 28px; margin-bottom: 8px;">Overview</h1>
+                    <p class="page-subtitle" style="font-size: 15px;">Welcome back! Here is a summary of your recent campaign performance.</p>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <button class="btn" style="background:#fff; border:1px solid var(--border); box-shadow:var(--shadow-sm); font-weight:600;" onclick="document.querySelector('.nav-item[data-target=\'campaigns\']').click()"><i class="fa-solid fa-newspaper" style="color:var(--p); margin-right:8px;"></i> New Newsletter</button>
+                    <button class="btn primary" style="box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);" onclick="document.querySelector('.nav-item[data-target=\'cold-mail\']').click()"><i class="fa-solid fa-bolt" style="margin-right:8px;"></i> Create Cold Sequence</button>
+                </div>
             </div>
             
             <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:32px;">
-                <div class="stat-card" style="background:#fff;padding:24px;border-radius:12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;">
-                    <div class="stat-icon" style="background:#dcfce7;color:#059669;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;"><i class="fa-solid fa-paper-plane"></i></div>
+                <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:20px;transition:transform 0.2s;">
+                    <div class="stat-icon" style="background:#f1f5f9;color:#475569;width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fa-solid fa-paper-plane"></i></div>
                     <div class="stat-content">
-                        <div class="stat-label" style="font-size:13px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Emails Sent</div>
-                        <div class="stat-value" id="stat-sent" style="font-size:24px;font-weight:800;color:var(--text);">0</div>
+                        <div class="stat-label" style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Emails Sent</div>
+                        <div class="stat-value" id="stat-sent" style="font-size:28px;font-weight:800;color:var(--text);line-height:1;">0</div>
                     </div>
                 </div>
-                <div class="stat-card" style="background:#fff;padding:24px;border-radius:12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;">
-                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;"><i class="fa-solid fa-envelope-open"></i></div>
+                <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:20px;transition:transform 0.2s;">
+                    <div class="stat-icon" style="background:#dcfce7;color:#059669;width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fa-solid fa-envelope-open"></i></div>
                     <div class="stat-content">
-                        <div class="stat-label" style="font-size:13px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Open Rate</div>
-                        <div class="stat-value" id="stat-opens" style="font-size:24px;font-weight:800;color:var(--text);">0%</div>
+                        <div class="stat-label" style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Open Rate</div>
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <div class="stat-value" id="stat-opens" style="font-size:28px;font-weight:800;color:var(--text);line-height:1;">0%</div>
+                            <div style="font-size:12px; color:#059669; font-weight:700;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card" style="background:#fff;padding:24px;border-radius:12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;">
-                    <div class="stat-icon" style="background:#fce7f3;color:#db2777;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;"><i class="fa-solid fa-mouse-pointer"></i></div>
+                <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:20px;transition:transform 0.2s;">
+                    <div class="stat-icon" style="background:#fce7f3;color:#db2777;width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fa-solid fa-mouse-pointer"></i></div>
                     <div class="stat-content">
-                        <div class="stat-label" style="font-size:13px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Click Rate</div>
-                        <div class="stat-value" id="stat-clicks" style="font-size:24px;font-weight:800;color:var(--text);">0%</div>
+                        <div class="stat-label" style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Click Rate</div>
+                        <div style="display:flex; align-items:baseline; gap:8px;">
+                            <div class="stat-value" id="stat-clicks" style="font-size:28px;font-weight:800;color:var(--text);line-height:1;">0%</div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card" style="background:#fff;padding:24px;border-radius:12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;">
-                    <div class="stat-icon" style="background:#e0e7ff;color:#4f46e5;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;"><i class="fa-solid fa-reply"></i></div>
+                <div class="stat-card" style="background:#fff;padding:24px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:20px;transition:transform 0.2s;">
+                    <div class="stat-icon" style="background:#e0e7ff;color:#4f46e5;width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;"><i class="fa-solid fa-reply"></i></div>
                     <div class="stat-content">
-                        <div class="stat-label" style="font-size:13px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Replies</div>
-                        <div class="stat-value" id="stat-replies" style="font-size:24px;font-weight:800;color:var(--text);">0</div>
+                        <div class="stat-label" style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Replies</div>
+                        <div class="stat-value" id="stat-replies" style="font-size:28px;font-weight:800;color:var(--text);line-height:1;">0</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Activity Chart Placeholder -->
-            <div class="glass" style="margin-bottom:32px;padding:32px;">
-                <h3 style="font-size:16px;font-weight:700;margin-bottom:24px;">Activity (Last 7 Days)</h3>
-                <div style="height:200px;display:flex;align-items:flex-end;gap:12px;padding-top:20px;border-bottom:2px solid var(--border);position:relative;">
-                    <div style="flex:1;background:var(--p-light);height:20%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 1: 20 sends"></div>
-                    <div style="flex:1;background:var(--p-light);height:45%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 2: 45 sends"></div>
-                    <div style="flex:1;background:var(--p-light);height:30%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 3: 30 sends"></div>
-                    <div style="flex:1;background:var(--p);height:80%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 4: 80 sends"></div>
-                    <div style="flex:1;background:var(--p-light);height:60%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 5: 60 sends"></div>
-                    <div style="flex:1;background:var(--p-light);height:95%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 6: 95 sends"></div>
-                    <div style="flex:1;background:var(--p-light);height:50%;border-radius:4px 4px 0 0;transition:all 0.3s;cursor:pointer;" title="Day 7: 50 sends"></div>
+            <!-- Activity Chart Area -->
+            <div class="glass" style="margin-bottom:32px;padding:32px;border-radius:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <h3 style="font-size:18px;font-weight:700;margin:0;">Activity Overview</h3>
+                    <select class="form-group" style="margin:0; width:auto; padding:6px 12px; font-size:13px; background:#f8fafc;">
+                        <option>Last 7 Days</option>
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <div style="height:250px; position:relative; width:100%;">
+                    <canvas id="activityChart"></canvas>
                 </div>
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
-                <!-- Sequences Table -->
-                <div class="glass" style="padding:0;overflow:hidden;">
-                    <div style="padding:24px 32px;border-bottom:1px solid var(--border);background:#f8fafc;">
-                        <h3 style="font-size:16px;font-weight:700;"><i class="fa-solid fa-bolt" style="color:#d97706;margin-right:8px;"></i> Active Cold Sequences</h3>
+            <!-- Unified Campaigns Table -->
+            <div class="glass" style="padding:0; overflow:hidden; border-radius:16px; margin-bottom: 40px;">
+                <div style="padding:24px 32px 0 32px; border-bottom:1px solid var(--border); background:#fff;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3 style="font-size:18px;font-weight:700;margin:0;">Recent Campaigns</h3>
                     </div>
-                    <table id="dashboard-sequences">
-                        <thead>
-                            <tr>
-                                <th>Subject</th><th>Sent</th><th>Status</th><th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    
+                    <div class="clean-tabs-bar" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+                        <div class="clean-tab active dash-tab" data-filter="all">All Campaigns</div>
+                        <div class="clean-tab dash-tab" data-filter="cold_mail">Cold Sequences</div>
+                        <div class="clean-tab dash-tab" data-filter="newsletter">Newsletters</div>
+                    </div>
                 </div>
-
-                <!-- Newsletters Table -->
-                <div class="glass" style="padding:0;overflow:hidden;">
-                    <div style="padding:24px 32px;border-bottom:1px solid var(--border);background:#f8fafc;">
-                        <h3 style="font-size:16px;font-weight:700;"><i class="fa-solid fa-newspaper" style="color:var(--p);margin-right:8px;"></i> Recent Newsletters</h3>
-                    </div>
-                    <table id="dashboard-newsletters">
+                <div style="background:#fff;">
+                    <table id="dashboard-unified-table">
                         <thead>
                             <tr>
-                                <th>Subject</th><th>Sent</th><th>Status</th><th>Actions</th>
+                                <th>Campaign Name</th>
+                                <th>Type</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -1277,6 +1288,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     <script src="assets/templates.js?v=4"></script>
-    <script src="assets/app.js?v=43"></script>
+    <script src="assets/app.js?v=44"></script>
 </body>
 </html>
