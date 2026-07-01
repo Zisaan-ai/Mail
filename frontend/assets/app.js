@@ -1071,11 +1071,15 @@ async function loadAdminUsers() {
         tbody.innerHTML = '';
         users.forEach(u => {
             const tr = document.createElement('tr');
+            const statusBadge = u.is_approved
+                ? `<span style="background:#dcfce7;color:#059669;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ Approved</span>`
+                : `<span style="background:#fef9c3;color:#ca8a04;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">⏳ Pending</span>`;
             tr.innerHTML = `
                 <td>${u.id}</td>
                 <td>${u.email}</td>
-                <td>${u.is_admin ? '<span style="color:#6366f1;font-weight:600;">Admin</span>' : 'User'}</td>
-                <td style="display:flex;gap:8px;">
+                <td>${u.is_admin ? '<span style="color:#6366f1;font-weight:600;">Admin</span>' : `User ${statusBadge}`}</td>
+                <td style="display:flex;gap:8px;align-items:center;">
+                    ${!u.is_approved && !u.is_admin ? `<button class="btn primary" onclick="approveUser(${u.id})" style="padding:5px 14px;font-size:12px;background:#059669;"><i class='fa-solid fa-check' style='margin-right:4px;'></i>Approve</button>` : ''}
                     ${!u.is_admin ? `<button class="btn danger" onclick="deleteUser(${u.id})" style="padding:5px 10px;font-size:12px;">Delete</button>` : ''}
                 </td>
             `;
@@ -1083,6 +1087,12 @@ async function loadAdminUsers() {
         });
     } catch(e) { console.error(e); }
 }
+
+window.approveUser = async function(id) {
+    const res = await apiCall(`/admin/users/${id}/approve`, 'POST');
+    if (res.ok) { showToast('User approved! ✅', 'success'); loadAdminUsers(); }
+    else { showToast('Error approving user', 'error'); }
+};
 
 window.deleteUser = async function(id) {
     if (!confirm('Delete this user?')) return;
